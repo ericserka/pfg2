@@ -1,0 +1,21 @@
+{
+  "name": "pfg2",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/ericserka/pfg2",
+  "scripts": {
+    "format-all": "prettier --write 'packages/**/*.{js,jsx}'"
+  },
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "packages/shared/*"
+    ]
+  },
+  "author": "ericserka <ericserka@hotmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@pfg2/eslint-config": "*"
+  }
+}
