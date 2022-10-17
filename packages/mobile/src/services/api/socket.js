@@ -2,7 +2,7 @@ import io from 'socket.io-client'
 
 let socket
 
-export function emitEventInitSocket(cb) {
+export const emitEventInitSocket = (cb) => {
   console.log('Connecting socket...')
 
   socket = io('http://localhost:3000', {
@@ -12,7 +12,7 @@ export function emitEventInitSocket(cb) {
   socket.emit('init-connection', null, cb)
 }
 
-export function emitEventDisconnect() {
+export const emitEventDisconnect = () => {
   console.log('Disconnecting socket...')
   if (socket) socket.disconnect()
 }
