@@ -17,5 +17,8 @@
   "license": "MIT",
   "devDependencies": {
     "@pfg2/eslint-config": "*"
+  },
+  "prisma": {
+    "schema": "packages/server/prisma/schema.prisma"
   }
 }
