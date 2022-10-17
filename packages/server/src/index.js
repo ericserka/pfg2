@@ -3,6 +3,7 @@ import express from 'express'
 import http from 'http'
 import morgan from 'morgan'
 import { Server } from 'socket.io'
+import { upperCase } from '@pfg2/snippets'
 import { router } from './router.js'
 import { SocketHandler } from './socket-handler/index.js'
 
@@ -20,5 +21,5 @@ const io = new Server(server)
 io.on('connection', SocketHandler)
 
 server
-  .listen(3000, () => console.log('server running'))
+  .listen(3000, () => console.log(upperCase('server running')))
   .on('error', (err) => console.log({ err }))

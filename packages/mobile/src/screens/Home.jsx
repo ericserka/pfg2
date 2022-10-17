@@ -3,6 +3,7 @@ import { useNavigation } from '@react-navigation/native'
 import { FontAwesome5 } from '@expo/vector-icons'
 import { CenterLoading } from '../components/loading/CenterLoading'
 import { AsyncAlert } from '../components/utils/AsyncAlert'
+import { shuffle } from '@pfg2/snippets'
 
 export const Home = () => {
   const navigation = useNavigation()
@@ -19,6 +20,7 @@ export const Home = () => {
           await AsyncAlert('titulo do alerta', 'corpo do alerta')
         }
       />
+      <Text>{shuffle('eric serka do carmo rodrigues')}</Text>
     </View>
   )
 }
