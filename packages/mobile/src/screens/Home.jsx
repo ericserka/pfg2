@@ -4,6 +4,7 @@ import { FontAwesome5 } from '@expo/vector-icons'
 import { CenterLoading } from '../components/loading/CenterLoading'
 import { AsyncAlert } from '../components/utils/AsyncAlert'
 import { shuffle } from '@pfg2/snippets'
+import dayjs from 'dayjs'
 
 export const Home = () => {
   const navigation = useNavigation()
@@ -16,11 +17,10 @@ export const Home = () => {
       <CenterLoading />
       <Button
         title="Async Alert"
-        onPress={async () =>
-          await AsyncAlert('titulo do alerta', 'corpo do alerta')
-        }
+        onPress={async () => await AsyncAlert('alert title', 'alert body')}
       />
       <Text>{shuffle('eric serka do carmo rodrigues')}</Text>
+      <Text>{dayjs().format()}</Text>
     </View>
   )
 }

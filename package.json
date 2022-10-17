@@ -9,8 +9,7 @@
   "private": true,
   "workspaces": {
     "packages": [
-      "packages/*",
-      "packages/shared/*"
+      "packages/**/*"
     ]
   },
   "author": "ericserka <ericserka@hotmail.com>",
@@ -20,5 +19,8 @@
   },
   "prisma": {
     "schema": "packages/server/prisma/schema.prisma"
+  },
+  "dependencies": {
+    "dayjs": "^1.11.5"
   }
 }
