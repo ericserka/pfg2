@@ -4,9 +4,9 @@ import http from 'http'
 import morgan from 'morgan'
 import { Server } from 'socket.io'
 import { upperCase } from '@pfg2/snippets'
-import { router } from './router.js'
 import { SocketHandler } from './socket-handler/index.js'
 import dayjs from 'dayjs'
+import { useHelloRouter } from './routes/helloRoute.js'
 
 const app = express()
 
@@ -14,7 +14,7 @@ app.use(cors())
 app.use(express.json())
 app.use(morgan('dev'))
 
-app.use(router)
+useHelloRouter(app)
 
 const server = http.createServer(app)
 const io = new Server(server)
