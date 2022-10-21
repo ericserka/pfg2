@@ -5,7 +5,8 @@ let socket
 export const emitEventInitSocket = (cb) => {
   console.log('Connecting socket...')
 
-  socket = io('http://localhost:3000', {
+  // ngrok url for http:localhost:3000
+  socket = io('https://4fe9-179-48-44-246.sa.ngrok.io/', {
     transports: ['websocket', 'polling', 'flashsocket'],
   })
 
@@ -15,4 +16,16 @@ export const emitEventInitSocket = (cb) => {
 export const emitEventDisconnect = () => {
   console.log('Disconnecting socket...')
   if (socket) socket.disconnect()
+}
+
+export const emitEventSendMessage = (cb) => {
+  if (!socket) return
+
+  socket.emit('send-message', null, cb)
+}
+
+export const listenToHelloFromServerEvent = (cb) => {
+  if (!socket) return
+
+  socket.on('hello-from-server', cb)
 }

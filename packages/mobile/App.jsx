@@ -5,7 +5,10 @@ import { useEffect } from 'react'
 import {
   emitEventInitSocket,
   emitEventDisconnect,
+  listenToHelloFromServerEvent,
 } from './src/services/api/socket'
+import HelloProvider from './src/store/hello/provider'
+import { Alert } from 'react-native'
 
 export default function App() {
   useEffect(() => {
@@ -15,7 +18,9 @@ export default function App() {
         return
       }
 
-      console.log('socket connection successfully initialized')
+      listenToHelloFromServerEvent((message) => {
+        Alert.alert('my title', message.message)
+      })
     })
 
     return () => {
@@ -26,7 +31,9 @@ export default function App() {
   return (
     <NativeBaseProvider>
       <NavigationContainer>
-        <StackNavigator />
+        <HelloProvider>
+          <StackNavigator />
+        </HelloProvider>
       </NavigationContainer>
     </NativeBaseProvider>
   )
