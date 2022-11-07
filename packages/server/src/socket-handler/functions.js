@@ -1,5 +1,5 @@
 import { shuffle } from '@pfg2/snippets'
-import dayjs from 'dayjs'
+import dayjs from '@pfg2/dayjs'
 
 export const onInit = async (socket, _, cb) => {
   cb(socket.connected ? null : { message: 'could not connect' })

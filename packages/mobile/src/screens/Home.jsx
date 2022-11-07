@@ -4,7 +4,7 @@ import { FontAwesome5 } from '@expo/vector-icons'
 import { CenterLoading } from '../components/loading/CenterLoading'
 import { AsyncAlert } from '../components/utils/AsyncAlert'
 import { shuffle } from '@pfg2/snippets'
-import dayjs from 'dayjs'
+import dayjs from '@pfg2/dayjs'
 import { useHello } from '../store/hello/provider'
 import { emitEventSendMessage } from '../services/api/socket'
 

@@ -19,8 +19,5 @@
   },
   "prisma": {
     "schema": "packages/server/prisma/schema.prisma"
-  },
-  "dependencies": {
-    "dayjs": "^1.11.5"
   }
 }

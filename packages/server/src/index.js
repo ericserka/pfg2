@@ -5,7 +5,7 @@ import morgan from 'morgan'
 import { Server } from 'socket.io'
 import { upperCase } from '@pfg2/snippets'
 import { SocketHandler } from './socket-handler/index.js'
-import dayjs from 'dayjs'
+import dayjs from '@pfg2/dayjs'
 import { useHelloRouter } from './routes/helloRoute.js'
 
 const app = express()
