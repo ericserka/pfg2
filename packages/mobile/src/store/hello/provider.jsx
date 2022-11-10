@@ -6,13 +6,13 @@ const helloInitialState = {
 }
 
 const HelloContext = createContext({
-  state: { ...helloInitialState },
+  helloState: { ...helloInitialState },
 })
 
 export const useHello = () => useContext(HelloContext)
 
 export default function HelloProvider({ children }) {
-  const [state, dispatch] = useReducer(helloReducer, helloInitialState)
+  const [helloState, dispatch] = useReducer(helloReducer, helloInitialState)
 
   const newMessage = (data) => {
     if (data) {
@@ -23,10 +23,8 @@ export default function HelloProvider({ children }) {
     }
   }
 
-  const actions = { newMessage }
-
   return (
-    <HelloContext.Provider value={{ state, actions }}>
+    <HelloContext.Provider value={{ helloState, helloActions: { newMessage } }}>
       {children}
     </HelloContext.Provider>
   )

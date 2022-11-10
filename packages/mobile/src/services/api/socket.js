@@ -6,7 +6,7 @@ export const emitEventInitSocket = (cb) => {
   console.log('Connecting socket...')
 
   // ngrok url for http:localhost:3000
-  socket = io('https://4fe9-179-48-44-246.sa.ngrok.io/', {
+  socket = io('https://c391-179-48-44-246.sa.ngrok.io', {
     transports: ['websocket', 'polling', 'flashsocket'],
   })
 
@@ -27,5 +27,5 @@ export const emitEventSendMessage = (cb) => {
 export const listenToHelloFromServerEvent = (cb) => {
   if (!socket) return
 
-  socket.on('hello-from-server', cb)
+  socket.on('message-added', cb)
 }
