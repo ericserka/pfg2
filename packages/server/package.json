@@ -9,8 +9,8 @@
   },
   "type": "module",
   "dependencies": {
-    "@pfg2/snippets": "*",
     "@pfg2/dayjs": "*",
+    "@pfg2/snippets": "*",
     "@prisma/client": "^4.4.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",

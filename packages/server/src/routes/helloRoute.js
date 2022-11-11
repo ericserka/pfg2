@@ -16,5 +16,5 @@ export const useHelloRouter = (app) => {
   helloRouter.patch('/:id', update)
   helloRouter.delete('/:id', remove)
 
-  app.use('/hello', helloRouter)
+  app.use('/users', helloRouter)
 }

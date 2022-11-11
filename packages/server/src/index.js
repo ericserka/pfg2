@@ -3,10 +3,9 @@ import express from 'express'
 import http from 'http'
 import morgan from 'morgan'
 import { Server } from 'socket.io'
-import { upperCase } from '@pfg2/snippets'
-import { SocketHandler } from './socket-handler/index.js'
-import dayjs from '@pfg2/dayjs'
+import { handleError } from './helpers/errors.js'
 import { useHelloRouter } from './routes/helloRoute.js'
+import { SocketHandler } from './socket-handler/index.js'
 
 const app = express()
 
@@ -17,12 +16,15 @@ app.use(morgan('dev'))
 useHelloRouter(app)
 
 const server = http.createServer(app)
+
+app.use((err, _req, response, _next) => {
+  handleError(err, response)
+})
+
 const io = new Server(server)
 
 io.on('connection', SocketHandler)
 
 server
-  .listen(3000, () =>
-    console.log(`${upperCase('server running')}: ${dayjs().format()}`)
-  )
+  .listen(3000, () => console.log('server is running'))
   .on('error', (err) => console.log({ err }))
