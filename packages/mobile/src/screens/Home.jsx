@@ -17,6 +17,7 @@ import { useHello } from '../store/hello/provider'
 import { useUsers } from '../store/users/provider'
 import { Alert } from 'react-native'
 import { isObjectEmpty } from '@pfg2/snippets'
+import { handleError } from '../helpers/errors'
 
 export const Home = () => {
   const { helloState, helloActions } = useHello()
@@ -57,7 +58,7 @@ export const Home = () => {
         refetchUsers()
       },
       onError: (error) => {
-        Alert.alert(error.response.data.message, '')
+        Alert.alert(handleError(error), '')
       },
     }
   )
@@ -136,7 +137,7 @@ export const Home = () => {
           )}
         />
       ) : isUsersError ? (
-        <Text>{usersError.response.data.message}</Text>
+        <Text>{handleError(usersError)}</Text>
       ) : (
         <></>
       )}
