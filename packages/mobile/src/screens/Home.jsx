@@ -27,7 +27,7 @@ export const Home = () => {
     handleSubmit,
     trigger,
     reset,
-    formState: { errors, isDirty },
+    formState: { errors: formErrors, isDirty },
   } = useForm({
     resolver: zodResolver(
       z.object({
@@ -46,9 +46,6 @@ export const Home = () => {
   } = useQuery(['users'], () => api.get('/users'), {
     onSuccess: ({ data }) => {
       usersActions.setUsers(data)
-    },
-    onError: (error) => {
-      console.log(error.message)
     },
   })
   const { isLoading: isUserCreationLoading, mutate: mutateUser } = useMutation(
@@ -99,25 +96,28 @@ export const Home = () => {
           control={control}
           name="name"
           isRequired={false}
+          errorMessage={formErrors?.name?.message}
           label="Name"
-          onBlur={() => trigger()}
+          trigger={trigger}
           placeholder="Name"
         />
         <ControlledTextInput
           control={control}
           name="email"
           isRequired
-          errorMessage={errors?.email?.message}
+          errorMessage={formErrors?.email?.message}
           label="E-mail"
+          trigger={trigger}
           keyboardType="email-address"
-          onBlur={() => trigger()}
           placeholder="E-mail"
         />
         <Button
           onPress={handleSubmit(onSubmit)}
           mt="5"
           colorScheme="cyan"
-          disabled={isUserCreationLoading || !isObjectEmpty(errors) || !isDirty}
+          isDisabled={
+            isUserCreationLoading || !isObjectEmpty(formErrors) || !isDirty
+          }
         >
           {isUserCreationLoading ? 'Loading...' : 'Submit'}
         </Button>
@@ -136,7 +136,7 @@ export const Home = () => {
           )}
         />
       ) : isUsersError ? (
-        <Text>{usersError.message}</Text>
+        <Text>{usersError.response.data.message}</Text>
       ) : (
         <></>
       )}

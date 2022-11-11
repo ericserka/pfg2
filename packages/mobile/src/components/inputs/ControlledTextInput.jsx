@@ -7,6 +7,7 @@ export const ControlledTextInput = ({
   isRequired,
   errorMessage,
   label,
+  trigger,
   ...rest
 }) => {
   const { field } = useController({
@@ -16,8 +17,15 @@ export const ControlledTextInput = ({
   return (
     <FormControl isRequired={isRequired} isInvalid={errorMessage}>
       <FormControl.Label _text={{ bold: true }}>{label}</FormControl.Label>
-      <Input {...rest} value={field.value} onChangeText={field.onChange} />
-      <FormControl.ErrorMessage>{errorMessage}</FormControl.ErrorMessage>
+      <Input
+        {...rest}
+        onBlur={() => trigger(name)}
+        value={field.value}
+        onChangeText={field.onChange}
+      />
+      <FormControl.ErrorMessage>
+        {errorMessage === 'Required' ? 'Obrigatório' : errorMessage}
+      </FormControl.ErrorMessage>
     </FormControl>
   )
 }
