@@ -11,8 +11,8 @@ import { Alert } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import * as z from 'zod'
 import { ControlledTextInput } from '../components/inputs/ControlledTextInput'
-import { CenterLoading } from '../components/loading/CenterLoading'
-import { AsyncAlert } from '../components/utils/AsyncAlert'
+import { LoadingInterceptor } from '../components/loading/loading-interceptor'
+import { AsyncAlert } from '../components/alert/AsyncAlert'
 import { handleError } from '../helpers/errors'
 import { api } from '../services/api/axios'
 import { emitEventSendMessage } from '../services/api/socket'
@@ -77,85 +77,85 @@ export const Home = () => {
     mutateUser(data)
   }
 
-  return isUsersFetching ? (
-    <CenterLoading />
-  ) : (
-    <SafeAreaView style={{ flex: 1 }} edges={['left', 'right']}>
-      <Text>Home</Text>
-      {/* it is possible to change the color and size of the icons easily */}
-      <FontAwesome5 name="location-arrow" size={20} color="blue" />
-      <Button onPress={() => navigation.navigate('SignIn')}>SignIn</Button>
-      <Button
-        onPress={async () => await AsyncAlert('alert title', 'alert body')}
-      >
-        Async Alert
-      </Button>
-      <Text>{dayjs().format()}</Text>
-      <Button
-        onPress={() => {
-          emitEventSendMessage(helloActions.newMessage)
-        }}
-      >
-        Add new message
-      </Button>
-      <Heading>User form</Heading>
-      <Column space={5}>
-        <ControlledTextInput
-          control={control}
-          name="name"
-          isRequired={false}
-          errorMessage={formErrors?.name?.message}
-          label="Name"
-          trigger={trigger}
-          placeholder="Name"
-        />
-        <ControlledTextInput
-          control={control}
-          name="email"
-          isRequired
-          errorMessage={formErrors?.email?.message}
-          label="E-mail"
-          trigger={trigger}
-          keyboardType="email-address"
-          placeholder="E-mail"
-        />
+  return (
+    <LoadingInterceptor loading={isUsersFetching}>
+      <SafeAreaView style={{ flex: 1 }} edges={['left', 'right']}>
+        <Text>Home</Text>
+        {/* it is possible to change the color and size of the icons easily */}
+        <FontAwesome5 name="location-arrow" size={20} color="blue" />
+        <Button onPress={() => navigation.navigate('SignIn')}>SignIn</Button>
         <Button
-          onPress={handleSubmit(onSubmit)}
-          mt="5"
-          colorScheme="cyan"
-          isDisabled={
-            isUserCreationLoading || !isObjectEmpty(formErrors) || !isDirty
-          }
+          onPress={async () => await AsyncAlert('alert title', 'alert body')}
         >
-          {isUserCreationLoading ? 'Loading...' : 'Submit'}
+          Async Alert
         </Button>
-      </Column>
-      <Heading>User list</Heading>
-      {isUsersSuccess ? (
+        <Text>{dayjs().format()}</Text>
+        <Button
+          onPress={() => {
+            emitEventSendMessage(helloActions.newMessage)
+          }}
+        >
+          Add new message
+        </Button>
+        <Heading>User form</Heading>
+        <Column space={5}>
+          <ControlledTextInput
+            control={control}
+            name="name"
+            isRequired={false}
+            errorMessage={formErrors?.name?.message}
+            label="Name"
+            trigger={trigger}
+            placeholder="Name"
+          />
+          <ControlledTextInput
+            control={control}
+            name="email"
+            isRequired
+            errorMessage={formErrors?.email?.message}
+            label="E-mail"
+            trigger={trigger}
+            keyboardType="email-address"
+            placeholder="E-mail"
+          />
+          <Button
+            onPress={handleSubmit(onSubmit)}
+            mt="5"
+            colorScheme="cyan"
+            isDisabled={
+              isUserCreationLoading || !isObjectEmpty(formErrors) || !isDirty
+            }
+          >
+            {isUserCreationLoading ? 'Loading...' : 'Submit'}
+          </Button>
+        </Column>
+        <Heading>User list</Heading>
+        {isUsersSuccess ? (
+          <FlatList
+            data={usersState.users}
+            renderItem={({ item }) => (
+              <>
+                <Text>{item.name}</Text>
+                <Text>{item.email}</Text>
+              </>
+            )}
+          />
+        ) : isUsersError ? (
+          <Text>{handleError(usersError)}</Text>
+        ) : (
+          <></>
+        )}
+        <Heading>List messages</Heading>
         <FlatList
-          data={usersState.users}
+          data={helloState.messages}
           renderItem={({ item }) => (
             <>
-              <Text>{item.name}</Text>
-              <Text>{item.email}</Text>
+              <Text>{item.datetime}</Text>
+              <Text>{item.content}</Text>
             </>
           )}
         />
-      ) : isUsersError ? (
-        <Text>{handleError(usersError)}</Text>
-      ) : (
-        <></>
-      )}
-      <Heading>List messages</Heading>
-      <FlatList
-        data={helloState.messages}
-        renderItem={({ item }) => (
-          <>
-            <Text>{item.datetime}</Text>
-            <Text>{item.content}</Text>
-          </>
-        )}
-      />
-    </SafeAreaView>
+      </SafeAreaView>
+    </LoadingInterceptor>
   )
 }
