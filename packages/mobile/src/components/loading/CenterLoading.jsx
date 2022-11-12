@@ -2,7 +2,7 @@ import { Center, Spinner } from 'native-base'
 
 export const CenterLoading = () => {
   return (
-    <Center>
+    <Center flex={1}>
       <Spinner size="lg" />
     </Center>
   )

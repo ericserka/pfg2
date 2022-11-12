@@ -1,28 +1,31 @@
 import { FontAwesome5 } from '@expo/vector-icons'
 import { zodResolver } from '@hookform/resolvers/zod'
 import dayjs from '@pfg2/dayjs'
+import { isObjectEmpty } from '@pfg2/snippets'
 import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Button, Column, FlatList, Heading, Text } from 'native-base'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
+import { Alert } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import * as z from 'zod'
 import { ControlledTextInput } from '../components/inputs/ControlledTextInput'
 import { CenterLoading } from '../components/loading/CenterLoading'
 import { AsyncAlert } from '../components/utils/AsyncAlert'
+import { handleError } from '../helpers/errors'
 import { api } from '../services/api/axios'
 import { emitEventSendMessage } from '../services/api/socket'
 import { useHello } from '../store/hello/provider'
 import { useUsers } from '../store/users/provider'
-import { Alert } from 'react-native'
-import { isObjectEmpty } from '@pfg2/snippets'
-import { handleError } from '../helpers/errors'
 
 export const Home = () => {
   const { helloState, helloActions } = useHello()
+
   const navigation = useNavigation()
+
   const { usersState, usersActions } = useUsers()
+
   const {
     control,
     handleSubmit,
@@ -49,6 +52,7 @@ export const Home = () => {
       usersActions.setUsers(data)
     },
   })
+
   const { isLoading: isUserCreationLoading, mutate: mutateUser } = useMutation(
     (data) => api.post('/users', data),
     {
@@ -62,6 +66,7 @@ export const Home = () => {
       },
     }
   )
+
   useFocusEffect(
     useCallback(() => {
       refetchUsers()
@@ -72,7 +77,9 @@ export const Home = () => {
     mutateUser(data)
   }
 
-  return (
+  return isUsersFetching ? (
+    <CenterLoading />
+  ) : (
     <SafeAreaView style={{ flex: 1 }} edges={['left', 'right']}>
       <Text>Home</Text>
       {/* it is possible to change the color and size of the icons easily */}
@@ -124,9 +131,7 @@ export const Home = () => {
         </Button>
       </Column>
       <Heading>User list</Heading>
-      {isUsersFetching ? (
-        <CenterLoading />
-      ) : isUsersSuccess ? (
+      {isUsersSuccess ? (
         <FlatList
           data={usersState.users}
           renderItem={({ item }) => (
