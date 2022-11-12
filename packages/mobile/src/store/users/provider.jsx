@@ -11,7 +11,7 @@ const UsersContext = createContext({
 
 export const useUsers = () => useContext(UsersContext)
 
-export default function UsersProvider({ children }) {
+export const UsersProvider = ({ children }) => {
   const [usersState, dispatch] = useReducer(usersReducer, usersInitialState)
 
   const setUsers = (data) => {

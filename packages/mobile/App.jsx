@@ -6,8 +6,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { StackNavigator } from './src/components/routes/StackNavigator'
 
 import { StatusBar } from 'expo-status-bar'
-import HelloProvider from './src/store/hello/provider'
-import UsersProvider from './src/store/users/provider'
+import { HelloProvider } from './src/store/hello/provider'
+import { UsersProvider } from './src/store/users/provider'
 
 export default function App() {
   const queryClient = new QueryClient()

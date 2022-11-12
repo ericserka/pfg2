@@ -15,5 +15,3 @@ export const AsyncAlert = (title, msg, getButtons = defaultButtons) =>
       cancelable: false,
     })
   })
-
-export default AsyncAlert

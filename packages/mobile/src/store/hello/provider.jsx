@@ -11,7 +11,7 @@ const HelloContext = createContext({
 
 export const useHello = () => useContext(HelloContext)
 
-export default function HelloProvider({ children }) {
+export const HelloProvider = ({ children }) => {
   const [helloState, dispatch] = useReducer(helloReducer, helloInitialState)
 
   const newMessage = (data) => {
