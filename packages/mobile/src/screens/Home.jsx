@@ -8,6 +8,7 @@ import {
 } from '../services/api/socket'
 import { useUserAuth } from '../store/auth/provider'
 import { Map } from '../components/Map'
+import { log } from '@pfg2/logger'
 
 export const Home = () => {
   const {
@@ -55,7 +56,7 @@ export const Home = () => {
       }, 3000)
 
       listenToHelloFromServerEvent((message) => {
-        console.log('processing new message from ', message.userId)
+        log.info('processing new message from ', message.userId)
       })
     })
 

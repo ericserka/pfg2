@@ -10,6 +10,7 @@
   "type": "module",
   "dependencies": {
     "@pfg2/dayjs": "*",
+    "@pfg2/logger": "*",
     "@pfg2/snippets": "*",
     "@prisma/client": "^4.4.0",
     "cors": "^2.8.5",

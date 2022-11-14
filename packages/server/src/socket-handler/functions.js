@@ -1,10 +1,11 @@
 import dayjs from '@pfg2/dayjs'
+import { log } from '@pfg2/logger'
 
 const userSocketMapping = {}
 
 export const onInit = async (socket, args, cb) => {
   socket.join('room')
-  console.log(`init socket: ${[...socket.rooms]}`)
+  log.info(`init socket: ${[...socket.rooms]}`)
   userSocketMapping[socket.id] = args.userId
   cb(socket.connected ? null : { message: 'could not connect' })
 }
@@ -18,7 +19,7 @@ export const onSendMessage = async (socket, _, cb) => {
       lng: -47.879687 + Math.random() * 0.02,
     },
   }
-  console.log(`socket: ${socket.id} sent a message`, message)
+  log.info(`socket: ${socket.id} sent a message`, message)
   socket.to('room').emit('message-added', message)
   cb(message)
 }

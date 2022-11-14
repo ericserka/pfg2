@@ -1,3 +1,4 @@
+import { log } from '@pfg2/logger'
 import { Text } from 'native-base'
 import { Button, FlatList, View } from 'react-native'
 
@@ -36,7 +37,7 @@ export const GroupDetail = ({ route }) => {
   const group = groups.find((q) => q.id === id)
 
   const createInvite = () => {
-    console.log('invite created successfuly')
+    log.info('invite created successfuly')
   }
 
   return (

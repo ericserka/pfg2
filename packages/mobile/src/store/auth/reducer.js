@@ -1,6 +1,7 @@
+import { log } from '@pfg2/logger'
+
 export const userAuthReducer = (state, action) => {
-  // substituir por um um modulo "logger"seria interessante (pino)
-  console.log(`[AUTH] action of type ${action.type} fired`)
+  log.debug(`[AUTH] action of type ${action.type} fired`)
 
   switch (action.type) {
     case 'SIGNIN':

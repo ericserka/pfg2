@@ -1,0 +1,10 @@
+{
+  "name": "@pfg2/logger",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "react-native-logs": "^5.0.1"
+  }
+}

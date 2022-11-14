@@ -1,5 +1,7 @@
+import { log } from '@pfg2/logger'
+
 export const usersReducer = (state, action) => {
-  console.log(`[UsersReducer]: Received action of type ${action.type}`)
+  log.debug(`[UsersReducer]: Received action of type ${action.type}`)
   switch (action.type) {
     case 'SET_USERS':
       return {

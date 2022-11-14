@@ -1,10 +1,11 @@
 import io from 'socket.io-client'
 import { BASE_URL } from '../../constants'
+import { log } from '@pfg2/logger'
 
 let socket
 
 export const emitEventInitSocket = (userId, cb) => {
-  console.log('Connecting socket...')
+  log.info('Connecting socket...')
 
   socket = io(BASE_URL, {
     transports: ['websocket', 'polling', 'flashsocket'],
@@ -14,7 +15,7 @@ export const emitEventInitSocket = (userId, cb) => {
 }
 
 export const emitEventDisconnect = () => {
-  console.log('Disconnecting socket...')
+  log.info('Disconnecting socket...')
   if (socket) socket.disconnect()
 }
 

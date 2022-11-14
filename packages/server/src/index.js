@@ -1,3 +1,4 @@
+import { log } from '@pfg2/logger'
 import cors from 'cors'
 import express from 'express'
 import http from 'http'
@@ -26,5 +27,5 @@ const io = new Server(server)
 io.on('connection', SocketHandler)
 
 server
-  .listen(3000, () => console.log('server is running'))
-  .on('error', (err) => console.log({ err }))
+  .listen(3000, () => log.info('server is running'))
+  .on('error', (err) => log.error({ err }))

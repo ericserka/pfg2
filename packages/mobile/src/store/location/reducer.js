@@ -1,5 +1,7 @@
+import { log } from '@pfg2/logger'
+
 export const userLocationReducer = (state, action) => {
-  console.log(`[LOCATION] action of type ${action.type} fired`)
+  log.debug(`[LOCATION] action of type ${action.type} fired`)
 
   switch (action.type) {
     case 'ERROR':

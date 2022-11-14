@@ -12,6 +12,7 @@
   "dependencies": {
     "@hookform/resolvers": "^2.9.10",
     "@pfg2/dayjs": "*",
+    "@pfg2/logger": "*",
     "@pfg2/snippets": "*",
     "@react-native-async-storage/async-storage": "~1.17.3",
     "@react-navigation/bottom-tabs": "^6.4.0",
