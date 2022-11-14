@@ -8,9 +8,9 @@ import MapView, {
   PROVIDER_DEFAULT,
   UrlTile,
 } from 'react-native-maps'
-import { CenterLoading } from '../../components/loading/CenterLoading'
-import { useUserAuth } from '../../store/auth/provider'
-import { initialRegion, useUserLocation } from '../../store/location/provider'
+import { CenterLoading } from './loading/CenterLoading'
+import { useUserAuth } from '../store/auth/provider'
+import { initialRegion, useUserLocation } from '../store/location/provider'
 
 export const Map = ({ group }) => {
   const mapRef = useRef(null)

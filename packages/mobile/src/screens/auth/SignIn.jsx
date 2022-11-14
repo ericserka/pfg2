@@ -24,7 +24,6 @@ export const SignIn = () => {
   const pwdRef = useRef()
 
   const {
-    authState: { loading },
     authActions: { signin },
   } = useUserAuth()
 
@@ -87,11 +86,7 @@ export const SignIn = () => {
             }
             onSubmitEditing={tryToLogin}
           />
-          <Button
-            colorScheme="emerald"
-            isLoading={loading}
-            onPress={tryToLogin}
-          >
+          <Button colorScheme="emerald" onPress={tryToLogin}>
             <Text color="white" fontSize="lg">
               Entrar
             </Text>

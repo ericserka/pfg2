@@ -29,7 +29,6 @@ export const SignUp = () => {
   const emailRef = useRef()
 
   const {
-    authState: { loading },
     authActions: { signup },
   } = useUserAuth()
 
@@ -159,7 +158,6 @@ export const SignUp = () => {
           </FormControl>
           <Button
             colorScheme="darkBlue"
-            isLoading={loading}
             onPress={tryToRegister}
             isDisabled={!email || !password || !user}
           >

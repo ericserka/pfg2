@@ -8,20 +8,17 @@ export const userAuthReducer = (state, action) => {
         ...state,
         session: action.payload,
         error: undefined,
-        loading: false,
       }
     case 'ERROR':
       return {
         ...state,
         session: undefined,
         error: action.payload ?? 'something went wrong',
-        loading: false,
       }
     case 'LOGOUT':
       return {
         session: undefined,
         error: undefined,
-        loading: false,
       }
     default:
       return state

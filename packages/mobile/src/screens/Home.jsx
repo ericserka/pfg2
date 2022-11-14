@@ -5,9 +5,9 @@ import {
   emitEventInitSocket,
   emitEventSendMessage,
   listenToHelloFromServerEvent,
-} from '../../services/api/socket'
-import { useUserAuth } from '../../store/auth/provider'
-import { Map } from './map'
+} from '../services/api/socket'
+import { useUserAuth } from '../store/auth/provider'
+import { Map } from '../components/Map'
 
 export const Home = () => {
   const {

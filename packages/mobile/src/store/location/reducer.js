@@ -6,7 +6,6 @@ export const userLocationReducer = (state, action) => {
       return {
         ...state,
         error: action.payload ?? 'something went wrong',
-        loading: false,
       }
     default:
       return state

@@ -8,7 +8,6 @@ import { userAuthReducer } from './reducer'
 export const userAuthInitialState = {
   session: undefined,
   error: undefined,
-  loading: false,
 }
 
 const UserAuthContext = createContext({
