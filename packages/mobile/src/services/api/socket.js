@@ -1,16 +1,16 @@
 import io from 'socket.io-client'
+import { BASE_URL } from '../../constants'
 
 let socket
 
-export const emitEventInitSocket = (cb) => {
+export const emitEventInitSocket = (userId, cb) => {
   console.log('Connecting socket...')
 
-  // ngrok url for http:localhost:3000
-  socket = io('https://c391-179-48-44-246.sa.ngrok.io', {
+  socket = io(BASE_URL, {
     transports: ['websocket', 'polling', 'flashsocket'],
   })
 
-  socket.emit('init-connection', null, cb)
+  socket.emit('init-connection', { userId }, cb)
 }
 
 export const emitEventDisconnect = () => {

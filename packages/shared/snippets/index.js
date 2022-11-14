@@ -7,3 +7,9 @@ export const isObjectEmpty = (obj) =>
   obj &&
   Object.keys(obj).length === 0 &&
   Object.getPrototypeOf(obj) === Object.prototype
+
+export const sanitizeText = (text) =>
+  text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()

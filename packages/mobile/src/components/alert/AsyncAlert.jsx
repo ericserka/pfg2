@@ -3,9 +3,7 @@ import { Alert } from 'react-native'
 const defaultButtons = (resolve, _reject) => [
   {
     text: 'OK',
-    onPress: () => {
-      resolve()
-    },
+    onPress: resolve,
   },
 ]
 

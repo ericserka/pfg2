@@ -1,6 +1,6 @@
 import axios from 'axios'
+import { BASE_URL } from '../../constants'
 
 export const api = axios.create({
-  // ngrok url for http:localhost:3000
-  baseURL: 'https://c391-179-48-44-246.sa.ngrok.io',
+  baseURL: BASE_URL,
 })
