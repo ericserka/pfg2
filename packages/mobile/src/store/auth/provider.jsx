@@ -37,16 +37,16 @@ export const UserAuthProvider = ({ children }) => {
   }, [])
 
   const signin = async ({ email, password }) => {
-    const { data } = await api.post('/auth/login', {
-      email,
-      password,
-    })
+    // const { data } = await api.post('/auth/login', {
+    //   email,
+    //   password,
+    // })
 
-    storeUserLocal(data.user)
+    // storeUserLocal(data.user)
 
     dispatch({
       type: 'SIGNIN',
-      payload: data.user,
+      payload: true,
     })
   }
 
@@ -65,10 +65,6 @@ export const UserAuthProvider = ({ children }) => {
 
     dispatch({
       type: 'LOGOUT',
-    })
-
-    navigate('Entrar', {
-      replace: true,
     })
   }
 

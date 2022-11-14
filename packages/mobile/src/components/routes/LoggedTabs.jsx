@@ -13,11 +13,13 @@ import { Left } from '../navbar/Left'
 import { Right } from '../navbar/Right'
 import { NoLocationPermissions } from '../NoLocationPermissions'
 import { GroupsStack } from './GroupsStack'
+import { LoadingInterceptor } from '../loading/LoadingInterceptor'
 
 const Tab = createBottomTabNavigator()
 
 export const LoggedTabs = () => {
   const [perms, setPerms] = useState(false)
+  const [loading, setLoading] = useState(true)
   const appState = useRef(AppState.currentState)
 
   useEffect(() => {
@@ -46,39 +48,46 @@ export const LoggedTabs = () => {
     const enabled = await hasServicesEnabledAsync()
 
     setPerms(granted && enabled)
+    setLoading(false)
   }
 
-  return perms ? (
-    <HelloProvider>
-      <LoggedProviders>
-        <Tab.Navigator
-          screenOptions={{
-            headerLeft: (props) => <Left {...props} />,
-            headerRight: (props) => <Right {...props} />,
-            headerShadowVisible: true,
-          }}
-        >
-          <Tab.Screen
-            name="Mapa"
-            options={{
-              headerTransparent: true,
-              tabBarIcon: (props) => (
-                <FontAwesome5 name="map-marked" {...props} />
-              ),
-            }}
-            component={Home}
-          />
-          <Tab.Screen
-            name="Grupo"
-            options={{
-              tabBarIcon: (props) => <FontAwesome5 name="users" {...props} />,
-            }}
-            component={GroupsStack}
-          />
-        </Tab.Navigator>
-      </LoggedProviders>
-    </HelloProvider>
-  ) : (
-    <NoLocationPermissions />
+  return (
+    <LoadingInterceptor loading={loading}>
+      {perms ? (
+        <HelloProvider>
+          <LoggedProviders>
+            <Tab.Navigator
+              screenOptions={{
+                headerLeft: (props) => <Left {...props} />,
+                headerRight: (props) => <Right {...props} />,
+                headerShadowVisible: true,
+              }}
+            >
+              <Tab.Screen
+                name="Mapa"
+                options={{
+                  headerTransparent: true,
+                  tabBarIcon: (props) => (
+                    <FontAwesome5 name="map-marked" {...props} />
+                  ),
+                }}
+                component={Home}
+              />
+              <Tab.Screen
+                name="Grupo"
+                options={{
+                  tabBarIcon: (props) => (
+                    <FontAwesome5 name="users" {...props} />
+                  ),
+                }}
+                component={GroupsStack}
+              />
+            </Tab.Navigator>
+          </LoggedProviders>
+        </HelloProvider>
+      ) : (
+        <NoLocationPermissions />
+      )}
+    </LoadingInterceptor>
   )
 }
