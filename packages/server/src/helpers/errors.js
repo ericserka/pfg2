@@ -1,7 +1,11 @@
-import { StatusCodes, ReasonPhrases } from 'http-status-codes'
 import { Prisma } from '@prisma/client'
+import { StatusCodes } from 'http-status-codes'
+import {
+  PRISMA_RECORD_NOT_FOUND_ERROR,
+  PRISMA_UNIQUE_CONSTRAINT_ERROR,
+} from '../constants.js'
 
-export class ErrorHandler extends Error {
+class ErrorHandler extends Error {
   constructor(statusCode, message) {
     super()
     this.statusCode = statusCode
@@ -9,22 +13,38 @@ export class ErrorHandler extends Error {
   }
 }
 
-export const handleError = (err, response) => {
+export const errorMiddleware = (err, response) => {
   const statusCode = err.statusCode ?? StatusCodes.INTERNAL_SERVER_ERROR
   response.status(statusCode).json({
     statusCode,
-    message: err.message ?? ReasonPhrases.INTERNAL_SERVER_ERROR,
+    message:
+      err.message ??
+      'Servidor com instabilidade momentânea. Tente novamente mais tarde.',
   })
 }
 
-export const prismaCustomErrorHandler = (err) => {
+const prismaCustomErrorHandler = (err, customMessage) => {
   switch (err.constructor) {
     case Prisma.PrismaClientInitializationError:
       return new ErrorHandler(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        'Failed to connect to the database. Try again later.'
+        'Falha ao tentar conectar ao banco de dados. Tente novamente mais tarde.'
       )
+    case Prisma.PrismaClientKnownRequestError:
+      switch (err.code) {
+        case PRISMA_UNIQUE_CONSTRAINT_ERROR:
+          return new ErrorHandler(StatusCodes.CONFLICT, customMessage)
+        case PRISMA_RECORD_NOT_FOUND_ERROR:
+          return new ErrorHandler(StatusCodes.NOT_FOUND, customMessage)
+        default:
+          return null
+      }
     default:
       return null
   }
+}
+
+export const handleError = (err, customMessage) => {
+  const prismaError = prismaCustomErrorHandler(err, customMessage)
+  return prismaError ? prismaError : new ErrorHandler()
 }

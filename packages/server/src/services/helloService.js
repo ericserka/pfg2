@@ -1,39 +1,23 @@
-import { isObject } from '@pfg2/snippets'
-import { Prisma } from '@prisma/client'
 import { StatusCodes } from 'http-status-codes'
-import { prisma } from '../common/prisma.js'
-import { ErrorHandler, prismaCustomErrorHandler } from '../helpers/errors.js'
-import { PRISMA_UNIQUE_CONSTRAINT_ERROR } from '../constants.js'
+import { handleError } from '../helpers/errors.js'
+import { prisma } from '../helpers/prisma.js'
 
-export const findAllUsers = async () => {
-  let result
+export const findAllUsers = async (response, next) => {
   try {
-    result = await prisma.user.findMany()
-  } catch (e) {
-    const prismaError = prismaCustomErrorHandler(e)
-    result = prismaError ? prismaError : new ErrorHandler()
+    return response.status(StatusCodes.OK).json(await prisma.user.findMany())
+  } catch (err) {
+    return next(handleError(err))
   }
-
-  return Array.isArray(result)
-    ? { statusCode: StatusCodes.OK, json: result }
-    : result
 }
 
-export const createUser = async (data) => {
-  let result
+export const createUser = async (data, response, next) => {
   try {
-    result = await prisma.user.create({ data })
-  } catch (e) {
-    const prismaError = prismaCustomErrorHandler(e)
-    result = prismaError
-      ? prismaError
-      : e instanceof Prisma.PrismaClientKnownRequestError &&
-        e.code === PRISMA_UNIQUE_CONSTRAINT_ERROR
-      ? new ErrorHandler(StatusCodes.CONFLICT, 'Email already been taken')
-      : new ErrorHandler()
+    return response
+      .status(StatusCodes.CREATED)
+      .json(await prisma.user.create({ data }))
+  } catch (err) {
+    return next(
+      handleError(err, 'Usuário com e-mail ou celular já cadastrado.')
+    )
   }
-
-  return isObject(result)
-    ? { statusCode: StatusCodes.CREATED, json: result }
-    : result
 }

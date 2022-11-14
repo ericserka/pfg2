@@ -4,7 +4,7 @@ import express from 'express'
 import http from 'http'
 import morgan from 'morgan'
 import { Server } from 'socket.io'
-import { handleError } from './helpers/errors.js'
+import { errorMiddleware } from './helpers/errors.js'
 import { useHelloRouter } from './routes/helloRoute.js'
 import { SocketHandler } from './socket-handler/index.js'
 
@@ -19,7 +19,7 @@ useHelloRouter(app)
 const server = http.createServer(app)
 
 app.use((err, _req, response, _next) => {
-  handleError(err, response)
+  errorMiddleware(err, response)
 })
 
 const io = new Server(server)
