@@ -1,6 +1,7 @@
 import { Dimensions } from 'react-native'
+import { REACT_APP_SERVER_URL } from '@env'
 
-export const BASE_URL = 'https://fefd-179-48-44-246.sa.ngrok.io'
+export const SERVER_URL = REACT_APP_SERVER_URL
 
 export const USER_KEY = '@pfg2:unb:user'
 

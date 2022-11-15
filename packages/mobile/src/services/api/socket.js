@@ -1,5 +1,5 @@
 import io from 'socket.io-client'
-import { BASE_URL } from '../../constants'
+import { SERVER_URL } from '../../constants'
 import { log } from '@pfg2/logger'
 
 let socket
@@ -7,7 +7,7 @@ let socket
 export const emitEventInitSocket = (userId, cb) => {
   log.info('Connecting socket...')
 
-  socket = io(BASE_URL, {
+  socket = io(SERVER_URL, {
     transports: ['websocket', 'polling', 'flashsocket'],
   })
 

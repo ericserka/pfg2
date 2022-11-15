@@ -32,6 +32,7 @@
     "react-hook-form": "^7.39.1",
     "react-native": "0.69.6",
     "react-native-debounce-input": "^1.0.5",
+    "react-native-dotenv": "^3.4.2",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-maps": "0.31.1",
     "react-native-safe-area-context": "4.3.1",
