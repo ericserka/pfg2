@@ -1,13 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { USER_KEY } from '../../constants'
+import { JWT_KEY } from '../../constants'
 
-export const storeUserLocal = async (user) => {
-  await AsyncStorage.setItem(USER_KEY, JSON.stringify(user))
+export const storeJwtLocal = async (jwt) => {
+  await AsyncStorage.setItem(JWT_KEY, jwt)
 }
 
-export const fetchUserLocal = async () =>
-  JSON.parse(await AsyncStorage.getItem(USER_KEY))
+export const fetchJwtLocal = async () => await AsyncStorage.getItem(JWT_KEY)
 
-export const removeUserLocal = async () => {
-  await AsyncStorage.removeItem(USER_KEY)
+export const removeJwtLocal = async () => {
+  await AsyncStorage.removeItem(JWT_KEY)
 }

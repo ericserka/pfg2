@@ -1,6 +1,6 @@
 import { FontAwesome, FontAwesome5 } from '@expo/vector-icons'
+import { log } from '@pfg2/logger'
 import { NavigationContainer } from '@react-navigation/native'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import * as Font from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
@@ -13,7 +13,6 @@ import { UserAuthProvider } from './src/store/auth/provider'
 SplashScreen.preventAutoHideAsync()
 
 export default function App() {
-  const queryClient = new QueryClient()
   const [appIsReady, setAppIsReady] = useState(false)
   const prepare = async () => {
     try {
@@ -22,7 +21,7 @@ export default function App() {
         Font.loadAsync(FontAwesome5.font),
       ])
     } catch (error) {
-      console.warn({ error })
+      log.warn({ error })
     } finally {
       setAppIsReady(true)
     }
@@ -41,16 +40,14 @@ export default function App() {
   return appIsReady ? (
     <NativeBaseProvider>
       <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
-          <View onLayout={onLayoutRootView} flex={1}>
-            <NavigationContainer>
-              <StatusBar translucent animated style="auto" />
-              <UserAuthProvider>
-                <StackNavigator />
-              </UserAuthProvider>
-            </NavigationContainer>
-          </View>
-        </QueryClientProvider>
+        <View onLayout={onLayoutRootView} flex={1}>
+          <NavigationContainer>
+            <StatusBar translucent animated style="auto" />
+            <UserAuthProvider>
+              <StackNavigator />
+            </UserAuthProvider>
+          </NavigationContainer>
+        </View>
       </SafeAreaProvider>
     </NativeBaseProvider>
   ) : null

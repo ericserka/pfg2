@@ -7,6 +7,11 @@ export const usersReducer = (state, action) => {
       return {
         users: action.payload,
       }
+    case 'LOADING':
+      return {
+        ...state,
+        loading: !state.loading,
+      }
     default:
       return state
   }

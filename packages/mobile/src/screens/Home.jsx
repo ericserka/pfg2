@@ -12,7 +12,7 @@ import { log } from '@pfg2/logger'
 
 export const Home = () => {
   const {
-    authState: { session },
+    state: { session },
   } = useUserAuth()
 
   const [group, setGroup] = useState({
@@ -36,7 +36,7 @@ export const Home = () => {
     let interval
     emitEventInitSocket(session.id, (err) => {
       if (err) {
-        console.error({ err })
+        log.error({ err })
       }
 
       interval = setInterval(() => {

@@ -52,7 +52,7 @@ export const LoggedTabs = () => {
   }
 
   return (
-    <LoadingInterceptor loading={loading}>
+    <LoadingInterceptor extra={[loading]}>
       {perms ? (
         <HelloProvider>
           <LoggedProviders>

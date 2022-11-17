@@ -8,20 +8,26 @@ import MapView, {
   PROVIDER_DEFAULT,
   UrlTile,
 } from 'react-native-maps'
-import { CenterLoading } from './loading/CenterLoading'
+import { LATITUDE_DELTA, LONGITUDE_DELTA } from '../constants'
 import { useUserAuth } from '../store/auth/provider'
-import { initialRegion, useUserLocation } from '../store/location/provider'
+import { useUserLocation } from '../store/location/provider'
+import { LoadingInterceptor } from './loading/LoadingInterceptor'
 
 export const Map = ({ group }) => {
   const mapRef = useRef(null)
-  const [location, setLocation] = useState(undefined)
+  const [location, setLocation] = useState({
+    latitude: 0,
+    longitude: 0,
+    latitudeDelta: LATITUDE_DELTA,
+    longitudeDelta: LONGITUDE_DELTA,
+  })
 
   const {
     locationActions: { getUserPosition },
   } = useUserLocation()
 
   const {
-    authState: { session },
+    state: { session },
   } = useUserAuth()
 
   const setCurrentLocation = async () => {
@@ -31,7 +37,11 @@ export const Map = ({ group }) => {
       accuracy: Accuracy.Highest,
       maximumAge: 50,
     })
-    setLocation({ latitude, longitude })
+    setLocation((defaultLocation) => ({
+      ...defaultLocation,
+      latitude,
+      longitude,
+    }))
   }
 
   useEffect(() => {
@@ -72,17 +82,11 @@ export const Map = ({ group }) => {
     </Marker>
   ))
 
-  return !location ? (
-    <CenterLoading />
-  ) : (
-    <>
+  return (
+    <LoadingInterceptor extra={[location.latitude === 0]}>
       <MapView
         ref={mapRef}
-        initialRegion={{
-          ...initialRegion,
-          latitude: location.latitude,
-          longitude: location.longitude,
-        }}
+        initialRegion={location}
         onMapReady={center}
         userLocationPriority="high"
         style={{ flex: 1 }}
@@ -112,6 +116,6 @@ export const Map = ({ group }) => {
         rounded="full"
         icon={<FontAwesome5 name="compass" size={30} color="#0047AB" />}
       />
-    </>
+    </LoadingInterceptor>
   )
 }

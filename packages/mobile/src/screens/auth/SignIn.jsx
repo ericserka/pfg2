@@ -25,6 +25,7 @@ export const SignIn = () => {
 
   const {
     authActions: { signin },
+    state: { mutationLoading },
   } = useUserAuth()
 
   const tryToLogin = () => {
@@ -86,7 +87,11 @@ export const SignIn = () => {
             }
             onSubmitEditing={tryToLogin}
           />
-          <Button colorScheme="emerald" onPress={tryToLogin}>
+          <Button
+            colorScheme="emerald"
+            onPress={tryToLogin}
+            isDisabled={mutationLoading}
+          >
             <Text color="white" fontSize="lg">
               Entrar
             </Text>

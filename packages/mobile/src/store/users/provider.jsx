@@ -6,13 +6,13 @@ const usersInitialState = {
 }
 
 const UsersContext = createContext({
-  usersState: { ...usersInitialState },
+  state: { ...usersInitialState },
 })
 
 export const useUsers = () => useContext(UsersContext)
 
 export const UsersProvider = ({ children }) => {
-  const [usersState, dispatch] = useReducer(usersReducer, usersInitialState)
+  const [state, dispatch] = useReducer(usersReducer, usersInitialState)
 
   const setUsers = (data) => {
     if (data) {
@@ -24,7 +24,7 @@ export const UsersProvider = ({ children }) => {
   }
 
   return (
-    <UsersContext.Provider value={{ usersState, usersActions: { setUsers } }}>
+    <UsersContext.Provider value={{ state, usersActions: { setUsers } }}>
       {children}
     </UsersContext.Provider>
   )

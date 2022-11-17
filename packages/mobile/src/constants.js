@@ -1,9 +1,9 @@
+import { REACT_APP_JWT_KEY, REACT_APP_SERVER_URL } from '@env'
 import { Dimensions } from 'react-native'
-import { REACT_APP_SERVER_URL } from '@env'
 
 export const SERVER_URL = REACT_APP_SERVER_URL
 
-export const USER_KEY = '@pfg2:unb:user'
+export const JWT_KEY = REACT_APP_JWT_KEY
 
 const { width, height } = Dimensions.get('window')
 const ASPECT_RATIO = width / height

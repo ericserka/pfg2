@@ -13,16 +13,6 @@ class ErrorHandler extends Error {
   }
 }
 
-export const errorMiddleware = (err, response) => {
-  const statusCode = err.statusCode ?? StatusCodes.INTERNAL_SERVER_ERROR
-  response.status(statusCode).json({
-    statusCode,
-    message:
-      err.message ??
-      'Servidor com instabilidade momentânea. Tente novamente mais tarde.',
-  })
-}
-
 const prismaCustomErrorHandler = (err, customMessage) => {
   switch (err.constructor) {
     case Prisma.PrismaClientInitializationError:

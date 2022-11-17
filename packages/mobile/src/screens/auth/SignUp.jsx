@@ -1,4 +1,5 @@
 import { FontAwesome5 } from '@expo/vector-icons'
+import { log } from '@pfg2/logger'
 import { useNavigation } from '@react-navigation/native'
 import {
   Button,
@@ -12,7 +13,7 @@ import {
   Text,
   WarningOutlineIcon,
 } from 'native-base'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Linking } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useUserAuth } from '../../store/auth/provider'
@@ -30,14 +31,13 @@ export const SignUp = () => {
 
   const {
     authActions: { signup },
+    state: { mutationLoading },
   } = useUserAuth()
 
   const tryToRegister = async () => {
     if (!email || !password || !user) return
-    await signup({ email, password, username: user })
-    navigate('Entrar')
+    await signup({ email, name: user }, () => navigate('Entrar'))
   }
-
   return (
     <KeyboardAwareScrollView>
       <Center mt="24" b flex={1}>
@@ -159,7 +159,7 @@ export const SignUp = () => {
           <Button
             colorScheme="darkBlue"
             onPress={tryToRegister}
-            isDisabled={!email || !password || !user}
+            isDisabled={!email || !password || !user || mutationLoading}
           >
             <Text color="white" fontSize="lg">
               Registrar

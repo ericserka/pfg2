@@ -1,19 +1,11 @@
 import { getLastKnownPositionAsync } from 'expo-location'
 import { createContext, useContext, useReducer } from 'react'
 import { userLocationReducer } from './reducer'
-import { LATITUDE_DELTA, LONGITUDE_DELTA } from '../../constants'
 
 const locationObjectToLiteral = (loc) => ({
   latitude: loc.coords.latitude,
   longitude: loc.coords.longitude,
 })
-
-export const initialRegion = {
-  latitude: 0,
-  longitude: 0,
-  latitudeDelta: LATITUDE_DELTA,
-  longitudeDelta: LONGITUDE_DELTA,
-}
 
 const userLocationInitialState = {
   markers: [],
@@ -21,13 +13,13 @@ const userLocationInitialState = {
 }
 
 const UserLocationContext = createContext({
-  locationState: { ...userLocationInitialState },
+  state: { ...userLocationInitialState },
 })
 
 export const useUserLocation = () => useContext(UserLocationContext)
 
 export const UserLocationProvider = ({ children }) => {
-  const [locationState, dispatch] = useReducer(
+  const [state, dispatch] = useReducer(
     userLocationReducer,
     userLocationInitialState
   )
@@ -47,7 +39,7 @@ export const UserLocationProvider = ({ children }) => {
   return (
     <UserLocationContext.Provider
       value={{
-        locationState,
+        state,
         locationActions: { getUserPosition },
       }}
     >

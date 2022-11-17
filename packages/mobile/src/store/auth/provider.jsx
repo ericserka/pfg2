@@ -1,67 +1,99 @@
-import { useNavigation } from '@react-navigation/native'
-import { HttpStatusCode } from 'axios'
 import { createContext, useContext, useEffect, useReducer } from 'react'
+import { showAlertError } from '../../helpers/actions/showAlertError'
+import { toggleQueryLoading } from '../../helpers/actions/toggleQueryLoading'
+import { toggleMutationLoading } from '../../helpers/actions/toggleMutationLoading'
 import { api } from '../../services/api/axios'
-import { removeUserLocal, storeUserLocal } from '../../services/local-storage'
+import {
+  fetchJwtLocal,
+  removeJwtLocal,
+  storeJwtLocal,
+} from '../../services/local-storage'
 import { userAuthReducer } from './reducer'
+import { log } from '@pfg2/logger'
 
 export const userAuthInitialState = {
   session: undefined,
   error: undefined,
+  loading: false,
 }
 
 const UserAuthContext = createContext({
-  authState: { ...userAuthInitialState },
+  state: { ...userAuthInitialState },
 })
 
 export const useUserAuth = () => useContext(UserAuthContext)
 
 export const UserAuthProvider = ({ children }) => {
-  const [authState, dispatch] = useReducer(
-    userAuthReducer,
-    userAuthInitialState
-  )
-  const { navigate } = useNavigation()
+  const [state, dispatch] = useReducer(userAuthReducer, userAuthInitialState)
+
+  const getUserFromLocalStorage = async () => {
+    const token = await fetchJwtLocal()
+    if (!token) return
+
+    toggleQueryLoading(dispatch)
+    try {
+      log.debug('getUserFromLocalStorage try')
+
+      const { data } = await api.get('/user/me', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      dispatch({ type: 'SIGNIN', payload: data })
+    } catch (err) {
+      log.debug('getUserFromLocalStorage catch')
+
+      showAlertError(err)
+    } finally {
+      log.debug('getUserFromLocalStorage finally')
+
+      toggleQueryLoading(dispatch)
+    }
+  }
 
   useEffect(() => {
-    // dispatch SIGNIN or SIGNOUT
-    dispatch({
-      type: 'SIGNIN',
-      payload: {
-        id: '213sfggcxzas35',
-        email: 'eric@email.com',
-        name: 'Eric Serka',
-        avatar_url: 'https://cdn-icons-png.flaticon.com/512/1673/1673221.png',
-      },
-    })
+    getUserFromLocalStorage()
   }, [])
 
   const signin = async ({ email, password }) => {
-    // const { data } = await api.post('/auth/login', {
-    //   email,
-    //   password,
-    // })
-
-    // storeUserLocal(data.user)
-
-    dispatch({
-      type: 'SIGNIN',
-      payload: true,
-    })
+    toggleMutationLoading(dispatch)
+    try {
+      const { data } = await api.post('/auth/login', {
+        email,
+        password,
+      })
+      storeJwtLocal(data.token)
+      api.defaults.headers = {
+        Authorization: `Bearer ${data.token}`,
+      }
+      dispatch({
+        type: 'SIGNIN',
+        payload: data,
+      })
+    } catch (err) {
+      showAlertError(err)
+    } finally {
+      toggleMutationLoading(dispatch)
+    }
   }
 
-  const signup = async ({ email, password, username }) => {
-    const { status } = await api.post('/auth/register', {
-      email,
-      password,
-      username,
-    })
-
-    return status === HttpStatusCode.Created
+  const signup = async ({ email, name }, onSuccess) => {
+    toggleMutationLoading(dispatch)
+    try {
+      await api.post('/auth/register', {
+        email,
+        name,
+      })
+      onSuccess()
+    } catch (err) {
+      showAlertError(err)
+    } finally {
+      toggleMutationLoading(dispatch)
+    }
   }
 
   const logout = async () => {
-    removeUserLocal()
+    removeJwtLocal()
 
     dispatch({
       type: 'LOGOUT',
@@ -71,7 +103,7 @@ export const UserAuthProvider = ({ children }) => {
   return (
     <UserAuthContext.Provider
       value={{
-        authState,
+        state,
         authActions: {
           signin,
           signup,

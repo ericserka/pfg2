@@ -4,7 +4,7 @@ import { LoggedTabs } from './LoggedTabs'
 
 export const StackNavigator = () => {
   const {
-    authState: { session },
+    state: { session },
   } = useUserAuth()
 
   return session ? <LoggedTabs /> : <AuthStack />
