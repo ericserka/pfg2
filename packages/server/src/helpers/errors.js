@@ -5,7 +5,7 @@ import {
   PRISMA_UNIQUE_CONSTRAINT_ERROR,
 } from '../constants.js'
 
-class ErrorHandler extends Error {
+export class ErrorHandler extends Error {
   constructor(statusCode, message) {
     super()
     this.statusCode = statusCode
@@ -15,6 +15,8 @@ class ErrorHandler extends Error {
 
 const prismaCustomErrorHandler = (err, customMessage) => {
   switch (err.constructor) {
+    case ErrorHandler:
+      return err
     case Prisma.PrismaClientInitializationError:
       return new ErrorHandler(
         StatusCodes.INTERNAL_SERVER_ERROR,
@@ -29,6 +31,10 @@ const prismaCustomErrorHandler = (err, customMessage) => {
         default:
           return null
       }
+    case Prisma.NotFoundError:
+      return new ErrorHandler(StatusCodes.NOT_FOUND, customMessage)
+    case Prisma.PrismaClientValidationError:
+      return new ErrorHandler(StatusCodes.BAD_REQUEST, 'Requisição inválida.')
     default:
       return null
   }

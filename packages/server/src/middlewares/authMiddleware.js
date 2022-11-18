@@ -1,15 +1,16 @@
+import { StatusCodes } from 'http-status-codes'
 import { verifyToken } from '../services/authService.js'
+import { ErrorHandler } from '../helpers/errors.js'
 
 export const authMiddleware = (req, res, next) => {
   const token = req?.headers?.authorization
   if (!token) {
-    return res.status(401).json({ message: 'Unauthorized' })
+    throw new ErrorHandler(StatusCodes.UNAUTHORIZED, 'Unauthorized')
   }
   try {
-    const decoded = verifyToken(token.split('Bearer')[1].trim())
-    req.user = decoded
+    req.user = verifyToken(token.split('Bearer')[1].trim())
     next()
-  } catch (error) {
-    return res.status(401).json({ message: 'Unauthorized' })
+  } catch (_error) {
+    throw new ErrorHandler(StatusCodes.UNAUTHORIZED, 'Unauthorized')
   }
 }

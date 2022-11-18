@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "migrate": "cd ../../ && npx prisma migrate dev"
+    "migrate": "cd ../../ && npx prisma migrate dev",
+    "generate-prisma-client": "cd ../../ && npx prisma generate"
   },
   "type": "module",
   "dependencies": {

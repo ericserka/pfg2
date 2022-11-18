@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useReducer } from 'react'
 import { showAlertError } from '../../helpers/actions/showAlertError'
-import { toggleQueryLoading } from '../../helpers/actions/toggleQueryLoading'
 import { toggleMutationLoading } from '../../helpers/actions/toggleMutationLoading'
+import { toggleQueryLoading } from '../../helpers/actions/toggleQueryLoading'
 import { api } from '../../services/api/axios'
 import {
   fetchJwtLocal,
@@ -9,7 +9,6 @@ import {
   storeJwtLocal,
 } from '../../services/local-storage'
 import { userAuthReducer } from './reducer'
-import { log } from '@pfg2/logger'
 
 export const userAuthInitialState = {
   session: undefined,
@@ -32,8 +31,6 @@ export const UserAuthProvider = ({ children }) => {
 
     toggleQueryLoading(dispatch)
     try {
-      log.debug('getUserFromLocalStorage try')
-
       const { data } = await api.get('/user/me', {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -41,12 +38,8 @@ export const UserAuthProvider = ({ children }) => {
       })
       dispatch({ type: 'SIGNIN', payload: data })
     } catch (err) {
-      log.debug('getUserFromLocalStorage catch')
-
       showAlertError(err)
     } finally {
-      log.debug('getUserFromLocalStorage finally')
-
       toggleQueryLoading(dispatch)
     }
   }

@@ -3,13 +3,15 @@ import { Avatar, Flex, Pressable } from 'native-base'
 
 export const Left = (props) => {
   const pickImage = async () => {
-    await launchImageLibraryAsync({
+    const a = await launchImageLibraryAsync({
       mediaTypes: MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
       allowsMultipleSelection: false,
+      base64: true,
     })
+    console.log(`data:image/jpeg;base64,${a.base64.substring(0, 10)}`)
   }
 
   return (

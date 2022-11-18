@@ -4,14 +4,17 @@ import express from 'express'
 import http from 'http'
 import morgan from 'morgan'
 import { Server } from 'socket.io'
-import { errorMiddleware } from './middlewares/errorMiddleware.js'
-import { useHelloRouter } from './routes/helloRoute.js'
-import { useAuthRouter } from './routes/authRoute.js'
-import { SocketHandler } from './socket-handler/index.js'
 import { authMiddleware } from './middlewares/authMiddleware.js'
-import { useUserRouter } from './routes/userRoute.js'
+import { errorMiddleware } from './middlewares/errorMiddleware.js'
+import { useAuthRouter } from './routes/authRoute.js'
+import { useUserRouter } from './routes/usersRoute.js'
+import { SocketHandler } from './socket-handler/index.js'
 
 const app = express()
+
+// increasing limit to accept base64 string in request body
+app.use(express.json({ limit: '50mb' }))
+app.use(express.urlencoded({ extended: true, limit: '50mb' }))
 
 app.use(cors())
 app.use(express.json())
@@ -22,7 +25,6 @@ useAuthRouter(app)
 app.use(authMiddleware)
 
 // auth middleware is only applied for routes from here on down
-useHelloRouter(app)
 useUserRouter(app)
 
 // errorMiddleware must be the last one
