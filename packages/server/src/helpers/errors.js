@@ -1,3 +1,4 @@
+import { log } from '@pfg2/logger'
 import { Prisma } from '@prisma/client'
 import { StatusCodes } from 'http-status-codes'
 import {
@@ -14,6 +15,7 @@ export class ErrorHandler extends Error {
 }
 
 const prismaCustomErrorHandler = (err, customMessage) => {
+  log.error(err)
   switch (err.constructor) {
     case ErrorHandler:
       return err
