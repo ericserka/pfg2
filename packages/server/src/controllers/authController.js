@@ -17,7 +17,7 @@ export const login = async (req, res, next) => {
   try {
     const user = await findUserByEmailAddress(email)
     if (!(await verifyCredentials(user, password))) {
-      throw new ErrorHandler(StatusCodes.NOT_FOUND, 'Credenciais inválidas.')
+      throw new ErrorHandler(StatusCodes.UNAUTHORIZED, 'Credenciais inválidas.')
     }
     const token = generateToken(user)
     return res

@@ -14,7 +14,7 @@ export class ErrorHandler extends Error {
   }
 }
 
-const prismaCustomErrorHandler = (err, customMessage) => {
+export const handleError = (err, customMessage) => {
   log.error(err)
   switch (err.constructor) {
     case ErrorHandler:
@@ -38,11 +38,6 @@ const prismaCustomErrorHandler = (err, customMessage) => {
     case Prisma.PrismaClientValidationError:
       return new ErrorHandler(StatusCodes.BAD_REQUEST, 'Requisição inválida.')
     default:
-      return null
+      return new ErrorHandler()
   }
-}
-
-export const handleError = (err, customMessage) => {
-  const prismaError = prismaCustomErrorHandler(err, customMessage)
-  return prismaError ? prismaError : new ErrorHandler()
 }
