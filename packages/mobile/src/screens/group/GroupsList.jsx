@@ -1,6 +1,6 @@
 import { sanitizeText } from '@pfg2/snippets'
 import { useNavigation } from '@react-navigation/native'
-import { Box, Center, FlatList, Pressable, Text, VStack } from 'native-base'
+import { Box, Center, FlatList, Pressable, Text, Column } from 'native-base'
 import { useState } from 'react'
 import DebounceInput from 'react-native-debounce-input'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -97,9 +97,9 @@ export const GroupsList = () => {
                 contentContainerStyle={{ flexGrow: 1 }}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                  <VStack space={3}>
+                  <Column space={3}>
                     <Text>{item.name}</Text>
-                  </VStack>
+                  </Column>
                 )}
               />
             </Center>

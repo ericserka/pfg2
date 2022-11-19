@@ -1,172 +1,186 @@
-import { FontAwesome5 } from '@expo/vector-icons'
-import { log } from '@pfg2/logger'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigation } from '@react-navigation/native'
-import {
-  Button,
-  Center,
-  FormControl,
-  HStack,
-  IconButton,
-  Input,
-  Link,
-  Stack,
-  Text,
-  WarningOutlineIcon,
-} from 'native-base'
-import { useEffect, useRef, useState } from 'react'
-import { Linking } from 'react-native'
+import { Center, Row, Link, Stack, Text, useToast } from 'native-base'
+import { useRef } from 'react'
+import { useForm } from 'react-hook-form'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import * as z from 'zod'
+import { removeSpecialCharacters } from '@pfg2/snippets'
+import { CustomButton } from '../../components/buttons/CustomButton'
+import { ControlledImagePicker } from '../../components/inputs/ControlledImagePicker'
+import { ControlledPasswordInput } from '../../components/inputs/ControlledPasswordInput'
+import { ControlledSelectInput } from '../../components/inputs/ControlledSelectInput'
+import { ControlledTextInput } from '../../components/inputs/ControlledTextInput'
+import { toggleSuccessToast } from '../../helpers/toasts/toggleSuccessToast'
 import { useUserAuth } from '../../store/auth/provider'
 
 export const SignUp = () => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [user, setUser] = useState('')
-  const [show, setShow] = useState(false)
-
   const { navigate } = useNavigation()
+  const toast = useToast()
 
-  const pwdRef = useRef()
   const emailRef = useRef()
+  const usernameRef = useRef()
+  const phoneRef = useRef()
+  const birthdayRef = useRef()
+  const confirmPasswordRef = useRef()
 
   const {
     authActions: { signup },
     state: { mutationLoading },
   } = useUserAuth()
 
-  const tryToRegister = async () => {
-    if (!email || !password || !user) return
-    await signup({ email, name: user }, () => navigate('Entrar'))
+  const onSubmit = async (data) => {
+    await signup(
+      {
+        ...data,
+        confirmPassword: undefined,
+        phoneNumber: removeSpecialCharacters(data.phoneNumber),
+      },
+      () => {
+        navigate('Entrar')
+        toggleSuccessToast(toast, 'Cadastro realizado com sucesso!')
+      }
+    )
   }
+
+  const {
+    control,
+    handleSubmit,
+    trigger,
+    formState: { isValid, isDirty, errors },
+    watch,
+    setValue,
+  } = useForm({
+    resolver: zodResolver(
+      z.object({
+        name: z.string().min(1, 'Obrigatório'),
+        username: z
+          .string()
+          .min(1, 'Obrigatório')
+          .max(16, 'Máximo de 16 caracteres'),
+        email: z.string().min(1, 'Obrigatório').email('E-mail inválido'),
+        phoneNumber: z.string().min(19, 'Obrigatório'),
+        birthday: z.string().min(10, 'Obrigatório'),
+        gender: z.enum(['MALE', 'FEMALE']),
+        password: z
+          .string()
+          .min(8, 'Mínimo de 8 caracteres')
+          .max(16, 'Máximo de 16 caracteres')
+          .refine((val) => val === watch('confirmPassword'), {
+            message: 'As senhas não coincidem',
+          }),
+        confirmPassword: z
+          .string()
+          .min(8, 'Mínimo de 8 caracteres')
+          .max(16, 'Máximo de 16 caracteres')
+          .refine((val) => val === watch('password'), {
+            message: 'As senhas não coincidem',
+          }),
+        profilePic: z.string().min(1, 'Selecione uma foto para o seu perfil'),
+      })
+    ),
+  })
+
   return (
     <KeyboardAwareScrollView>
-      <Center mt="24" b flex={1}>
+      <Center my="16" flex={1}>
         <Stack space={5}>
-          <FormControl
-            w="xs"
-            isRequired
-            isInvalid={!user.length || user.length < 2}
-          >
-            <FormControl.Label>Usuário</FormControl.Label>
-            <Input
-              onChangeText={(text) => setUser(text)}
-              h="12"
-              placeholder="Nome de exibição do OpenStreetMap"
-              autoCapitalize="none"
-              autoComplete="off"
-              InputLeftElement={
-                <Center ml="3">
-                  <FontAwesome5 name="user-circle" size={15} />
-                </Center>
-              }
-              onSubmitEditing={() => emailRef.current.focus()}
-            />
-            <FormControl.HelperText>
-              <Text fontSize={12}>
-                Seu usuário deve ser o mesmo do{' '}
-                <Link
-                  isExternal
-                  onPress={() =>
-                    Linking.openURL(
-                      'https://www.openstreetmap.org/account/edit'
-                    )
-                  }
-                >
-                  OpenStreetMap
-                </Link>
-              </Text>
-            </FormControl.HelperText>
-            <FormControl.ErrorMessage
-              leftIcon={<WarningOutlineIcon size="xs" />}
-            >
-              <Text>
-                Caso não possua cadastro no OpenStreetMap{' '}
-                <Link
-                  isExternal
-                  onPress={() =>
-                    Linking.openURL('https://www.openstreetmap.org/user/new')
-                  }
-                >
-                  clique aqui.
-                </Link>
-              </Text>
-            </FormControl.ErrorMessage>
-          </FormControl>
-          <FormControl w="xs" isRequired isInvalid={!email.length}>
-            <FormControl.Label>Email</FormControl.Label>
-            <Input
-              ref={emailRef}
-              onChangeText={(text) => setEmail(text)}
-              h="12"
-              placeholder="Email"
-              autoCapitalize="none"
-              autoComplete="email"
-              InputLeftElement={
-                <Center ml="3">
-                  <FontAwesome5 name="envelope" size={15} />
-                </Center>
-              }
-              onSubmitEditing={() => pwdRef.current.focus()}
-            />
-            <FormControl.ErrorMessage
-              leftIcon={<WarningOutlineIcon size="xs" />}
-            >
-              Não parece ser um endereço de e-mail válido
-            </FormControl.ErrorMessage>
-          </FormControl>
-          <FormControl
-            w="xs"
-            isRequired
-            isInvalid={!password.length || password.length < 6}
-          >
-            <FormControl.Label>Senha</FormControl.Label>
-            <Input
-              ref={pwdRef}
-              h="12"
-              type={show ? 'text' : 'password'}
-              placeholder="Senha"
-              onChangeText={(text) => setPassword(text)}
-              autoComplete="password"
-              autoCapitalize="none"
-              InputLeftElement={
-                <Center ml="3.5">
-                  <FontAwesome5 name="lock" size={20} />
-                </Center>
-              }
-              InputRightElement={
-                <Center>
-                  <IconButton
-                    rounded="full"
-                    onPress={() => setShow((v) => !v)}
-                    icon={
-                      <FontAwesome5
-                        size={20}
-                        name={show ? 'eye-slash' : 'eye'}
-                        color="black"
-                      />
-                    }
-                  />
-                </Center>
-              }
-              onSubmitEditing={tryToRegister}
-            />
-            <FormControl.ErrorMessage
-              leftIcon={<WarningOutlineIcon size="xs" />}
-            >
-              Sua senha deve conter pelo menos 6 caracteres
-            </FormControl.ErrorMessage>
-          </FormControl>
-          <Button
-            colorScheme="darkBlue"
-            onPress={tryToRegister}
-            isDisabled={!email || !password || !user || mutationLoading}
-          >
-            <Text color="white" fontSize="lg">
-              Registrar
-            </Text>
-          </Button>
+          <ControlledImagePicker
+            name="profilePic"
+            setValue={setValue}
+            trigger={trigger}
+            watch={watch}
+            label="Foto de perfil"
+            errorMessage={errors?.profilePic?.message}
+          />
+          <ControlledTextInput
+            control={control}
+            name="name"
+            label="Nome"
+            onBlur={() => trigger('name')}
+            onSubmitEditing={() => usernameRef.current.focus()}
+          />
+          <ControlledTextInput
+            ref={usernameRef}
+            control={control}
+            name="username"
+            label="Nome de usuário"
+            onBlur={() => trigger('username')}
+            helperText="Este nome será exibido para outros usuários"
+            onSubmitEditing={() => emailRef.current.focus()}
+            autoCapitalize="none"
+          />
+          <ControlledTextInput
+            ref={emailRef}
+            control={control}
+            name="email"
+            label="E-mail"
+            onBlur={() => trigger('email')}
+            helperText="Será usado para entrar na sua conta"
+            onSubmitEditing={() => phoneRef.current.focus()}
+            keyboardType="email-address"
+            autoComplete="email"
+            autoCapitalize="none"
+          />
+          <ControlledTextInput
+            ref={phoneRef}
+            control={control}
+            name="phoneNumber"
+            label="Número de telefone"
+            onBlur={() => trigger('phoneNumber')}
+            placeholder="+99 (99) 99999-9999"
+            masked
+            mask="+99 (99) 99999-9999"
+            helperText="Código do país + DDD + número"
+            keyboardType="phone-pad"
+            onSubmitEditing={() => birthdayRef.current.focus()}
+          />
+          <ControlledTextInput
+            ref={birthdayRef}
+            control={control}
+            name="birthday"
+            label="Data de nascimento"
+            onBlur={() => trigger('birthday')}
+            placeholder="DD/MM/AAAA"
+            masked
+            mask="99/99/9999"
+            keyboardType="phone-pad"
+          />
+          <ControlledSelectInput
+            control={control}
+            name="gender"
+            label="Sexo"
+            trigger={trigger}
+            placeholder="Selecione uma opção"
+            items={[
+              { label: 'Masculino', value: 'MALE' },
+              { label: 'Feminino', value: 'FEMALE' },
+            ]}
+          />
+          <ControlledPasswordInput
+            control={control}
+            name="password"
+            label="Senha"
+            onBlur={() => trigger(['password', 'confirmPassword'])}
+            onSubmitEditing={() => confirmPasswordRef.current.focus()}
+            maxLength={16}
+          />
+          <ControlledPasswordInput
+            ref={confirmPasswordRef}
+            control={control}
+            name="confirmPassword"
+            label="Confirme a senha"
+            onBlur={() => trigger(['password', 'confirmPassword'])}
+            maxLength={16}
+          />
+          <CustomButton
+            isDisabled={!isValid || !isDirty || mutationLoading}
+            loading={mutationLoading}
+            title="Registrar"
+            onPress={handleSubmit(onSubmit)}
+          />
           <Center>
-            <HStack space="1">
+            <Row space="1">
               <Text>Já possui uma conta?</Text>
               <Link
                 _text={{
@@ -176,7 +190,7 @@ export const SignUp = () => {
               >
                 Entrar
               </Link>
-            </HStack>
+            </Row>
           </Center>
         </Stack>
       </Center>

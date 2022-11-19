@@ -13,3 +13,5 @@ export const sanitizeText = (text) =>
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .trim()
+
+export const removeSpecialCharacters = (str) => str.replace(/[^a-zA-Z0-9]/g, '')

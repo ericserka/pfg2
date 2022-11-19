@@ -1,25 +1,31 @@
-import { FontAwesome5 } from '@expo/vector-icons'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigation } from '@react-navigation/native'
-import {
-  Button,
-  Center,
-  HStack,
-  Image,
-  Input,
-  Link,
-  Stack,
-  Text,
-} from 'native-base'
-import { useRef, useState } from 'react'
+import { Center, Row, Image, Link, Stack, Text } from 'native-base'
+import { useRef } from 'react'
+import { useForm } from 'react-hook-form'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import * as z from 'zod'
+import { CustomButton } from '../../components/buttons/CustomButton'
+import { ControlledPasswordInput } from '../../components/inputs/ControlledPasswordInput'
+import { ControlledTextInput } from '../../components/inputs/ControlledTextInput'
 import { useUserAuth } from '../../store/auth/provider'
 
 export const SignIn = () => {
   const { navigate } = useNavigation()
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [show, setShow] = useState(false)
+  const {
+    control,
+    handleSubmit,
+    trigger,
+    formState: { isDirty, isValid },
+  } = useForm({
+    resolver: zodResolver(
+      z.object({
+        email: z.string().email('E-mail inválido'),
+        password: z.string(),
+      })
+    ),
+  })
 
   const pwdRef = useRef()
 
@@ -28,9 +34,8 @@ export const SignIn = () => {
     state: { mutationLoading },
   } = useUserAuth()
 
-  const tryToLogin = () => {
-    if (!email || !password) return
-    signin({ email, password })
+  const onSubmit = async (data) => {
+    await signin(data)
   }
 
   return (
@@ -41,63 +46,36 @@ export const SignIn = () => {
             <Image
               mt="10"
               size="2xl"
-              source={{
-                uri: 'https://img.icons8.com/ios-glyphs/480/child-safe-zone.png',
-              }}
+              source={require('../../../assets/child-safe-zone.png')}
               alt="logo"
             />
           </Center>
-          <Input
-            onChangeText={(text) => setEmail(text)}
-            w="3/4"
-            h="12"
-            placeholder="Email"
-            autoCapitalize="none"
-            autoComplete="email"
-            autoFocus
-            InputLeftElement={
-              <Center ml="3">
-                <FontAwesome5 name="envelope" size={15} />
-              </Center>
-            }
+          <ControlledTextInput
+            control={control}
+            name="email"
+            label="E-mail"
+            onBlur={() => trigger('email')}
             onSubmitEditing={() => pwdRef.current.focus()}
-          />
-          <Input
-            ref={pwdRef}
-            w="3/4"
-            h="12"
-            type={show ? 'text' : 'password'}
-            placeholder="Senha"
-            onChangeText={(text) => setPassword(text)}
-            autoComplete="password"
+            keyboardType="email-address"
+            autoComplete="email"
             autoCapitalize="none"
-            InputLeftElement={
-              <Center ml="3.5">
-                <FontAwesome5 name="lock" size={20} />
-              </Center>
-            }
-            InputRightElement={
-              <Center mr="3">
-                <FontAwesome5
-                  size={20}
-                  name={show ? 'eye-slash' : 'eye'}
-                  onPress={() => setShow((v) => !v)}
-                />
-              </Center>
-            }
-            onSubmitEditing={tryToLogin}
           />
-          <Button
-            colorScheme="emerald"
-            onPress={tryToLogin}
-            isDisabled={mutationLoading}
-          >
-            <Text color="white" fontSize="lg">
-              Entrar
-            </Text>
-          </Button>
+          <ControlledPasswordInput
+            ref={pwdRef}
+            control={control}
+            name="password"
+            label="Senha"
+            onBlur={() => trigger('password')}
+            onSubmitEditing={handleSubmit(onSubmit)}
+          />
+          <CustomButton
+            isDisabled={!isValid || !isDirty || mutationLoading}
+            loading={mutationLoading}
+            title="Entrar"
+            onPress={handleSubmit(onSubmit)}
+          />
           <Center>
-            <HStack space="1">
+            <Row space="1">
               <Text>Não possui uma conta?</Text>
               <Link
                 _text={{
@@ -107,7 +85,7 @@ export const SignIn = () => {
               >
                 Cadastre-se agora
               </Link>
-            </HStack>
+            </Row>
           </Center>
         </Stack>
       </Center>

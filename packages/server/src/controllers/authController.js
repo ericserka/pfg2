@@ -34,8 +34,7 @@ export const register = async (req, res, next) => {
       ...req.body,
       password: await hashPassword(req.body.password),
     })
-    const token = generateToken(user)
-    return res.json({ ...removeUserPassword(user), token })
+    return res.status(StatusCodes.CREATED).json(removeUserPassword(user))
   } catch (error) {
     return next(
       handleError(error, 'Usuário com e-mail ou celular já cadastrado.')

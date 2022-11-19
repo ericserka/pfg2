@@ -1,7 +1,11 @@
 import { REACT_APP_JWT_KEY, REACT_APP_SERVER_URL } from '@env'
+import { log } from '@pfg2/logger'
 import { Dimensions } from 'react-native'
 
 export const SERVER_URL = REACT_APP_SERVER_URL
+
+log.debug('SERVER_URL', SERVER_URL)
+log.debug('REACT_APP_SERVER_URL', REACT_APP_SERVER_URL)
 
 export const JWT_KEY = REACT_APP_JWT_KEY
 

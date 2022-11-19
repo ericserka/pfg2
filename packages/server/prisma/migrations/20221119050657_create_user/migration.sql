@@ -8,7 +8,7 @@ CREATE TABLE `User` (
     `birthday` VARCHAR(191) NOT NULL,
     `gender` ENUM('MALE', 'FEMALE') NOT NULL,
     `password` VARCHAR(191) NOT NULL,
-    `profilePic` TEXT NOT NULL,
+    `profilePic` LONGTEXT NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 

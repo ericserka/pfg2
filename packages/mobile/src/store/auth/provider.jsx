@@ -1,3 +1,4 @@
+import { log } from '@pfg2/logger'
 import { createContext, useContext, useEffect, useReducer } from 'react'
 import { showAlertError } from '../../helpers/actions/showAlertError'
 import { toggleMutationLoading } from '../../helpers/actions/toggleMutationLoading'
@@ -29,9 +30,11 @@ export const UserAuthProvider = ({ children }) => {
     const token = await fetchJwtLocal()
     if (!token) return
 
+    log.debug(token)
+
     toggleQueryLoading(dispatch)
     try {
-      const { data } = await api.get('/user/me', {
+      const { data } = await api.get('/users/me', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -48,13 +51,10 @@ export const UserAuthProvider = ({ children }) => {
     getUserFromLocalStorage()
   }, [])
 
-  const signin = async ({ email, password }) => {
+  const signin = async (formData) => {
     toggleMutationLoading(dispatch)
     try {
-      const { data } = await api.post('/auth/login', {
-        email,
-        password,
-      })
+      const { data } = await api.post('/auth/login', formData)
       storeJwtLocal(data.token)
       api.defaults.headers = {
         Authorization: `Bearer ${data.token}`,
@@ -70,13 +70,10 @@ export const UserAuthProvider = ({ children }) => {
     }
   }
 
-  const signup = async ({ email, name }, onSuccess) => {
+  const signup = async (data, onSuccess) => {
     toggleMutationLoading(dispatch)
     try {
-      await api.post('/auth/register', {
-        email,
-        name,
-      })
+      await api.post('/auth/register', data)
       onSuccess()
     } catch (err) {
       showAlertError(err)
