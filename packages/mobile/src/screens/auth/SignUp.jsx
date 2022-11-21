@@ -51,6 +51,9 @@ export const SignUp = () => {
     watch,
     setValue,
   } = useForm({
+    defaultValues: {
+      phoneNumber: '+55',
+    },
     resolver: zodResolver(
       z.object({
         name: z.string().min(1, 'Obrigatório'),

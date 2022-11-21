@@ -41,7 +41,7 @@ export const ControlledTextInput = forwardRef(
               customTextInputProps={{
                 ...rest,
                 ref,
-                onBlur: onBlur,
+                onBlur,
                 InputRightElement,
                 placeholder: placeholder ?? label,
               }}
