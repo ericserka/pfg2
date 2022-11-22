@@ -29,7 +29,6 @@ export const ControlledSelectInput = ({
           _selectedItem={{
             bg: 'primary.100',
           }}
-          p="3"
         >
           {items.map((item) => (
             <Select.Item
