@@ -64,7 +64,15 @@ export const SignUp = () => {
         email: z.string().min(1, 'Obrigatório').email('E-mail inválido'),
         phoneNumber: z.string().min(19, 'Obrigatório'),
         birthday: z.string().min(10, 'Obrigatório'),
-        gender: z.enum(['MALE', 'FEMALE']),
+        gender: z.enum([
+          'MALE_CIS',
+          'FEMALE_CIS',
+          'MALE_TRANS',
+          'FEMALE_TRANS',
+          'NON_BINARY',
+          'FLUID',
+          'OTHER',
+        ]),
         password: z
           .string()
           .min(8, 'Mínimo de 8 caracteres')
@@ -152,12 +160,17 @@ export const SignUp = () => {
           <ControlledSelectInput
             control={control}
             name="gender"
-            label="Sexo"
+            label="Gênero"
             trigger={trigger}
             placeholder="Selecione uma opção"
             items={[
-              { label: 'Masculino', value: 'MALE' },
-              { label: 'Feminino', value: 'FEMALE' },
+              { label: 'Homem cisgênero', value: 'MALE_CIS' },
+              { label: 'Mulher cisgênero', value: 'FEMALE_CIS' },
+              { label: 'Homem transgênero', value: 'MALE_TRANS' },
+              { label: 'Mulher transgênero', value: 'FEMALE_TRANS' },
+              { label: 'Não binário', value: 'NON_BINARY' },
+              { label: 'Gênero fluído', value: 'FLUID' },
+              { label: 'Outro', value: 'OTHER' },
             ]}
           />
           <ControlledPasswordInput

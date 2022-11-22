@@ -37,7 +37,10 @@ export const register = async (req, res, next) => {
     return res.status(StatusCodes.CREATED).json(removeUserPassword(user))
   } catch (error) {
     return next(
-      handleError(error, 'Usuário com e-mail ou celular já cadastrado.')
+      handleError(
+        error,
+        'Usuário com nome de usuário, e-mail ou celular já cadastrado.'
+      )
     )
   }
 }

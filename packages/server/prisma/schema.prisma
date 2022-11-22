@@ -11,15 +11,20 @@ datasource db {
 }
 
 enum Gender {
-  MALE
-  FEMALE
+  MALE_CIS
+  FEMALE_CIS
+  MALE_TRANS
+  FEMALE_TRANS
+  NON_BINARY
+  FLUID
+  OTHER
 }
 
 model User {
   id          Int      @id @default(autoincrement())
   email       String   @unique
   name        String
-  username    String
+  username    String   @unique
   phoneNumber String   @unique
   birthday    String
   gender      Gender

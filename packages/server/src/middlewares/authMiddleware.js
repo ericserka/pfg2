@@ -11,6 +11,6 @@ export const authMiddleware = (req, res, next) => {
     req.user = verifyToken(token.split('Bearer')[1].trim())
     next()
   } catch (_error) {
-    throw new ErrorHandler(StatusCodes.UNAUTHORIZED, 'Não aurotizado')
+    throw new ErrorHandler(StatusCodes.UNAUTHORIZED, 'Não autorizado')
   }
 }
