@@ -1,6 +1,5 @@
 import { useUserAuth } from '../../store/auth/provider'
 import { useUserLocation } from '../../store/location/provider'
-import { useUsers } from '../../store/users/provider'
 import { CenterLoading } from './CenterLoading'
 
 export const LoadingInterceptor = ({ children, extra }) => {
@@ -10,18 +9,10 @@ export const LoadingInterceptor = ({ children, extra }) => {
     state: { loading: loadingLoc },
   } = useUserLocation()
   const {
-    state: { loading: loadingUsers },
-  } = useUsers()
-  const {
     state: { queryLoading: loadingAuth },
   } = useUserAuth()
 
-  const loading = [
-    loadingLoc,
-    loadingUsers,
-    loadingAuth,
-    ...(extra ?? []),
-  ].some((l) => l)
+  const loading = [loadingLoc, loadingAuth, ...(extra ?? [])].some((l) => l)
 
   return loading ? <CenterLoading /> : children
 }

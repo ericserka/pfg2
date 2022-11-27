@@ -6,14 +6,14 @@ import {
 } from 'expo-location'
 import { useEffect, useRef, useState } from 'react'
 import { AppState } from 'react-native'
+import { Emergency } from '../../screens/Emergency'
 import { Home } from '../../screens/Home'
+import { Notifications } from '../../screens/Notifications'
 import { LoggedProviders } from '../../store/combined/logged'
-import { HelloProvider } from '../../store/hello/provider'
 import { LoadingInterceptor } from '../loading/LoadingInterceptor'
 import { Left } from '../navbar/Left'
 import { Right } from '../navbar/Right'
 import { NoLocationPermissions } from '../NoLocationPermissions'
-import { GroupsStack } from './GroupsStack'
 
 const Tab = createBottomTabNavigator()
 
@@ -54,37 +54,41 @@ export const LoggedTabs = () => {
   return (
     <LoadingInterceptor extra={[loading]}>
       {perms ? (
-        <HelloProvider>
-          <LoggedProviders>
-            <Tab.Navigator
-              screenOptions={{
-                headerLeft: (props) => <Left {...props} />,
-                headerRight: (props) => <Right {...props} />,
-                headerShadowVisible: true,
+        <LoggedProviders>
+          <Tab.Navigator
+            screenOptions={{
+              headerLeft: (props) => <Left {...props} />,
+              headerRight: (props) => <Right {...props} />,
+              headerShadowVisible: true,
+            }}
+          >
+            <Tab.Screen
+              name="Mapa"
+              options={{
+                headerTransparent: true,
+                tabBarIcon: (props) => <FontAwesome5 name="map" {...props} />,
               }}
-            >
-              <Tab.Screen
-                name="Mapa"
-                options={{
-                  headerTransparent: true,
-                  tabBarIcon: (props) => (
-                    <FontAwesome5 name="map-marked" {...props} />
-                  ),
-                }}
-                component={Home}
-              />
-              <Tab.Screen
-                name="Grupo"
-                options={{
-                  tabBarIcon: (props) => (
-                    <FontAwesome5 name="users" {...props} />
-                  ),
-                }}
-                component={GroupsStack}
-              />
-            </Tab.Navigator>
-          </LoggedProviders>
-        </HelloProvider>
+              component={Home}
+            />
+            <Tab.Screen
+              name="Emergência"
+              options={{
+                tabBarIcon: (props) => (
+                  <FontAwesome5 name="exclamation-circle" {...props} />
+                ),
+              }}
+              component={Emergency}
+            />
+            <Tab.Screen
+              name="Notificações"
+              options={{
+                tabBarIcon: (props) => <FontAwesome5 name="bell" {...props} />,
+                tabBarBadge: 3,
+              }}
+              component={Notifications}
+            />
+          </Tab.Navigator>
+        </LoggedProviders>
       ) : (
         <NoLocationPermissions />
       )}
