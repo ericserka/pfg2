@@ -53,4 +53,26 @@ model User {
   profilePic        String            @db.LongText
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
+  groups            Group[]
+  messages          Message[]
+}
+
+model Group {
+  id        Int       @id @default(autoincrement())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  members   User[]
+  messages  Message[]
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.LongText
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sender    User     @relation(fields: [senderId], references: [id])
+  senderId  Int
+  group     Group?   @relation(fields: [groupId], references: [id])
+  groupId   Int?
 }
