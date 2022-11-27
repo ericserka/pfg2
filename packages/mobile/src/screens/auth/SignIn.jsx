@@ -30,7 +30,7 @@ export const SignIn = () => {
   const pwdRef = useRef()
 
   const {
-    authActions: { signin },
+    actions: { signin },
     state: { mutationLoading },
   } = useUserAuth()
 
@@ -79,7 +79,7 @@ export const SignIn = () => {
               <Text>Não possui uma conta?</Text>
               <Link
                 _text={{
-                  color: 'blue.600',
+                  color: 'primary.600',
                 }}
                 onPress={() => navigate('Cadastrar')}
               >

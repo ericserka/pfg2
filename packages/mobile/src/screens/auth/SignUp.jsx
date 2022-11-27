@@ -25,7 +25,7 @@ export const SignUp = () => {
   const confirmPasswordRef = useRef()
 
   const {
-    authActions: { signup },
+    actions: { signup },
     state: { mutationLoading },
   } = useUserAuth()
 
@@ -245,7 +245,7 @@ export const SignUp = () => {
               <Text>Já possui uma conta?</Text>
               <Link
                 _text={{
-                  color: 'blue.600',
+                  color: 'primary.600',
                 }}
                 onPress={() => navigate('Entrar')}
               >

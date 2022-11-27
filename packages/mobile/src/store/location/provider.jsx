@@ -40,7 +40,7 @@ export const UserLocationProvider = ({ children }) => {
     <UserLocationContext.Provider
       value={{
         state,
-        locationActions: { getUserPosition },
+        actions: { getUserPosition },
       }}
     >
       {children}

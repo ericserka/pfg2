@@ -8,12 +8,10 @@ export const userAuthReducer = (state, action) => {
       return {
         ...state,
         session: action.payload,
-        error: undefined,
       }
     case 'LOGOUT':
       return {
         session: undefined,
-        error: undefined,
       }
     case 'QUERY_LOADING':
       return {

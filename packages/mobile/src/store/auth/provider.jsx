@@ -11,10 +11,10 @@ import {
 } from '../../services/local-storage'
 import { userAuthReducer } from './reducer'
 
-export const userAuthInitialState = {
+const userAuthInitialState = {
   session: undefined,
-  error: undefined,
-  loading: false,
+  queryLoading: false,
+  mutationLoading: false,
 }
 
 const UserAuthContext = createContext({
@@ -94,7 +94,7 @@ export const UserAuthProvider = ({ children }) => {
     <UserAuthContext.Provider
       value={{
         state,
-        authActions: {
+        actions: {
           signin,
           signup,
           logout,
