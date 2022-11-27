@@ -4,6 +4,7 @@ import express from 'express'
 import http from 'http'
 import morgan from 'morgan'
 import { Server } from 'socket.io'
+import { prisma } from './helpers/prisma.js'
 import { authMiddleware } from './middlewares/authMiddleware.js'
 import { errorMiddleware } from './middlewares/errorMiddleware.js'
 import { useAuthRouter } from './routes/authRoute.js'
@@ -34,6 +35,11 @@ const server = http.createServer(app)
 const io = new Server(server)
 
 io.on('connection', SocketHandler)
+
+prisma.$queryRaw`SELECT 1`.catch((err) => {
+  log.error(err)
+  process.exit(1)
+})
 
 server
   .listen(3000, () => log.info('server is running'))
