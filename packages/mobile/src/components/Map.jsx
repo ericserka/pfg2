@@ -8,7 +8,11 @@ import MapView, {
   PROVIDER_DEFAULT,
   UrlTile,
 } from 'react-native-maps'
-import { LATITUDE_DELTA, LONGITUDE_DELTA } from '../constants'
+import {
+  COLOR_PRIMARY_600,
+  LATITUDE_DELTA,
+  LONGITUDE_DELTA,
+} from '../constants'
 import { useUserAuth } from '../store/auth/provider'
 import { useUserLocation } from '../store/location/provider'
 import { LoadingInterceptor } from './loading/LoadingInterceptor'
@@ -23,7 +27,7 @@ export const Map = ({ group }) => {
   })
 
   const {
-    locationActions: { getUserPosition },
+    actions: { getUserPosition },
   } = useUserLocation()
 
   const {
@@ -114,7 +118,9 @@ export const Map = ({ group }) => {
         right="3"
         bottom="3"
         rounded="full"
-        icon={<FontAwesome5 name="compass" size={30} color="#0047AB" />}
+        icon={
+          <FontAwesome5 name="crosshairs" size={30} color={COLOR_PRIMARY_600} />
+        }
       />
     </LoadingInterceptor>
   )

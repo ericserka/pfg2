@@ -19,11 +19,7 @@ export const ControlledPasswordInput = forwardRef(
               rounded="full"
               onPress={() => setShow((prevShow) => !prevShow)}
               icon={
-                <FontAwesome5
-                  size={20}
-                  name={show ? 'eye-slash' : 'eye'}
-                  color="black"
-                />
+                <FontAwesome5 size={20} name={show ? 'eye-slash' : 'eye'} />
               }
             />
           </Center>

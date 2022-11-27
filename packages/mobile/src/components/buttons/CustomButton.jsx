@@ -5,7 +5,7 @@ export const CustomButton = ({ isDisabled, loading, onPress, title }) => (
     {loading ? (
       <Spinner />
     ) : (
-      <Text color="white" fontSize="lg">
+      <Text color="white" bold fontSize="lg">
         {title}
       </Text>
     )}

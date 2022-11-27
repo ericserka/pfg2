@@ -24,7 +24,7 @@ export const Left = (props) => {
           borderColor={'black'}
           borderWidth={1}
         >
-          <Avatar.Badge bg="green.500" />
+          <Avatar.Badge bg="green.600" />
         </Avatar>
       </Pressable>
     </Flex>
