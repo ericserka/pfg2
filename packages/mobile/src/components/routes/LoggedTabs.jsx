@@ -1,19 +1,19 @@
 import { FontAwesome5 } from '@expo/vector-icons'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import {
-  requestForegroundPermissionsAsync,
   hasServicesEnabledAsync,
+  requestBackgroundPermissionsAsync,
 } from 'expo-location'
 import { useEffect, useRef, useState } from 'react'
 import { AppState } from 'react-native'
 import { Home } from '../../screens/Home'
 import { LoggedProviders } from '../../store/combined/logged'
 import { HelloProvider } from '../../store/hello/provider'
+import { LoadingInterceptor } from '../loading/LoadingInterceptor'
 import { Left } from '../navbar/Left'
 import { Right } from '../navbar/Right'
 import { NoLocationPermissions } from '../NoLocationPermissions'
 import { GroupsStack } from './GroupsStack'
-import { LoadingInterceptor } from '../loading/LoadingInterceptor'
 
 const Tab = createBottomTabNavigator()
 
@@ -44,7 +44,7 @@ export const LoggedTabs = () => {
   }, [])
 
   const checkPermissions = async () => {
-    const { granted } = await requestForegroundPermissionsAsync()
+    const { granted } = await requestBackgroundPermissionsAsync()
     const enabled = await hasServicesEnabledAsync()
 
     setPerms(granted && enabled)

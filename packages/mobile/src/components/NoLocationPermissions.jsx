@@ -9,7 +9,8 @@ export const NoLocationPermissions = () => (
       <Column space={5}>
         <Column space={3}>
           <Text bold fontSize="xl" color="gray.900">
-            Este aplicativo precisa da sua localização exata!
+            Este aplicativo precisa da sua localização exata mesmo em segundo
+            plano!
           </Text>
           <Text fontSize="md" color="gray.600">
             Vá em configurações e
@@ -22,8 +23,7 @@ export const NoLocationPermissions = () => (
             <Row space={3}>
               <FontAwesome5 name="check" size={16} color="green" />
               <Text>
-                Permitir <Text bold>Sempre</Text> ou{' '}
-                <Text bold>Durante o uso do aplicativo </Text>
+                Permitir <Text bold>Sempre</Text>
               </Text>
             </Row>
           </Column>
