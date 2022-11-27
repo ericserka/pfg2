@@ -4,7 +4,7 @@
     "slug": "mobile",
     "version": "1.0.0",
     "extra": {
-      "apiUrl": "https://1a0f-179-48-44-246.sa.ngrok.io",
+      "apiUrl": "https://3e42-179-48-44-247.sa.ngrok.io",
       "jwtKey": "@pfg2:unb:jwt"
     },
     "orientation": "portrait",

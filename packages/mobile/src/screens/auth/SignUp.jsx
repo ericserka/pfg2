@@ -72,6 +72,23 @@ export const SignUp = () => {
           'NON_BINARY',
           'FLUID',
           'OTHER',
+          'PREFER_NOT_TO_INFORM',
+        ]),
+        sexualOrientation: z.enum([
+          'HETEROSEXUAL',
+          'BISEXUAL',
+          'ASEXUAL',
+          'HOMOSEXUAL',
+          'OTHER',
+          'PREFER_NOT_TO_INFORM',
+        ]),
+        ethnicity: z.enum([
+          'WHITE_COLOR',
+          'BLACK_COLOR',
+          'YELLOW_COLOR',
+          'INDIGENOUS_ETHNICITY',
+          'OTHER',
+          'PREFER_NOT_TO_INFORM',
         ]),
         password: z
           .string()
@@ -162,7 +179,6 @@ export const SignUp = () => {
             name="gender"
             label="Gênero"
             trigger={trigger}
-            placeholder="Selecione uma opção"
             items={[
               { label: 'Homem cisgênero', value: 'MALE_CIS' },
               { label: 'Mulher cisgênero', value: 'FEMALE_CIS' },
@@ -171,6 +187,35 @@ export const SignUp = () => {
               { label: 'Não binário', value: 'NON_BINARY' },
               { label: 'Gênero fluído', value: 'FLUID' },
               { label: 'Outro', value: 'OTHER' },
+              { label: 'Prefiro não informar', value: 'PREFER_NOT_TO_INFORM' },
+            ]}
+          />
+          <ControlledSelectInput
+            control={control}
+            name="sexualOrientation"
+            label="Orientação sexual"
+            trigger={trigger}
+            items={[
+              { label: 'Heterossexual', value: 'HETEROSEXUAL' },
+              { label: 'Bissexual', value: 'BISEXUAL' },
+              { label: 'Assexual', value: 'ASEXUAL' },
+              { label: 'Homossexual', value: 'HOMOSEXUAL' },
+              { label: 'Outro', value: 'OTHER' },
+              { label: 'Prefiro não informar', value: 'PREFER_NOT_TO_INFORM' },
+            ]}
+          />
+          <ControlledSelectInput
+            control={control}
+            name="ethnicity"
+            label="Cor/raça/etnia"
+            trigger={trigger}
+            items={[
+              { label: 'Cor branca', value: 'WHITE_COLOR' },
+              { label: 'Cor preta', value: 'BLACK_COLOR' },
+              { label: 'Cor amarela', value: 'YELLOW_COLOR' },
+              { label: 'Raça/etnia indígena', value: 'INDIGENOUS_ETHNICITY' },
+              { label: 'Outro', value: 'OTHER' },
+              { label: 'Prefiro não informar', value: 'PREFER_NOT_TO_INFORM' },
             ]}
           />
           <ControlledPasswordInput

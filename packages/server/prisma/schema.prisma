@@ -18,18 +18,39 @@ enum Gender {
   NON_BINARY
   FLUID
   OTHER
+  PREFER_NOT_TO_INFORM
+}
+
+enum SexualOrientation {
+  HETEROSEXUAL
+  BISEXUAL
+  ASEXUAL
+  HOMOSEXUAL
+  OTHER
+  PREFER_NOT_TO_INFORM
+}
+
+enum Ethnicity {
+  WHITE_COLOR
+  BLACK_COLOR
+  YELLOW_COLOR
+  INDIGENOUS_ETHNICITY
+  OTHER
+  PREFER_NOT_TO_INFORM
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  email       String   @unique
-  name        String
-  username    String   @unique
-  phoneNumber String   @unique
-  birthday    String
-  gender      Gender
-  password    String
-  profilePic  String   @db.LongText
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                Int               @id @default(autoincrement())
+  email             String            @unique
+  name              String
+  username          String            @unique
+  phoneNumber       String            @unique
+  birthday          String
+  gender            Gender
+  sexualOrientation SexualOrientation
+  ethnicity         Ethnicity
+  password          String
+  profilePic        String            @db.LongText
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 }

@@ -6,7 +6,6 @@ export const ControlledSelectInput = ({
   name,
   isRequired = true,
   label,
-  placeholder,
   helperText,
   trigger,
   width = 'xs',
@@ -19,7 +18,7 @@ export const ControlledSelectInput = ({
       <FormControl w={width} isRequired={isRequired} isInvalid={error?.message}>
         <FormControl.Label _text={{ bold: true }}>{label}</FormControl.Label>
         <Select
-          placeholder={placeholder}
+          placeholder="Selecione uma opção"
           onValueChange={(value) => {
             onChange(value)
             trigger(name)
