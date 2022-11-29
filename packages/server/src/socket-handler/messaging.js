@@ -29,7 +29,7 @@ export const onLeaveChat = async (socket, args, cb) => {
 }
 
 export const onSendMessage = async (socket, args, cb) => {
-  const { groupId, userId, content, socket } = args
+  const { groupId, userId, content } = args
 
   const user = await findUserById(userId)
   const group = await findGroupById(groupId)
