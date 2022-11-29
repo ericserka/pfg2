@@ -4,7 +4,7 @@
     "slug": "mobile",
     "version": "1.0.0",
     "extra": {
-      "apiUrl": "https://3e42-179-48-44-247.sa.ngrok.io",
+      "apiUrl": "https://c2c8-179-48-44-247.sa.ngrok.io",
       "jwtKey": "@pfg2:unb:jwt"
     },
     "orientation": "portrait",
@@ -20,13 +20,20 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "UIBackgroundModes": ["location", "fetch"],
+        "NSLocationWhenInUseUsageDescription": "Este aplicativo precisa acessar sua localização.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Este aplicativo precisa acessar sua localização.",
+        "NSLocationAlwaysUsageDescription": "Este aplicativo precisa acessar sua localização."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "permissions": ["ACCESS_BACKGROUND_LOCATION"]
     },
     "web": {
       "favicon": "./assets/favicon.png"

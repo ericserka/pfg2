@@ -1,39 +1,14 @@
 import { log } from '@pfg2/logger'
 import { Text } from 'native-base'
 import { Button, FlatList, View } from 'react-native'
-
-const groups = [
-  {
-    id: 'aoiusdsioad834983',
-    name: 'grupo 1',
-    users: [
-      {
-        id: '213sfggcxzas35',
-        name: 'Eric',
-        email: 'eric@email.com',
-      },
-    ],
-  },
-  {
-    id: 'aoiusdsio5677ad834983',
-    name: 'grupo 2',
-    users: [
-      {
-        id: '213sfggcxzas35',
-        name: 'Eric',
-        email: 'eric@email.com',
-      },
-      {
-        id: '213sfg465gcxzas35',
-        name: 'Yuri',
-        email: 'yuri@email.com',
-      },
-    ],
-  },
-]
+import { useUserGroup } from '../../store/groups/provider'
 
 export const GroupDetail = ({ route }) => {
   const { id } = route.params
+  const {
+    state: { groups },
+  } = useUserGroup()
+
   const group = groups.find((q) => q.id === id)
 
   const createInvite = () => {
@@ -44,7 +19,7 @@ export const GroupDetail = ({ route }) => {
     <View>
       <Text>{group.name}</Text>
       <FlatList
-        data={group.users}
+        data={group.members}
         renderItem={({ item }) => (
           <>
             <Text>{item.name}</Text>

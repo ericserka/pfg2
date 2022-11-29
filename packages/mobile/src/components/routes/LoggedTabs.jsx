@@ -3,17 +3,18 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import {
   hasServicesEnabledAsync,
   requestBackgroundPermissionsAsync,
+  requestForegroundPermissionsAsync,
 } from 'expo-location'
 import { useEffect, useRef, useState } from 'react'
-import { AppState } from 'react-native'
+import { AppState, Platform } from 'react-native'
 import { Emergency } from '../../screens/Emergency'
-import { Home } from '../../screens/Home'
 import { Notifications } from '../../screens/Notifications'
 import { LoggedProviders } from '../../store/combined/logged'
 import { LoadingInterceptor } from '../loading/LoadingInterceptor'
 import { Left } from '../navbar/Left'
 import { Right } from '../navbar/Right'
 import { NoLocationPermissions } from '../NoLocationPermissions'
+import { HomeStack } from './HomeStack'
 
 const Tab = createBottomTabNavigator()
 
@@ -44,54 +45,54 @@ export const LoggedTabs = () => {
   }, [])
 
   const checkPermissions = async () => {
-    const { granted } = await requestBackgroundPermissionsAsync()
+    const { granted } = await (Platform.OS === 'ios'
+      ? requestForegroundPermissionsAsync()
+      : requestBackgroundPermissionsAsync())
     const enabled = await hasServicesEnabledAsync()
 
     setPerms(granted && enabled)
     setLoading(false)
   }
 
+  if (!perms) return <NoLocationPermissions />
+
   return (
-    <LoadingInterceptor extra={[loading]}>
-      {perms ? (
-        <LoggedProviders>
-          <Tab.Navigator
-            screenOptions={{
-              headerLeft: (props) => <Left {...props} />,
-              headerRight: (props) => <Right {...props} />,
-              headerShadowVisible: true,
+    <LoggedProviders>
+      <LoadingInterceptor extra={[loading]}>
+        <Tab.Navigator
+          screenOptions={{
+            headerLeft: (props) => <Left {...props} />,
+            headerRight: (props) => <Right {...props} />,
+            headerShadowVisible: true,
+          }}
+        >
+          <Tab.Screen
+            name="Home"
+            options={{
+              headerTransparent: true,
+              tabBarIcon: (props) => <FontAwesome5 name="map" {...props} />,
             }}
-          >
-            <Tab.Screen
-              name="Mapa"
-              options={{
-                headerTransparent: true,
-                tabBarIcon: (props) => <FontAwesome5 name="map" {...props} />,
-              }}
-              component={Home}
-            />
-            <Tab.Screen
-              name="Emergência"
-              options={{
-                tabBarIcon: (props) => (
-                  <FontAwesome5 name="exclamation-circle" {...props} />
-                ),
-              }}
-              component={Emergency}
-            />
-            <Tab.Screen
-              name="Notificações"
-              options={{
-                tabBarIcon: (props) => <FontAwesome5 name="bell" {...props} />,
-                tabBarBadge: 3,
-              }}
-              component={Notifications}
-            />
-          </Tab.Navigator>
-        </LoggedProviders>
-      ) : (
-        <NoLocationPermissions />
-      )}
-    </LoadingInterceptor>
+            component={HomeStack}
+          />
+          <Tab.Screen
+            name="Emergência"
+            options={{
+              tabBarIcon: (props) => (
+                <FontAwesome5 name="exclamation-circle" {...props} />
+              ),
+            }}
+            component={Emergency}
+          />
+          <Tab.Screen
+            name="Notificações"
+            options={{
+              tabBarIcon: (props) => <FontAwesome5 name="bell" {...props} />,
+              tabBarBadge: 3,
+            }}
+            component={Notifications}
+          />
+        </Tab.Navigator>
+      </LoadingInterceptor>
+    </LoggedProviders>
   )
 }

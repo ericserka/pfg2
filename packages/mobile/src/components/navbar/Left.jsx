@@ -1,9 +1,14 @@
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker'
 import { Avatar, Flex, Pressable } from 'native-base'
+import { useUserAuth } from '../../store/auth/provider'
 
 export const Left = (props) => {
+  const {
+    state: { session },
+  } = useUserAuth()
+
   const pickImage = async () => {
-    const a = await launchImageLibraryAsync({
+    const pickedImage = await launchImageLibraryAsync({
       mediaTypes: MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
@@ -11,7 +16,10 @@ export const Left = (props) => {
       allowsMultipleSelection: false,
       base64: true,
     })
-    console.log(`data:image/jpeg;base64,${a.base64.substring(0, 10)}`)
+
+    if (!pickedImage || pickedImage.cancelled) return
+
+    console.log(`data:image/jpeg;base64,${pickedImage.base64.substring(0, 10)}`)
   }
 
   return (
@@ -19,7 +27,7 @@ export const Left = (props) => {
       <Pressable onPress={pickImage}>
         <Avatar
           source={{
-            uri: 'https://preview.redd.it/dh5otp8kcf741.png?width=640&crop=smart&auto=webp&s=d795f12b5e3eea1ef4d7ceb8244fca98e2384dbf',
+            uri: session.profilePic,
           }}
           borderColor={'black'}
           borderWidth={1}

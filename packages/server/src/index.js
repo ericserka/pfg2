@@ -8,6 +8,7 @@ import { prisma } from './helpers/prisma.js'
 import { authMiddleware } from './middlewares/authMiddleware.js'
 import { errorMiddleware } from './middlewares/errorMiddleware.js'
 import { useAuthRouter } from './routes/authRoute.js'
+import { useGroupRouter } from './routes/groupsRoute.js'
 import { useUserRouter } from './routes/usersRoute.js'
 import { SocketHandler } from './socket-handler/index.js'
 
@@ -26,6 +27,7 @@ app.use(authMiddleware)
 
 // auth middleware is only applied for routes from here on down
 useUserRouter(app)
+useGroupRouter(app)
 
 // errorMiddleware must be the last one
 app.use(errorMiddleware)
@@ -34,8 +36,9 @@ const server = http.createServer(app)
 
 const io = new Server(server)
 
-io.on('connection', SocketHandler)
+io.on('connection', (socket) => SocketHandler(socket, io))
 
+// db health check
 prisma.$queryRaw`SELECT 1`.catch((err) => {
   log.error(err)
   process.exit(1)

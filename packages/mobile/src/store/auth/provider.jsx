@@ -31,15 +31,18 @@ export const UserAuthProvider = ({ children }) => {
     if (!token) return
 
     log.debug(token)
+    const authHeader = { Authorization: `Bearer ${token}` }
 
     toggleQueryLoading(dispatch)
     try {
       const { data } = await api.get('/users/me', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: authHeader,
       })
       dispatch({ type: 'SIGNIN', payload: data })
+      api.defaults.headers = {
+        ...api.defaults.headers,
+        ...authHeader,
+      }
     } catch (err) {
       showAlertError(err)
     } finally {

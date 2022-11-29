@@ -1,4 +1,3 @@
-import { log } from '@pfg2/logger'
 import { Dimensions } from 'react-native'
 import Constants from 'expo-constants'
 
