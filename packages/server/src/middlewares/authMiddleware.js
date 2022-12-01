@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
 import { ErrorHandler } from '../helpers/errors.js'
-import { verifyToken } from '../services/authService.js'
+import { verifyToken } from '../services/jwtService.js'
 
 export const authMiddleware = (req, res, next) => {
   const token = req?.headers?.authorization

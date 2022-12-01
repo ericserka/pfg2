@@ -47,10 +47,12 @@ export const UserGroupProvider = ({ children }) => {
         payload: groupsWithoutCurrentUser,
       })
 
-      changeSelectedGroup(
-        groupsWithoutCurrentUser[0].id,
-        groupsWithoutCurrentUser
-      )
+      if (groupsWithoutCurrentUser.length) {
+        changeSelectedGroup(
+          groupsWithoutCurrentUser[0].id,
+          groupsWithoutCurrentUser
+        )
+      }
     } catch (err) {
       showAlertError(err)
     } finally {

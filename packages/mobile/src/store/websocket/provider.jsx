@@ -49,8 +49,8 @@ export const WebSocketProvider = ({ children }) => {
     socket.on('location-changed', cb)
   }
 
-  const emitEventJoinGroup = (userId, groupId) => {
-    socket.emit('join-group', { userId, groupId })
+  const emitEventJoinGroup = (userId, code) => {
+    socket.emit('join-group', { userId, code })
   }
 
   return (

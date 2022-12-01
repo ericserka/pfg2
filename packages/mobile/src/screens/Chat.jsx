@@ -2,6 +2,7 @@ import { FontAwesome5 } from '@expo/vector-icons'
 import dayjs from '@pfg2/dayjs'
 import { useNavigation } from '@react-navigation/native'
 import {
+  Button,
   Center,
   CheckIcon,
   FlatList,
@@ -9,7 +10,9 @@ import {
   FormControl,
   HStack,
   IconButton,
+  Input,
   KeyboardAvoidingView,
+  Modal,
   Select,
   Text,
   TextArea,
@@ -17,14 +20,16 @@ import {
 } from 'native-base'
 import { useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { ChatActions } from '../components/ChatActions'
 import { COLOR_PRIMARY_600 } from '../constants'
 import { useUserAuth } from '../store/auth/provider'
 import { useUserGroup } from '../store/groups/provider'
 import { useWebSocket } from '../store/websocket/provider'
 
 export const Chat = () => {
-  const { goBack } = useNavigation()
+  const { goBack, navigate } = useNavigation()
   const messageListRef = useRef(null)
+  const [modalVisible, setModalVisible] = useState(false)
 
   const {
     state: { current, groups },
@@ -34,7 +39,7 @@ export const Chat = () => {
     state: { session },
   } = useUserAuth()
   const {
-    actions: { emitEventSendMessage, listenToMessageAdded },
+    actions: { emitEventSendMessage, listenToMessageAdded, emitEventJoinGroup },
   } = useWebSocket()
 
   const [text, setText] = useState('')
@@ -69,6 +74,8 @@ export const Chat = () => {
   }, [])
 
   useEffect(() => {
+    if (!current) return
+
     setTimeout(() => {
       messageListRef?.current?.scrollToEnd({ animated: true })
     }, 500)
@@ -102,29 +109,37 @@ export const Chat = () => {
               />
             }
           />
-          <FormControl w="2xs">
-            <Select
-              onValueChange={(value) => {
-                updateCurrentGroup(groups.find((g) => g.id === value))
-              }}
-              selectedValue={current?.id ?? 0}
-              _selectedItem={{
-                bg: 'primary.100',
-                endIcon: (
-                  <Center>
-                    <CheckIcon size={5} />
-                  </Center>
-                ),
-                fontWeight: 'semibold',
-              }}
-            >
-              {groups?.map((g) => (
-                <Select.Item key={g.id} label={g.name} value={g.id} />
-              ))}
-            </Select>
-          </FormControl>
+          {!current ? (
+            <Text w="2xs" fontSize="md" fontWeight="medium" textAlign="center">
+              Clique no ícone ao lado para criar um grupo
+            </Text>
+          ) : (
+            <FormControl w="2xs">
+              <Select
+                onValueChange={(value) => {
+                  updateCurrentGroup(groups.find((g) => g.id === value))
+                }}
+                selectedValue={current?.id ?? 0}
+                _selectedItem={
+                  current && {
+                    bg: 'primary.100',
+                    endIcon: (
+                      <Center>
+                        <CheckIcon size={5} />
+                      </Center>
+                    ),
+                    fontWeight: 'semibold',
+                  }
+                }
+              >
+                {groups?.map((g) => (
+                  <Select.Item key={g.id} label={g.name} value={g.id} />
+                ))}
+              </Select>
+            </FormControl>
+          )}
           <IconButton
-            onPress={() => console.log('create invite')}
+            onPress={() => setModalVisible((v) => !v)}
             rounded="full"
             icon={
               <FontAwesome5 name="plus" size={30} color={COLOR_PRIMARY_600} />
@@ -140,7 +155,9 @@ export const Chat = () => {
           ListEmptyComponent={() => (
             <Center px="3" mt="50%">
               <Text fontSize={20} textAlign="center" fontWeight="semibold">
-                {canSendMessage
+                {!current
+                  ? 'Crie um grupo para começar a conversar! 🥳'
+                  : canSendMessage
                   ? 'Nenhuma mensagem enviada ainda 🥹'
                   : 'Você está sozinho 😕. Convide alguém para conversar!'}
               </Text>
@@ -185,7 +202,7 @@ export const Chat = () => {
           bg="white"
         >
           <TextArea
-            // isDisabled={!canSendMessage}
+            isDisabled={!canSendMessage || !current}
             value={text}
             onChangeText={setText}
             w="95%"
@@ -218,6 +235,10 @@ export const Chat = () => {
             }
           />
         </Flex>
+        <ChatActions
+          modalVisible={modalVisible}
+          setModalVisible={setModalVisible}
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   )

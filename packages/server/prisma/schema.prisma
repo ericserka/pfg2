@@ -58,12 +58,13 @@ model User {
 }
 
 model Group {
-  id        Int       @id @default(autoincrement())
-  name      String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  members   User[]
-  messages  Message[]
+  id         Int       @id @default(autoincrement())
+  name       String
+  inviteCode String    @unique
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  members    User[]
+  messages   Message[]
 }
 
 model Message {

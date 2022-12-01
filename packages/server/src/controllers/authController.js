@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 import { ErrorHandler, handleError } from '../helpers/errors.js'
 import {
-  generateToken,
+  generateAuthToken,
   hashPassword,
   verifyCredentials,
 } from '../services/authService.js'
@@ -19,7 +19,7 @@ export const login = async (req, res, next) => {
     if (!(await verifyCredentials(user, password))) {
       throw new ErrorHandler(StatusCodes.UNAUTHORIZED, 'Credenciais inválidas.')
     }
-    const token = generateToken(user)
+    const token = generateAuthToken(user)
     return res
       .status(StatusCodes.OK)
       .json({ ...removeUserPassword(user), token })

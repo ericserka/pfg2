@@ -1,4 +1,5 @@
 import { FontAwesome5 } from '@expo/vector-icons'
+import { log } from '@pfg2/logger'
 import { useNavigation } from '@react-navigation/native'
 import {
   Accuracy,
@@ -19,11 +20,10 @@ import {
   LONGITUDE_DELTA,
 } from '../constants'
 import { useUserAuth } from '../store/auth/provider'
-import { useUserLocation } from '../store/location/provider'
-import { CenterLoading } from '../components/loading/CenterLoading'
-import { useWebSocket } from '../store/websocket/provider'
 import { useUserGroup } from '../store/groups/provider'
-import { log } from '@pfg2/logger'
+import { useUserLocation } from '../store/location/provider'
+import { useWebSocket } from '../store/websocket/provider'
+import { LoadingInterceptor } from './loading/LoadingInterceptor'
 
 export const Map = () => {
   const { navigate } = useNavigation()
@@ -83,13 +83,14 @@ export const Map = () => {
             latitude,
             longitude,
           }))
-          emitEventLocationChanged({
-            userId: session.id,
-            position: {
-              latitude,
-              longitude,
-            },
-          })
+          current &&
+            emitEventLocationChanged({
+              userId: session.id,
+              position: {
+                latitude,
+                longitude,
+              },
+            })
         }
       )
     }
@@ -166,12 +167,8 @@ export const Map = () => {
       )
   )
 
-  if (!location.latitude || !location.longitude) {
-    return <CenterLoading />
-  }
-
   return (
-    <>
+    <LoadingInterceptor loading={!location.latitude || !location.longitude}>
       <MapView
         ref={mapRef}
         initialRegion={location}
@@ -221,6 +218,6 @@ export const Map = () => {
           />
         }
       />
-    </>
+    </LoadingInterceptor>
   )
 }
