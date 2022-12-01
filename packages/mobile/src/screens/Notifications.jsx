@@ -1,50 +1,59 @@
-import { Center, Text, FlatList } from 'native-base'
+import { useFocusEffect, useNavigation } from '@react-navigation/native'
+import { Box, Center, Column, FlatList, Row, Text } from 'native-base'
+import { useCallback, useEffect } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import dayjs from '@pfg2/dayjs'
+import { LoadingInterceptor } from '../components/loading/LoadingInterceptor'
+import { NotificationAction } from '../components/notifications/NotificationAction'
+import { useNotifications } from '../store/notifications/provider'
 
 export const Notifications = () => {
   // type INVITE HELP MESSAGE
   // status PENDING ACCEPTED REJECTED
-  // users and notifications relationship many to many
-  const notifications = [
-    {
-      type: 'INVITE',
-      status: 'REJECTED',
-      createdAt: dayjs().format(),
-      content: 'User1 te convidou para fazer parte do grupo "familia 1"',
-      seen: false,
-    },
-    {
-      type: 'INVITE',
-      status: 'ACCEPTED',
-      createdAt: dayjs().format(),
-      content: 'User1 te convidou para fazer parte do grupo "familia 1"',
-      seen: false,
-    },
-    {
-      type: 'INVITE',
-      status: 'PENDING',
-      createdAt: dayjs().format(),
-      content: 'User1 te convidou para fazer parte do grupo "familia 1"',
-      seen: true,
-    },
-    {
-      type: 'HELP',
-      createdAt: dayjs().format(),
-      content:
-        'User1 solicitou ajuda. Você está a x km de distância. Trace uma rota utilizando o google maps: https://google.maps/route',
-      seen: true,
-    },
-    {
-      type: 'MESSAGE',
-      createdAt: dayjs().format(),
-      content: 'Grupo 1 tem novas mensagens.',
-      seen: true,
-    },
-  ]
+  // users and notifications relationship one to many
+  const {
+    actions: { getNotifications, markUnreadNotificationsAsRead },
+    state: { notifications, queryLoading },
+  } = useNotifications()
+  const navigation = useNavigation()
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('blur', () => {
+      markUnreadNotificationsAsRead()
+    })
+
+    return unsubscribe
+  }, [navigation])
+
+  useFocusEffect(
+    useCallback(() => {
+      getNotifications()
+    }, [])
+  )
+
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <Center>ss</Center>
-    </SafeAreaView>
+    <LoadingInterceptor loading={queryLoading}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <Center>
+          <FlatList
+            data={notifications}
+            renderItem={({ item }) => (
+              <Box borderBottomWidth="1" p="3" opacity={item.seen ? 40 : 100}>
+                <Row space={3} justifyContent="space-between">
+                  <Column space={1} w="70%">
+                    <Text>{item.content}</Text>
+                    <Text bold>{item.createdAt}</Text>
+                  </Column>
+                  <NotificationAction
+                    type={item.type}
+                    status={item.status}
+                    sender={item.sender}
+                  />
+                </Row>
+              </Box>
+            )}
+          />
+        </Center>
+      </SafeAreaView>
+    </LoadingInterceptor>
   )
 }

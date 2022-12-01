@@ -1,5 +1,3 @@
-import { FontAwesome5 } from '@expo/vector-icons'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import {
   hasServicesEnabledAsync,
   requestBackgroundPermissionsAsync,
@@ -7,16 +5,10 @@ import {
 } from 'expo-location'
 import { useEffect, useRef, useState } from 'react'
 import { AppState, Platform } from 'react-native'
-import { Emergency } from '../../screens/Emergency'
-import { Notifications } from '../../screens/Notifications'
 import { LoggedProviders } from '../../store/combined/logged'
 import { LoadingInterceptor } from '../loading/LoadingInterceptor'
-import { Left } from '../navbar/Left'
-import { Right } from '../navbar/Right'
 import { NoLocationPermissions } from '../NoLocationPermissions'
-import { HomeStack } from './HomeStack'
-
-const Tab = createBottomTabNavigator()
+import { BottomTabs } from './BottomTabs'
 
 export const LoggedTabs = () => {
   const [perms, setPerms] = useState(false)
@@ -58,40 +50,8 @@ export const LoggedTabs = () => {
 
   return (
     <LoggedProviders>
-      <LoadingInterceptor extra={[loading]}>
-        <Tab.Navigator
-          screenOptions={{
-            headerLeft: (props) => <Left {...props} />,
-            headerRight: (props) => <Right {...props} />,
-            headerShadowVisible: true,
-          }}
-        >
-          <Tab.Screen
-            name="Home"
-            options={{
-              headerTransparent: true,
-              tabBarIcon: (props) => <FontAwesome5 name="map" {...props} />,
-            }}
-            component={HomeStack}
-          />
-          <Tab.Screen
-            name="Emergência"
-            options={{
-              tabBarIcon: (props) => (
-                <FontAwesome5 name="exclamation-circle" {...props} />
-              ),
-            }}
-            component={Emergency}
-          />
-          <Tab.Screen
-            name="Notificações"
-            options={{
-              tabBarIcon: (props) => <FontAwesome5 name="bell" {...props} />,
-              tabBarBadge: 3,
-            }}
-            component={Notifications}
-          />
-        </Tab.Navigator>
+      <LoadingInterceptor loading={loading}>
+        <BottomTabs />
       </LoadingInterceptor>
     </LoggedProviders>
   )

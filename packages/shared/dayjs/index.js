@@ -2,13 +2,13 @@ import dayjs from 'dayjs'
 
 // import the plugins
 
-// import timezone from 'dayjs/plugin/timezone'
-// import utc from 'dayjs/plugin/utc'
+import ptBR from 'dayjs/locale/pt-br.js'
+import localizedFormat from 'dayjs/plugin/localizedFormat.js'
 
 // apply the plugins
 
-// dayjs.extend(timezone)
-// dayjs.extend(utc)
+dayjs.extend(localizedFormat)
+dayjs.locale(ptBR)
 
 // export the shared dayjs
 
