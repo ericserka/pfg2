@@ -17,5 +17,5 @@ export const sanitizeText = (text) =>
 export const removeSpecialCharacters = (str) => str.replace(/[^a-zA-Z0-9]/g, '')
 
 export const removeDuplicateArrayObjectsById = (arr) => [
-  ...new Map(arr.map((m) => [m.id, m])).values(),
+  ...new Map(arr.map((obj) => [obj.id, obj])).values(),
 ]
