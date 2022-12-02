@@ -17,3 +17,9 @@ export const findUserById = async (id) =>
 export const createUser = async (data) => await prisma.user.create({ data })
 
 export const removeUserPassword = (user) => ({ ...user, password: undefined })
+
+export const findUserByIdWithGroups = async (id) =>
+  await prisma.user.findUniqueOrThrow({
+    where: { id },
+    include: { groups: { include: { members: true } } },
+  })

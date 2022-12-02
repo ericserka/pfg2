@@ -39,32 +39,46 @@ enum Ethnicity {
   PREFER_NOT_TO_INFORM
 }
 
+enum NotificationType {
+  INVITE
+  HELP
+  MESSAGE
+}
+
+enum NotificationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
 model User {
-  id                Int               @id @default(autoincrement())
-  email             String            @unique
-  name              String
-  username          String            @unique
-  phoneNumber       String            @unique
-  birthday          String
-  gender            Gender
-  sexualOrientation SexualOrientation
-  ethnicity         Ethnicity
-  password          String
-  profilePic        String            @db.LongText
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  groups            Group[]
-  messages          Message[]
+  id                    Int               @id @default(autoincrement())
+  email                 String            @unique
+  name                  String
+  username              String            @unique
+  phoneNumber           String            @unique
+  birthday              String
+  gender                Gender
+  sexualOrientation     SexualOrientation
+  ethnicity             Ethnicity
+  password              String
+  profilePic            String            @db.LongText
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  groups                Group[]
+  messages              Message[]
+  sentNotifications     Notification[]    @relation("sender")
+  receivedNotifications Notification[]    @relation("receiver")
 }
 
 model Group {
-  id         Int       @id @default(autoincrement())
-  name       String
-  inviteCode String    @unique
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  members    User[]
-  messages   Message[]
+  id            Int            @id @default(autoincrement())
+  name          String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  members       User[]
+  messages      Message[]
+  notifications Notification[]
 }
 
 model Message {
@@ -76,4 +90,20 @@ model Message {
   senderId  Int
   group     Group?   @relation(fields: [groupId], references: [id])
   groupId   Int?
+}
+
+model Notification {
+  id         Int                 @id @default(autoincrement())
+  content    String              @db.LongText
+  type       NotificationType
+  status     NotificationStatus?
+  seen       Boolean             @default(false)
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  sender     User?               @relation("sender", fields: [senderId], references: [id])
+  senderId   Int?
+  receiver   User                @relation("receiver", fields: [receiverId], references: [id])
+  receiverId Int
+  group      Group?              @relation(fields: [groupId], references: [id])
+  groupId    Int?
 }

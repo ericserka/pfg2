@@ -2,6 +2,7 @@ import { log } from '@pfg2/logger'
 import { Prisma } from '@prisma/client'
 import { StatusCodes } from 'http-status-codes'
 import {
+  PRISMA_QUERY_INTERPRETATION_ERROR,
   PRISMA_RECORD_NOT_FOUND_ERROR,
   PRISMA_UNIQUE_CONSTRAINT_ERROR,
 } from '../constants.js'
@@ -16,6 +17,8 @@ export class ErrorHandler extends Error {
 
 export const handleError = (err, customMessage) => {
   log.error(err)
+  console.error(err.constructor)
+  log.debug(err?.code)
   switch (err.constructor) {
     case ErrorHandler:
       return err
@@ -30,6 +33,8 @@ export const handleError = (err, customMessage) => {
           return new ErrorHandler(StatusCodes.CONFLICT, customMessage)
         case PRISMA_RECORD_NOT_FOUND_ERROR:
           return new ErrorHandler(StatusCodes.NOT_FOUND, customMessage)
+        case PRISMA_QUERY_INTERPRETATION_ERROR:
+          return new ErrorHandler(StatusCodes.BAD_REQUEST, customMessage)
         default:
           return null
       }
