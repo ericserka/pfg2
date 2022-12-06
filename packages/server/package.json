@@ -5,15 +5,17 @@
   "license": "MIT",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "migrate": "cd ../../ && npx prisma migrate dev",
-    "generate-prisma-client": "cd ../../ && npx prisma generate"
+    "prisma:inline": "cp ../../node_modules/.prisma/client/*.js ../../node_modules/@prisma/client",
+    "prisma:migrate": "cd ../../ && npx prisma migrate deploy && yarn workspace @pfg2/server prisma:inline",
+    "prisma:migrate:dev": "cd ../../ && npx prisma migrate dev && yarn workspace @pfg2/server prisma:inline",
+    "prisma:generate": "cd ../../ && npx prisma generate && yarn workspace @pfg2/server prisma:inline"
   },
   "type": "module",
   "dependencies": {
     "@pfg2/dayjs": "*",
     "@pfg2/logger": "*",
     "@pfg2/snippets": "*",
-    "@prisma/client": "^4.4.0",
+    "@prisma/client": "^4.7.1",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
@@ -24,6 +26,7 @@
   },
   "devDependencies": {
     "morgan": "^1.10.0",
-    "nodemon": "^2.0.20"
+    "nodemon": "^2.0.20",
+    "prisma": "^4.7.1"
   }
 }

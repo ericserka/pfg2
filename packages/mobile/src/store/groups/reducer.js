@@ -14,6 +14,39 @@ export const userGroupsReducer = (state, action) => {
         ...state,
         current: action.payload,
       }
+    case 'RECEIVE_CHAT_MESSAGE':
+      return {
+        ...state,
+        current: {
+          ...state.current,
+          messages: [...state.current.messages, action.payload],
+        },
+      }
+    case 'RECEIVE_LOCATION_UPDATE':
+      if (!state.current) return state
+      return {
+        ...state,
+        current: {
+          ...state.current,
+          members: state.current.members.map((m) =>
+            m.id === action.payload.userId
+              ? {
+                  ...m,
+                  position: {
+                    lat: action.payload.position.latitude,
+                    lng: action.payload.position.longitude,
+                  },
+                  lastKnownLocationUpdatedAt: action.payload.timestamp,
+                }
+              : m
+          ),
+        },
+      }
+    case 'SET_USER_GROUPS_AMOUNT':
+      return {
+        ...state,
+        userGroupsAmount: action.payload,
+      }
     case 'QUERY_LOADING':
       return {
         ...state,

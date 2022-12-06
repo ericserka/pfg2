@@ -1,8 +1,10 @@
 import dayjs from '@pfg2/dayjs'
+import { log } from '@pfg2/logger'
 import { createContext, useContext, useEffect, useReducer } from 'react'
 import { showAlertError } from '../../helpers/actions/showAlertError'
 import { toggleMutationLoading } from '../../helpers/actions/toggleMutationLoading'
 import { toggleQueryLoading } from '../../helpers/actions/toggleQueryLoading'
+import { api } from '../../services/api/axios'
 import { notificationsReducer } from './reducer'
 
 const notificationsInitialState = {
@@ -39,103 +41,24 @@ export const NotificationsProvider = ({ children }) => {
   const getNotifications = async () => {
     toggleQueryLoading(dispatch)
     try {
-      console.log('buscando notificacoes...')
-      const notifications = [
-        {
-          type: 'INVITE',
-          status: 'PENDING',
-          createdAt: dayjs().format('lll'),
-          content: 'User1 te convidou para fazer parte do grupo "familia 1"',
-          seen: false,
-          sender: {
-            username: 'user1',
-          },
-          group: {
-            id: 1,
-          },
-        },
-        {
-          type: 'HELP',
-          createdAt: dayjs().format('lll'),
-          content:
-            'User1 solicitou ajuda. Você está a x km de distância. Trace uma rota utilizando o google maps: https://google.maps/route',
-          seen: false,
-          sender: {
-            username: 'user1',
-          },
-          group: undefined,
-        },
-        {
-          type: 'MESSAGE',
-          createdAt: dayjs().format('lll'),
-          content: 'Grupo 1 tem novas mensagens.',
-          seen: false,
-          sender: undefined,
-          group: {
-            id: 1,
-          },
-        },
-        {
-          type: 'INVITE',
-          status: 'REJECTED',
-          createdAt: dayjs().format('lll'),
-          content: 'User1 te convidou para fazer parte do grupo "familia 1"',
-          seen: true,
-          sender: {
-            username: 'user1',
-          },
-          group: {
-            id: 1,
-          },
-        },
-        {
-          type: 'INVITE',
-          status: 'ACCEPTED',
-          createdAt: dayjs().format('lll'),
-          content: 'User1 te convidou para fazer parte do grupo "familia 1"',
-          seen: true,
-          sender: {
-            username: 'user1',
-          },
-          group: {
-            id: 1,
-          },
-        },
-      ]
+      const { data } = await api.get(`/notifications`)
       dispatch({
         type: 'GET_NOTIFICATIONS',
-        payload: notifications,
+        payload: data,
       })
     } catch (err) {
       showAlertError(err)
     } finally {
-      await new Promise((r) => setTimeout(r, 2000))
       toggleQueryLoading(dispatch)
     }
   }
 
-  const acceptGroupInvite = async (data) => {
-    toggleMutationLoading(dispatch)
-    try {
-      console.log('aceitando convite de grupo...', data)
-      await getNotifications()
-    } catch (err) {
-      showAlertError(err)
-    } finally {
-      toggleMutationLoading(dispatch)
-    }
-  }
-
-  const rejectGroupInvite = async (data) => {
-    toggleMutationLoading(dispatch)
-    try {
-      console.log('rejeitando convite de grupo...', data)
-      await getNotifications()
-    } catch (err) {
-      showAlertError(err)
-    } finally {
-      toggleMutationLoading(dispatch)
-    }
+  const updateNotification = (notification) => {
+    log.debug('updateNotification', notification)
+    dispatch({
+      type: 'UPDATE_NOTIFICATION',
+      payload: notification,
+    })
   }
 
   const markUnreadNotificationsAsRead = async () => {
@@ -154,8 +77,7 @@ export const NotificationsProvider = ({ children }) => {
       value={{
         state,
         actions: {
-          acceptGroupInvite,
-          rejectGroupInvite,
+          updateNotification,
           getNotifications,
           markUnreadNotificationsAsRead,
           getNonReadNotificationsAmount,

@@ -15,7 +15,7 @@ export class ErrorHandler extends Error {
   }
 }
 
-export const handleError = (err, customMessage) => {
+export const handleHttpError = (err, customMessage) => {
   log.error(err)
   console.error(err.constructor)
   log.debug(err?.code)
@@ -44,5 +44,13 @@ export const handleError = (err, customMessage) => {
       return new ErrorHandler(StatusCodes.BAD_REQUEST, 'Requisição inválida.')
     default:
       return new ErrorHandler()
+  }
+}
+
+export const handleSocketIOError = (err, customMessage) => {
+  return {
+    ...handleHttpError(err, customMessage),
+    statusCode: undefined,
+    success: false,
   }
 }

@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native'
 import { Link, Row } from 'native-base'
 
-export const HelpAction = ({ sender }) => {
+export const HelpAction = ({ notification }) => {
   const { navigate } = useNavigation()
   return (
     <Row>
@@ -12,7 +12,7 @@ export const HelpAction = ({ sender }) => {
         }}
         // onPress={() => navigate('Help', {user: sender})}
       >
-        Acompanhar {sender.username}
+        Acompanhar {notification.sender.username}
       </Link>
     </Row>
   )

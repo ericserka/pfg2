@@ -52,33 +52,42 @@ enum NotificationStatus {
 }
 
 model User {
-  id                    Int               @id @default(autoincrement())
-  email                 String            @unique
-  name                  String
-  username              String            @unique
-  phoneNumber           String            @unique
-  birthday              String
-  gender                Gender
-  sexualOrientation     SexualOrientation
-  ethnicity             Ethnicity
-  password              String
-  profilePic            String            @db.LongText
-  createdAt             DateTime          @default(now())
-  updatedAt             DateTime          @updatedAt
-  groups                Group[]
-  messages              Message[]
-  sentNotifications     Notification[]    @relation("sender")
-  receivedNotifications Notification[]    @relation("receiver")
+  id                         Int               @id @default(autoincrement())
+  email                      String            @unique
+  name                       String
+  username                   String            @unique
+  phoneNumber                String            @unique
+  birthday                   String
+  gender                     Gender
+  sexualOrientation          SexualOrientation
+  ethnicity                  Ethnicity
+  password                   String
+  profilePic                 String            @db.LongText
+  createdAt                  DateTime          @default(now())
+  updatedAt                  DateTime          @updatedAt
+  groups                     Group[]           @relation("groupMembers")
+  messages                   Message[]
+  sentNotifications          Notification[]    @relation("sender")
+  receivedNotifications      Notification[]    @relation("receiver")
+  groupsThatOwn              Group[]           @relation("owner")
+  lastKnownLatitude          Float?
+  lastKnownLongitude         Float?
+  lastKnownLocationUpdatedAt DateTime?
+  defaultGroup               Group?            @relation("defaultGroup", fields: [defaultGroupId], references: [id])
+  defaultGroupId             Int?
 }
 
 model Group {
-  id            Int            @id @default(autoincrement())
-  name          String
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  members       User[]
-  messages      Message[]
-  notifications Notification[]
+  id                 Int            @id @default(autoincrement())
+  name               String
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  members            User[]         @relation("groupMembers")
+  messages           Message[]
+  notifications      Notification[]
+  usersThatIsDefault User[]         @relation("defaultGroup")
+  owner              User           @relation("owner", fields: [ownerId], references: [id])
+  ownerId            Int
 }
 
 model Message {
@@ -98,6 +107,8 @@ model Notification {
   type       NotificationType
   status     NotificationStatus?
   seen       Boolean             @default(false)
+  latitude   Float?
+  longitude  Float?
   createdAt  DateTime            @default(now())
   updatedAt  DateTime            @updatedAt
   sender     User?               @relation("sender", fields: [senderId], references: [id])

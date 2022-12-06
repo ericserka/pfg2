@@ -4,6 +4,7 @@ import Constants from 'expo-constants'
 export const SERVER_URL = Constants.expoConfig.extra.apiUrl
 
 export const JWT_KEY = Constants.expoConfig.extra.jwtKey
+export const LAST_GROUP_ID_KEY = Constants.expoConfig.extra.lastGroupIdKey
 
 const { width, height } = Dimensions.get('window')
 const ASPECT_RATIO = width / height

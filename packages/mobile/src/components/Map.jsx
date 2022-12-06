@@ -24,6 +24,8 @@ import { useUserGroup } from '../store/groups/provider'
 import { useUserLocation } from '../store/location/provider'
 import { useWebSocket } from '../store/websocket/provider'
 import { LoadingInterceptor } from './loading/LoadingInterceptor'
+import { Platform } from 'react-native'
+import dayjs from '@pfg2/dayjs'
 
 export const Map = () => {
   const { navigate } = useNavigation()
@@ -33,6 +35,7 @@ export const Map = () => {
     longitude: 0,
     latitudeDelta: LATITUDE_DELTA,
     longitudeDelta: LONGITUDE_DELTA,
+    updatedAt: null,
   })
 
   const {
@@ -46,7 +49,7 @@ export const Map = () => {
   } = useUserAuth()
   const {
     state: { current },
-    actions: { updateCurrentGroup },
+    actions: { receiveLocationUpdate },
   } = useUserGroup()
 
   const setCurrentLocation = async () => {
@@ -61,10 +64,6 @@ export const Map = () => {
       longitude,
     }))
   }
-
-  useEffect(() => {
-    setCurrentLocation()
-  }, [])
 
   useEffect(() => {
     let watchId = null
@@ -82,42 +81,34 @@ export const Map = () => {
             ...defaultLocation,
             latitude,
             longitude,
+            updatedAt: location.timestamp,
           }))
-          current &&
-            emitEventLocationChanged({
-              userId: session.id,
-              position: {
-                latitude,
-                longitude,
-              },
-            })
+          log.info(`[${session.username}] sent location-changed`)
+          emitEventLocationChanged({
+            userId: session.id,
+            position: {
+              latitude,
+              longitude,
+            },
+          })
         }
       )
     }
 
     watchPosition()
 
-    listenToLocationChanged((message) => {
-      log.info(`[${session.username}] received location update event`, message)
-      message.userId !== session.id &&
-        updateCurrentGroup({
-          members: current.members.map((u) =>
-            u.id === message.userId
-              ? {
-                  ...u,
-                  position: {
-                    lat: message.position.latitude,
-                    lng: message.position.longitude,
-                  },
-                }
-              : u
-          ),
-        })
-    })
-
     return () => {
       watchId?.remove()
     }
+  }, [])
+
+  useEffect(() => {
+    setCurrentLocation()
+
+    listenToLocationChanged((message) => {
+      log.info(`[${session.username}] received location update event`, message)
+      message.userId !== session.id && receiveLocationUpdate(message)
+    })
   }, [])
 
   const center = async () => {
@@ -132,6 +123,7 @@ export const Map = () => {
         lat: location.latitude,
         lng: location.longitude,
       },
+      lastKnownLocationUpdatedAt: location.updatedAt,
     },
   ].map(
     (u) =>
@@ -140,12 +132,10 @@ export const Map = () => {
         <Marker
           key={`marker_${u.position.lat}_${u.position.lng}`}
           identifier={`${u.id}`}
-          style={{
-            width: 100,
-            height: 100,
-          }}
           title={u.name}
-          description={u.email}
+          description={`${dayjs(
+            u?.lastKnownLocationUpdatedAt ?? undefined
+          ).format('lll')}`}
           coordinate={{
             latitude: u.position.lat,
             longitude: u.position.lng,
@@ -156,8 +146,8 @@ export const Map = () => {
               source={{
                 uri: u.profilePic,
               }}
-              w="10"
-              h="10"
+              w="12"
+              h="12"
               rounded="full"
               alt={`icon for user ${u.id}`}
             />
@@ -184,7 +174,7 @@ export const Map = () => {
         showsMyLocationButton={false}
         showsScale={false}
         showsTraffic={false}
-        maxZoomLevel={17}
+        maxZoomLevel={Platform.OS === 'ios' ? 17 : 20}
         showsBuildings={false}
         showsIndoors={false}
         showsIndoorLevelPicker={false}
@@ -204,20 +194,22 @@ export const Map = () => {
           <FontAwesome5 name="crosshairs" size={30} color={COLOR_PRIMARY_600} />
         }
       />
-      <IconButton
-        onPress={() => navigate('Chat')}
-        position="absolute"
-        right="3"
-        top="24"
-        rounded="full"
-        icon={
-          <FontAwesome5
-            name="user-friends"
-            size={25}
-            color={COLOR_PRIMARY_600}
-          />
-        }
-      />
+      {!!current && (
+        <IconButton
+          onPress={() => navigate('Chat')}
+          position="absolute"
+          right="3"
+          top="24"
+          rounded="full"
+          icon={
+            <FontAwesome5
+              name="comment-dots"
+              size={25}
+              color={COLOR_PRIMARY_600}
+            />
+          }
+        />
+      )}
     </LoadingInterceptor>
   )
 }

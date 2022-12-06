@@ -3,9 +3,7 @@ import { createContext, useContext, useEffect } from 'react'
 import io from 'socket.io-client'
 import { SERVER_URL } from '../../constants'
 
-export const socket = io(SERVER_URL, {
-  transports: ['websocket'],
-})
+export const socket = io(SERVER_URL)
 
 const WebSocketContext = createContext({
   socket,
@@ -29,10 +27,6 @@ export const WebSocketProvider = ({ children }) => {
     }
   }, [])
 
-  const emitEventInitSocket = (cb) => {
-    socket.emit('init-connection', null, cb)
-  }
-
   const emitEventSendMessage = (message, cb) => {
     socket.emit('send-message', message, cb)
   }
@@ -49,8 +43,24 @@ export const WebSocketProvider = ({ children }) => {
     socket.on('location-changed', cb)
   }
 
-  const emitEventJoinGroup = (userId, code) => {
-    socket.emit('join-group', { userId, code })
+  const emitEventJoinGroup = (userId, groupId) => {
+    socket.emit('join-group', { userId, groupId })
+  }
+
+  const emitEventLeaveGroup = (userId, groupId) => {
+    socket.emit('leave-group', { userId, groupId })
+  }
+
+  const emitEventRemoveGroupMember = (groupId, userId, cb) => {
+    socket.emit('remove-group-member', { groupId, userId }, cb)
+  }
+
+  const emitEventRejectGroupInvite = (notificationId, cb) => {
+    socket.emit('reject-group-invite', { notificationId }, cb)
+  }
+
+  const emitEventAcceptGroupInvite = (notificationId, groupId, userId, cb) => {
+    socket.emit('accept-group-invite', { notificationId, groupId, userId }, cb)
   }
 
   return (
@@ -58,12 +68,15 @@ export const WebSocketProvider = ({ children }) => {
       value={{
         socket,
         actions: {
-          emitEventInitSocket,
           emitEventLocationChanged,
           emitEventSendMessage,
           listenToMessageAdded,
           listenToLocationChanged,
           emitEventJoinGroup,
+          emitEventLeaveGroup,
+          emitEventRemoveGroupMember,
+          emitEventAcceptGroupInvite,
+          emitEventRejectGroupInvite,
         },
       }}
     >

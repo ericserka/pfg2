@@ -3,8 +3,8 @@ import { log } from '@pfg2/logger'
 import { findGroupsByUserId } from '../services/groupsService.js'
 import { findUserById } from '../services/usersService.js'
 
-export const onLocationChange = async (socket, args) => {
-  const { position, userId, io } = args
+const onLocationChange = async (socket, args) => {
+  const { position, userId } = args
   const user = await findUserById(userId)
   const groups = await findGroupsByUserId(userId)
 
@@ -19,4 +19,8 @@ export const onLocationChange = async (socket, args) => {
   )
 
   socket.to(groups.map((g) => g.id)).emit('location-changed', message)
+}
+
+export const locationEventListeners = (socket) => {
+  socket.on('send-location', (args) => onLocationChange(socket, args))
 }

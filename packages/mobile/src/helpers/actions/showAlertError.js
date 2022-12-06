@@ -1,6 +1,8 @@
 import { Alert } from 'react-native'
-import { handleError } from '../errors'
+import { handleHttpError } from '../errors'
+import { log } from '@pfg2/logger'
 
 export const showAlertError = (error) => {
-  Alert.alert('Erro', handleError(error))
+  log.error(error)
+  Alert.alert('Erro', handleHttpError(error))
 }

@@ -24,6 +24,13 @@ export const notificationsReducer = (state, action) => {
         ...state,
         non_read_notifications_amount: action.payload,
       }
+    case 'UPDATE_NOTIFICATION':
+      return {
+        ...state,
+        notifications: state.notifications.map((n) =>
+          n.id === action.payload.id ? { ...n, ...action.payload } : n
+        ),
+      }
     default:
       return state
   }

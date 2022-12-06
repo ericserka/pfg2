@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
-import { ErrorHandler, handleError } from '../helpers/errors.js'
+import { ErrorHandler, handleHttpError } from '../helpers/errors.js'
 import {
   generateAuthToken,
   hashPassword,
@@ -24,7 +24,7 @@ export const login = async (req, res, next) => {
       .status(StatusCodes.OK)
       .json({ ...removeUserPassword(user), token })
   } catch (error) {
-    next(handleError(error, 'Usuário não encontrado.'))
+    next(handleHttpError(error, 'Usuário não encontrado.'))
   }
 }
 
@@ -37,7 +37,7 @@ export const register = async (req, res, next) => {
     return res.status(StatusCodes.CREATED).json(removeUserPassword(user))
   } catch (error) {
     return next(
-      handleError(
+      handleHttpError(
         error,
         'Usuário com nome de usuário, e-mail ou celular já cadastrado.'
       )

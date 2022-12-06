@@ -26,6 +26,8 @@ export const Left = (props) => {
     <Flex ml="3" align="center" justify="center" direction="column" {...props}>
       <Pressable onPress={pickImage}>
         <Avatar
+          w="10"
+          h="10"
           source={{
             uri: session.profilePic,
           }}

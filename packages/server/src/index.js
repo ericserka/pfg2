@@ -11,6 +11,8 @@ import { useAuthRouter } from './routes/authRoute.js'
 import { useGroupRouter } from './routes/groupsRoute.js'
 import { useNotificationRouter } from './routes/notificationsRoute.js'
 import { useUserRouter } from './routes/usersRoute.js'
+import { acceptGroupInviteNotificationById } from './services/notificationsService.js'
+import { countUsersGroupsAmount } from './services/usersService.js'
 import { SocketHandler } from './socket-handler/index.js'
 
 const app = express()
@@ -30,6 +32,10 @@ app.use(authMiddleware)
 useUserRouter(app)
 useGroupRouter(app)
 useNotificationRouter(app)
+
+app.get('/', async (_req, res) => {
+  res.json(await acceptGroupInviteNotificationById(34, 12, 24))
+})
 
 // errorMiddleware must be the last one
 app.use(errorMiddleware)

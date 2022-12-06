@@ -11,7 +11,7 @@ import { ControlledImagePicker } from '../../components/inputs/ControlledImagePi
 import { ControlledPasswordInput } from '../../components/inputs/ControlledPasswordInput'
 import { ControlledSelectInput } from '../../components/inputs/ControlledSelectInput'
 import { ControlledTextInput } from '../../components/inputs/ControlledTextInput'
-import { toggleSuccessToast } from '../../helpers/toasts/toggleSuccessToast'
+import { toggleToast } from '../../helpers/toasts/toggleToast'
 import { useUserAuth } from '../../store/auth/provider'
 
 export const SignUp = () => {
@@ -38,7 +38,7 @@ export const SignUp = () => {
       },
       () => {
         navigate('Entrar')
-        toggleSuccessToast(toast, 'Cadastro realizado com sucesso!')
+        toggleToast(toast, 'Cadastro realizado com sucesso!', 'success')
       }
     )
   }

@@ -1,18 +1,11 @@
 import { prisma } from '../helpers/prisma.js'
-import { generateToken } from './jwtService.js'
-import crypto from 'crypto'
+import { createInviteNotifications } from './notificationsService.js'
+import { ifNoGroupsSetNewAsDefault } from './usersService.js'
 
 export const findGroupById = async (id) =>
   await prisma.group.findUniqueOrThrow({
     where: {
       id,
-    },
-  })
-
-export const findGroupByInviteCode = async (code) =>
-  await prisma.group.findUniqueOrThrow({
-    where: {
-      invite_code: code,
     },
   })
 
@@ -62,8 +55,8 @@ export async function FindOrCreateGroup(group, userId) {
   })
 }
 
-export const linkUserToGroup = (userId, groupId) =>
-  prisma.group.update({
+export const linkUserToGroup = async (userId, groupId, tx) =>
+  await (tx ?? prisma).group.update({
     where: {
       id: groupId,
     },
@@ -76,10 +69,46 @@ export const linkUserToGroup = (userId, groupId) =>
     },
   })
 
-export const generateGroupToken = (groupId) =>
-  crypto
-    .createHash('md5')
-    .update(groupId)
-    .digest('hex')
-    .slice(0, 6)
-    .toUpperCase()
+export const unlinkUserFromGroup = async (userId, groupId) =>
+  await prisma.group.update({
+    where: {
+      id: groupId,
+    },
+    data: {
+      members: {
+        disconnect: {
+          id: userId,
+        },
+      },
+    },
+  })
+
+export const createGroupService = async (
+  groupName,
+  owner,
+  membersToInviteIds
+) =>
+  await prisma.$transaction(async (tx) => {
+    const group = await tx.group.create({
+      data: {
+        name: groupName,
+        owner: {
+          connect: { id: owner.id },
+        },
+        members: {
+          connect: { id: owner.id },
+        },
+      },
+    })
+    await createInviteNotifications(
+      membersToInviteIds.map((m) => ({
+        receiverId: m,
+        senderId: owner.id,
+        groupId: group.id,
+        content: `${owner.username} te convidou para fazer parte do grupo '${groupName}'`,
+      })),
+      tx
+    )
+    await ifNoGroupsSetNewAsDefault(owner.id, group.id, tx)
+    return group
+  })

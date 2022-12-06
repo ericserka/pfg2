@@ -1,28 +1,65 @@
+import { log } from '@pfg2/logger'
 import { StatusCodes } from 'http-status-codes'
-import { handleError } from '../helpers/errors.js'
+import { handleHttpError } from '../helpers/errors.js'
 import {
-  findGroupByInviteCode,
   findGroupsByUserId,
-  linkUserToGroup,
+  createGroupService,
 } from '../services/groupsService.js'
+import { createInviteNotifications } from '../services/notificationsService.js'
 
 export const getCurrentUserGroups = async (req, res, next) => {
   try {
-    return res
-      .status(StatusCodes.OK)
-      .json(await findGroupsByUserId(req.user.id))
+    const groups = await findGroupsByUserId(req.user.id)
+    return res.status(StatusCodes.OK).json(
+      groups.map((group) => ({
+        ...group,
+        members: group.members.map((member) => ({
+          ...member,
+          position: {
+            lat: member.lastKnownLatitude,
+            lng: member.lastKnownLongitude,
+          },
+          lastKnownLatitude: undefined,
+          lastKnownLongitude: undefined,
+        })),
+      }))
+    )
   } catch (error) {
-    return next(handleError(error, 'Usuário não encontrado.'))
+    return next(handleHttpError(error, 'Usuário não encontrado.'))
   }
 }
 
-export const joinGroupByInvite = async (req, res, next) => {
-  const { code } = req.body
+export const createGroup = async (req, res, next) => {
+  // se o usuario nao tiver nenhum grupo, tornar esse grupo criado o grupo default
   try {
-    const group = await findGroupByInviteCode(code)
-    await linkUserToGroup(userId, group.id)
-    return res.status(StatusCodes.OK).json({ ok: true })
+    const { name, membersToInviteIds } = req.body
+    return res
+      .status(StatusCodes.CREATED)
+      .json(await createGroupService(name, req.user, membersToInviteIds))
   } catch (error) {
-    return next(handleError(error, 'Falha ao entrar no grupo.'))
+    return next(handleHttpError(error))
   }
 }
+
+export const inviteMembersToGroup = async (req, res, next) => {
+  try {
+    const {
+      group: { id: groupId, name: groupName },
+      membersToInviteIds,
+    } = req.body
+    const { id, username } = req.user
+    return res.status(StatusCodes.OK).json(
+      await createInviteNotifications(
+        membersToInviteIds.map((m) => ({
+          receiverId: m,
+          senderId: id,
+          groupId: groupId,
+          content: `${username} te convidou para fazer parte do grupo '${groupName}'`,
+        }))
+      )
+    )
+  } catch (error) {
+    return next(handleHttpError(error))
+  }
+}
+// endpoint pra definir grupo default

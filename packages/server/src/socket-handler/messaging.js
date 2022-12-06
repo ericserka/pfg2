@@ -3,7 +3,7 @@ import { findGroupById, FindOrCreateGroup } from '../services/groupsService.js'
 import { findUserById } from '../services/usersService.js'
 import { createMessage } from '../services/messagesService.js'
 
-export const onJoinChat = async (socket, args) => {
+const onJoinChat = async (socket, args) => {
   const { userId, groupId } = args
 
   const [user, group] = await Promise.all([
@@ -15,24 +15,21 @@ export const onJoinChat = async (socket, args) => {
   log.info(`${socket.id}:${user.username} connected to group: ${group.id}`)
 }
 
-export const onLeaveChat = async (socket, args, cb) => {
+const onLeaveChat = async (socket, args) => {
   const { groupId, userId } = args
   socket.leave(groupId)
 
   const user = await findUserById(userId)
-  if (user) {
-    log.info(`${socket.id}:${user.username} left group: ${groupId}`)
-    cb(null)
-  } else {
-    cb({ message: 'user not found' })
-  }
+  log.info(`${socket.id}:${user.username} left group: ${groupId}`)
 }
 
-export const onSendMessage = async (socket, args, cb) => {
+const onSendMessage = async (socket, args, cb) => {
   const { groupId, userId, content } = args
 
-  const user = await findUserById(userId)
-  const group = await findGroupById(groupId)
+  const [user, group] = await Promise.all([
+    findUserById(userId),
+    findGroupById(groupId),
+  ])
 
   if (user && group) {
     const message = await createMessage({
@@ -58,7 +55,7 @@ export const onSendMessage = async (socket, args, cb) => {
   }
 }
 
-export async function onNewGroup(socket, args, cb) {
+async function onNewGroup(socket, args, cb) {
   const { userId, name } = args
   const user = await findUserById(userId)
 
@@ -78,4 +75,14 @@ export async function onNewGroup(socket, args, cb) {
   } else {
     cb({ message: 'invalid user' }, null)
   }
+}
+
+export const messagingEventListeners = (socket) => {
+  socket.on('join-group', (args, cb) => onJoinChat(socket, args))
+
+  socket.on('leave-group', (args, cb) => onLeaveChat(socket, args))
+
+  socket.on('send-message', (args, cb) => onSendMessage(socket, args, cb))
+
+  socket.on('new-group', (args, cb) => onNewGroup(socket, args, cb))
 }

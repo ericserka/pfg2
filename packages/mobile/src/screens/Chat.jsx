@@ -2,48 +2,60 @@ import { FontAwesome5 } from '@expo/vector-icons'
 import dayjs from '@pfg2/dayjs'
 import { useNavigation } from '@react-navigation/native'
 import {
-  Button,
   Center,
-  CheckIcon,
   FlatList,
   Flex,
-  FormControl,
   HStack,
   IconButton,
-  Input,
   KeyboardAvoidingView,
-  Modal,
-  Select,
   Text,
   TextArea,
   VStack,
 } from 'native-base'
 import { useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { ChatActions } from '../components/ChatActions'
 import { COLOR_PRIMARY_600 } from '../constants'
 import { useUserAuth } from '../store/auth/provider'
 import { useUserGroup } from '../store/groups/provider'
 import { useWebSocket } from '../store/websocket/provider'
+import { log } from '@pfg2/logger'
 
 export const Chat = () => {
-  const { goBack, navigate } = useNavigation()
+  const { goBack } = useNavigation()
   const messageListRef = useRef(null)
-  const [modalVisible, setModalVisible] = useState(false)
+  const [text, setText] = useState('')
 
   const {
-    state: { current, groups },
-    actions: { updateCurrentGroup },
+    state: { current },
+    actions: { receiveChatMessage },
   } = useUserGroup()
   const {
     state: { session },
   } = useUserAuth()
   const {
-    actions: { emitEventSendMessage, listenToMessageAdded, emitEventJoinGroup },
+    actions: { emitEventSendMessage, listenToMessageAdded },
   } = useWebSocket()
 
-  const [text, setText] = useState('')
-  const canSendMessage = current?.members.length
+  const canSendMessage = current?.members?.length
+
+  useEffect(() => {
+    listenToMessageAdded((message) => {
+      log.info(`[${session.username}] received message event`, message)
+      receiveChatMessage(message)
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!current.messages?.length) return
+
+    scrollToBottom()
+  }, [])
+
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      messageListRef?.current.scrollToEnd({ animated: true })
+    }, 500)
+  }
 
   const handleSend = () => {
     const sanitezedText = text.trim()
@@ -56,30 +68,14 @@ export const Chat = () => {
     }
 
     emitEventSendMessage(message, (_, returned) => {
-      updateCurrentGroup({
-        messages: [...current?.messages, returned],
-      })
+      log.info(`[${session.username}] sent message event`, returned)
+      receiveChatMessage(returned)
     })
 
     setText('')
+
+    scrollToBottom()
   }
-
-  useEffect(() => {
-    listenToMessageAdded((returned) => {
-      console.log('listenToMessageAdded', returned)
-      updateCurrentGroup({
-        messages: [...current?.messages, returned],
-      })
-    })
-  }, [])
-
-  useEffect(() => {
-    if (!current) return
-
-    setTimeout(() => {
-      messageListRef?.current?.scrollToEnd({ animated: true })
-    }, 500)
-  }, [current?.messages])
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
@@ -104,45 +100,18 @@ export const Chat = () => {
             icon={
               <FontAwesome5
                 name="arrow-left"
-                size={30}
+                size={25}
                 color={COLOR_PRIMARY_600}
               />
             }
           />
-          {!current ? (
-            <Text w="2xs" fontSize="md" fontWeight="medium" textAlign="center">
-              Clique no ícone ao lado para criar um grupo
-            </Text>
-          ) : (
-            <FormControl w="2xs">
-              <Select
-                onValueChange={(value) => {
-                  updateCurrentGroup(groups.find((g) => g.id === value))
-                }}
-                selectedValue={current?.id ?? 0}
-                _selectedItem={
-                  current && {
-                    bg: 'primary.100',
-                    endIcon: (
-                      <Center>
-                        <CheckIcon size={5} />
-                      </Center>
-                    ),
-                    fontWeight: 'semibold',
-                  }
-                }
-              >
-                {groups?.map((g) => (
-                  <Select.Item key={g.id} label={g.name} value={g.id} />
-                ))}
-              </Select>
-            </FormControl>
-          )}
           <IconButton
-            onPress={() => setModalVisible((v) => !v)}
+            onPress={() => {
+              // navigate to details
+            }}
             rounded="full"
             icon={
-              <FontAwesome5 name="plus" size={30} color={COLOR_PRIMARY_600} />
+              <FontAwesome5 name="info" size={25} color={COLOR_PRIMARY_600} />
             }
           />
         </Flex>
@@ -150,14 +119,12 @@ export const Chat = () => {
           bg="gray.200"
           ref={messageListRef}
           px="3"
-          data={current?.messages}
+          data={current.messages}
           keyExtractor={(item) => item.id}
           ListEmptyComponent={() => (
             <Center px="3" mt="50%">
               <Text fontSize={20} textAlign="center" fontWeight="semibold">
-                {!current
-                  ? 'Crie um grupo para começar a conversar! 🥳'
-                  : canSendMessage
+                {canSendMessage
                   ? 'Nenhuma mensagem enviada ainda 🥹'
                   : 'Você está sozinho 😕. Convide alguém para conversar!'}
               </Text>
@@ -202,7 +169,7 @@ export const Chat = () => {
           bg="white"
         >
           <TextArea
-            isDisabled={!canSendMessage || !current}
+            isDisabled={!canSendMessage}
             value={text}
             onChangeText={setText}
             w="95%"
@@ -235,10 +202,6 @@ export const Chat = () => {
             }
           />
         </Flex>
-        <ChatActions
-          modalVisible={modalVisible}
-          setModalVisible={setModalVisible}
-        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   )

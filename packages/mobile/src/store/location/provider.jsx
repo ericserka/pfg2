@@ -1,6 +1,7 @@
 import { getLastKnownPositionAsync } from 'expo-location'
-import { createContext, useContext, useReducer } from 'react'
+import { createContext, useContext, useReducer, useEffect } from 'react'
 import { userLocationReducer } from './reducer'
+import { api } from '../../services/api/axios'
 
 const locationObjectToLiteral = (loc) => ({
   latitude: loc.coords.latitude,
@@ -23,6 +24,20 @@ export const UserLocationProvider = ({ children }) => {
     userLocationReducer,
     userLocationInitialState
   )
+
+  useEffect(() => {
+    return () => {
+      sendLastPosition()
+    }
+  }, [])
+
+  const sendLastPosition = async () => {
+    const position = await getUserPosition()
+    await api.post('/users/last-loc', {
+      latitude: position.latitude,
+      longitude: position.longitude,
+    })
+  }
 
   const getUserPosition = async () => {
     const loc = await getLastKnownPositionAsync()
