@@ -6,7 +6,6 @@
   "author": "ericserka <ericserka@hotmail.com>",
   "license": "MIT",
   "scripts": {
-    "deps:install": "yarn --cwd packages/mobile && yarn --cwd packages/server",
-    "deps:remove": "find . -type d -name node_modules -exec rmdir {} \\;"
+    "deps:add": "yarn --cwd mobile && yarn --cwd server"
   }
 }

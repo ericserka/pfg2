@@ -2,8 +2,8 @@ import dayjs from 'dayjs'
 
 // import the plugins
 
-import ptBR from 'dayjs/locale/pt-br.js'
-import localizedFormat from 'dayjs/plugin/localizedFormat.js'
+import ptBR from 'dayjs/locale/pt-br'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
 
 // apply the plugins
 

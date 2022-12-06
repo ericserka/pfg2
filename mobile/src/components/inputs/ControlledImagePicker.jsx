@@ -26,8 +26,8 @@ export const ControlledImagePicker = ({
       allowsMultipleSelection: false,
       base64: true,
     })
-    if (!result.cancelled) {
-      setValue(name, `data:image/jpeg;base64,${result.base64}`)
+    if (!result.canceled) {
+      setValue(name, `data:image/jpeg;base64,${result.assets[0].base64}`)
     }
     trigger(name)
   }
