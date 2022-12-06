@@ -1,5 +1,4 @@
 import { FontAwesome, FontAwesome5 } from '@expo/vector-icons'
-import { log } from '@pfg2/logger'
 import { NavigationContainer } from '@react-navigation/native'
 import * as Font from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen'
@@ -8,6 +7,7 @@ import { NativeBaseProvider, View } from 'native-base'
 import { useCallback, useEffect, useState } from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { StackNavigator } from './src/components/routes/StackNavigator'
+import { log } from './src/helpers/logger'
 import { UserAuthProvider } from './src/store/auth/provider'
 
 SplashScreen.preventAutoHideAsync()

@@ -1,4 +1,3 @@
-import { log } from '@pfg2/logger'
 import { prisma } from '../helpers/prisma.js'
 import { linkUserToGroup } from './groupsService.js'
 import { ifNoGroupsSetNewAsDefault } from './usersService.js'

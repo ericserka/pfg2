@@ -1,4 +1,4 @@
-import { log } from '@pfg2/logger'
+import { log } from '../../helpers/logger'
 
 export const userLocationReducer = (state, action) => {
   log.debug(`[LOCATION] action of type ${action.type} fired`)

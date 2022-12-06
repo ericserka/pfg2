@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { JWT_KEY, LAST_GROUP_ID_KEY } from '../../constants'
-import { log } from '@pfg2/logger'
+import { log } from '../../helpers/logger'
 
 export const storeJwtLocal = async (jwt) => {
   if (!jwt) return

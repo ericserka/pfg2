@@ -1,5 +1,4 @@
 import { FontAwesome5 } from '@expo/vector-icons'
-import dayjs from '@pfg2/dayjs'
 import { useNavigation } from '@react-navigation/native'
 import {
   Center,
@@ -15,10 +14,11 @@ import {
 import { useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { COLOR_PRIMARY_600 } from '../constants'
+import dayjs from '../helpers/dayjs'
+import { log } from '../helpers/logger'
 import { useUserAuth } from '../store/auth/provider'
 import { useUserGroup } from '../store/groups/provider'
 import { useWebSocket } from '../store/websocket/provider'
-import { log } from '@pfg2/logger'
 
 export const Chat = () => {
   const { goBack } = useNavigation()

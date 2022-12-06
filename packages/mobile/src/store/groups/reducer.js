@@ -1,4 +1,4 @@
-import { log } from '@pfg2/logger'
+import { log } from '../../helpers/logger'
 
 export const userGroupsReducer = (state, action) => {
   log.debug(`[GROUPS] action of type ${action.type} fired`)

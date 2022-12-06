@@ -1,5 +1,5 @@
+import { dayjs } from '../helpers/dayjs.js'
 import { prisma } from '../helpers/prisma.js'
-import dayjs from '@pfg2/dayjs'
 
 export const findUserByEmailAddress = async (email) =>
   await prisma.user.findUniqueOrThrow({

@@ -1,7 +1,7 @@
 import { config } from 'dotenv'
 import { StatusCodes } from 'http-status-codes'
 
-config({ path: '../../.env' })
+config()
 
 export const JWT_SECRET = process.env.JWT_SECRET
 export const PRISMA_UNIQUE_CONSTRAINT_ERROR = 'P2002'

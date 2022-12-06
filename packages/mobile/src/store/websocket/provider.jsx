@@ -1,7 +1,7 @@
-import { log } from '@pfg2/logger'
 import { createContext, useContext, useEffect } from 'react'
 import io from 'socket.io-client'
 import { SERVER_URL } from '../../constants'
+import { log } from '../../helpers/logger'
 
 export const socket = io(SERVER_URL)
 

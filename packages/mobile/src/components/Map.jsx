@@ -1,5 +1,4 @@
 import { FontAwesome5 } from '@expo/vector-icons'
-import { log } from '@pfg2/logger'
 import { useNavigation } from '@react-navigation/native'
 import {
   Accuracy,
@@ -8,6 +7,7 @@ import {
 } from 'expo-location'
 import { Center, IconButton, Image, Text } from 'native-base'
 import { useEffect, useRef, useState } from 'react'
+import { Platform } from 'react-native'
 import MapView, {
   MAP_TYPES,
   Marker,
@@ -19,13 +19,13 @@ import {
   LATITUDE_DELTA,
   LONGITUDE_DELTA,
 } from '../constants'
+import dayjs from '../helpers/dayjs'
+import { log } from '../helpers/logger'
 import { useUserAuth } from '../store/auth/provider'
 import { useUserGroup } from '../store/groups/provider'
 import { useUserLocation } from '../store/location/provider'
 import { useWebSocket } from '../store/websocket/provider'
 import { LoadingInterceptor } from './loading/LoadingInterceptor'
-import { Platform } from 'react-native'
-import dayjs from '@pfg2/dayjs'
 
 export const Map = () => {
   const { navigate } = useNavigation()

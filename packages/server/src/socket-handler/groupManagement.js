@@ -1,5 +1,5 @@
-import { log } from '@pfg2/logger'
 import { handleSocketIOError } from '../helpers/errors.js'
+import { log } from '../helpers/logger.js'
 import { unlinkUserFromGroup } from '../services/groupsService.js'
 import {
   acceptGroupInviteNotificationById,

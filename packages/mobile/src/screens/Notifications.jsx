@@ -1,24 +1,13 @@
-import dayjs from '@pfg2/dayjs'
 import { useFocusEffect, useNavigation } from '@react-navigation/native'
-import {
-  Box,
-  Center,
-  Column,
-  FlatList,
-  Row,
-  Text,
-  HStack,
-  VStack,
-  Flex,
-  Divider,
-} from 'native-base'
+import { Column, Divider, FlatList, Flex, Text } from 'native-base'
 import { useCallback, useEffect } from 'react'
+import { RefreshControl } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { LoadingInterceptor } from '../components/loading/LoadingInterceptor'
 import { MessageBox } from '../components/MessageBox'
 import { NotificationAction } from '../components/notifications/NotificationAction'
+import dayjs from '../helpers/dayjs'
 import { useNotifications } from '../store/notifications/provider'
-import { RefreshControl } from 'react-native'
 
 export const Notifications = () => {
   const {
@@ -63,7 +52,7 @@ export const Notifications = () => {
             />
           }
           renderItem={({ item }) => (
-            <VStack p="3" opacity={item.seen ? 40 : 100}>
+            <Column p="3" opacity={item.seen ? 40 : 100}>
               <Text bold maxW="75%" textAlign="justify">
                 {item.content}
               </Text>
@@ -73,16 +62,7 @@ export const Notifications = () => {
                 </Text>
                 <NotificationAction notification={item} />
               </Flex>
-            </VStack>
-            // <Box borderBottomWidth="1" p="3" opacity={item.seen ? 40 : 100}>
-            //   <Row space={3} justifyContent="space-between">
-            //     <Column space={1} w="70%">
-            //       <Text bold>{item.content}</Text>
-            //       <Text>{dayjs(item.createdAt).format('lll')}</Text>
-            //     </Column>
-            //     <NotificationAction notification={item} />
-            //   </Row>
-            // </Box>
+            </Column>
           )}
         />
       </SafeAreaView>

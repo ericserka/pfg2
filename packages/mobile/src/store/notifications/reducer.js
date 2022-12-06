@@ -1,4 +1,4 @@
-import { log } from '@pfg2/logger'
+import { log } from '../../helpers/logger'
 
 export const notificationsReducer = (state, action) => {
   log.debug(`[NOTIFICATIONS] action of type ${action.type} fired`)

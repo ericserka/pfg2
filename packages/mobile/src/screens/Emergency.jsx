@@ -1,19 +1,15 @@
-import { log } from '@pfg2/logger'
 import {
   Box,
   Center,
   Column,
   Flex,
-  InfoIcon,
   Pressable,
-  Row,
-  Text,
-  WarningIcon,
   Spinner,
+  Text,
   useToast,
   View,
+  WarningIcon,
 } from 'native-base'
-import { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { MessageBox } from '../components/MessageBox'
 import { toggleToast } from '../helpers/toasts/toggleToast'
@@ -21,7 +17,6 @@ import { useUserAuth } from '../store/auth/provider'
 import { useEmergency } from '../store/emergency/provider'
 import { useUserGroup } from '../store/groups/provider'
 import { useWebSocket } from '../store/websocket/provider'
-import { Accuracy, getCurrentPositionAsync } from 'expo-location'
 
 export const Emergency = () => {
   const {

@@ -10,6 +10,6 @@ import localizedFormat from 'dayjs/plugin/localizedFormat.js'
 dayjs.extend(localizedFormat)
 dayjs.locale(ptBR)
 
-// export the shared dayjs
+// export the extended dayjs
 
 export default dayjs

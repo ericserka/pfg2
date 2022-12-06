@@ -1,10 +1,9 @@
-import { Button, FormControl, Input, Modal, Text, VStack } from 'native-base'
-import { log } from '@pfg2/logger'
-import * as z from 'zod'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ControlledTextInput } from '../../inputs/ControlledTextInput'
+import { Button, Modal } from 'native-base'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
 import { useUserGroup } from '../../../store/groups/provider'
+import { ControlledTextInput } from '../../inputs/ControlledTextInput'
 
 export const CreateGroupModal = ({ modalVisible, setModalVisible }) => {
   const {

@@ -2,14 +2,13 @@ import { createContext, useContext, useEffect, useReducer } from 'react'
 import { showAlertError } from '../../helpers/actions/showAlertError'
 import { toggleQueryLoading } from '../../helpers/actions/toggleQueryLoading'
 import { api } from '../../services/api/axios'
+import {
+  fetchLastGroupIdLocal,
+  storeLastGroupSelectedLocal,
+} from '../../services/local-storage'
 import { useUserAuth } from '../auth/provider'
 import { useWebSocket } from '../websocket/provider'
 import { userGroupsReducer } from './reducer'
-import {
-  storeLastGroupSelectedLocal,
-  fetchLastGroupIdLocal,
-} from '../../services/local-storage'
-import { log } from '@pfg2/logger'
 
 const userGroupInitialState = {
   groups: undefined,

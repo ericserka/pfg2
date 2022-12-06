@@ -1,4 +1,4 @@
-import { log } from '@pfg2/logger'
+import { log } from '../../helpers/logger'
 
 export const emergencyReducer = (state, action) => {
   log.debug(`[EMERGENCY] action of type ${action.type} fired`)

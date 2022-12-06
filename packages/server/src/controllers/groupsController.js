@@ -1,9 +1,8 @@
-import { log } from '@pfg2/logger'
 import { StatusCodes } from 'http-status-codes'
 import { handleHttpError } from '../helpers/errors.js'
 import {
-  findGroupsByUserId,
   createGroupService,
+  findGroupsByUserId,
 } from '../services/groupsService.js'
 import { createInviteNotifications } from '../services/notificationsService.js'
 

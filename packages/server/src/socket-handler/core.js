@@ -1,4 +1,4 @@
-import { log } from '@pfg2/logger'
+import { log } from '../helpers/logger.js'
 
 export const coreEventListeners = (socket) => {
   socket.on('init-connection', (_, cb) => {

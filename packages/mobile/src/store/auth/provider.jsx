@@ -1,8 +1,8 @@
-import { log } from '@pfg2/logger'
 import { createContext, useContext, useEffect, useReducer } from 'react'
 import { showAlertError } from '../../helpers/actions/showAlertError'
 import { toggleMutationLoading } from '../../helpers/actions/toggleMutationLoading'
 import { toggleQueryLoading } from '../../helpers/actions/toggleQueryLoading'
+import { log } from '../../helpers/logger'
 import { api } from '../../services/api/axios'
 import {
   fetchJwtLocal,

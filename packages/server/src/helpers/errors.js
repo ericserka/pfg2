@@ -1,4 +1,3 @@
-import { log } from '@pfg2/logger'
 import { Prisma } from '@prisma/client'
 import { StatusCodes } from 'http-status-codes'
 import {
@@ -6,6 +5,7 @@ import {
   PRISMA_RECORD_NOT_FOUND_ERROR,
   PRISMA_UNIQUE_CONSTRAINT_ERROR,
 } from '../constants.js'
+import { log } from './logger.js'
 
 export class ErrorHandler extends Error {
   constructor(statusCode, message) {

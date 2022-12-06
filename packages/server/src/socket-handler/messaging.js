@@ -1,7 +1,7 @@
-import { log } from '@pfg2/logger'
+import { log } from '../helpers/logger.js'
 import { findGroupById, FindOrCreateGroup } from '../services/groupsService.js'
-import { findUserById } from '../services/usersService.js'
 import { createMessage } from '../services/messagesService.js'
+import { findUserById } from '../services/usersService.js'
 
 const onJoinChat = async (socket, args) => {
   const { userId, groupId } = args
