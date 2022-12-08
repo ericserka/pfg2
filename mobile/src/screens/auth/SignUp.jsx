@@ -10,6 +10,7 @@ import { ControlledImagePicker } from '../../components/inputs/ControlledImagePi
 import { ControlledPasswordInput } from '../../components/inputs/ControlledPasswordInput'
 import { ControlledSelectInput } from '../../components/inputs/ControlledSelectInput'
 import { ControlledTextInput } from '../../components/inputs/ControlledTextInput'
+import { dayjs } from '../../helpers/dayjs'
 import { removeSpecialCharacters } from '../../helpers/snippets'
 import { toggleToast } from '../../helpers/toasts/toggleToast'
 import { useUserAuth } from '../../store/auth/provider'
@@ -60,10 +61,18 @@ export const SignUp = () => {
         username: z
           .string()
           .min(1, 'Obrigatório')
-          .max(16, 'Máximo de 16 caracteres'),
+          .max(16, 'Máximo de 16 caracteres')
+          .regex(new RegExp(/^[a-z0-9]+$/i), {
+            message: 'Apenas letras e números e sem espaços',
+          }),
         email: z.string().min(1, 'Obrigatório').email('E-mail inválido'),
         phoneNumber: z.string().min(19, 'Obrigatório'),
-        birthday: z.string().min(10, 'Obrigatório'),
+        birthday: z
+          .string()
+          .min(10, 'Obrigatório')
+          .refine((val) => dayjs(val, 'DD/MM/YYYY', true).isValid(), {
+            message: 'Data inválida',
+          }),
         gender: z.enum([
           'MALE_CIS',
           'FEMALE_CIS',

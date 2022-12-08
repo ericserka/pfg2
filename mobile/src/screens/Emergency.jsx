@@ -10,22 +10,18 @@ import {
   View,
   WarningIcon,
 } from 'native-base'
+import { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { MessageBox } from '../components/MessageBox'
-import { toggleToast } from '../helpers/toasts/toggleToast'
+import { handleSocketResponse } from '../helpers/feedback/handleSocketResponse'
 import { useUserAuth } from '../store/auth/provider'
-import { useEmergency } from '../store/emergency/provider'
 import { useUserGroup } from '../store/groups/provider'
 import { useWebSocket } from '../store/websocket/provider'
 
 export const Emergency = () => {
-  const {
-    actions: { askHelp },
-    state: { mutationLoading },
-  } = useEmergency()
   const toast = useToast()
   const {
-    actions: { emitEventRemoveGroupMember },
+    actions: { emitEventAskHelp },
   } = useWebSocket()
   const {
     state: { userGroupsAmount },
@@ -33,6 +29,8 @@ export const Emergency = () => {
   const {
     state: { session },
   } = useUserAuth()
+
+  const [loading, setLoading] = useState(false)
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -55,15 +53,19 @@ export const Emergency = () => {
             />
             <Pressable
               onPress={() => {
-                askHelp(`${session.username} solicitou ajuda.`, () => {
-                  toggleToast(
-                    toast,
-                    'Solicitação de ajuda enviada com sucesso!',
-                    'success'
-                  )
-                })
+                setLoading(true)
+                emitEventAskHelp(
+                  {
+                    userId: session.id,
+                    content: `${session.username} solicitou ajuda.`,
+                  },
+                  (response) => {
+                    setLoading(false)
+                    handleSocketResponse(response, toast)
+                  }
+                )
               }}
-              isDisabled={mutationLoading}
+              isDisabled={loading}
             >
               <Box
                 borderRadius="full"
@@ -73,7 +75,7 @@ export const Emergency = () => {
                 height={80}
                 bg="red.50"
               >
-                {mutationLoading ? (
+                {loading ? (
                   <Spinner color="red.600" size={96} mt={24} />
                 ) : (
                   <Flex align="center" justify="center" direction="column">

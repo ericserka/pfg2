@@ -1,12 +1,12 @@
-import { useFocusEffect, useNavigation } from '@react-navigation/native'
+import { useNavigation } from '@react-navigation/native'
 import { Column, Divider, FlatList, Flex, Text } from 'native-base'
-import { useCallback, useEffect } from 'react'
+import { useEffect } from 'react'
 import { RefreshControl } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { LoadingInterceptor } from '../components/loading/LoadingInterceptor'
 import { MessageBox } from '../components/MessageBox'
 import { NotificationAction } from '../components/notifications/NotificationAction'
-import dayjs from '../helpers/dayjs'
+import { dayjs } from '../helpers/dayjs'
 import { useNotifications } from '../store/notifications/provider'
 
 export const Notifications = () => {
@@ -23,12 +23,6 @@ export const Notifications = () => {
 
     return unsubscribe
   }, [navigation])
-
-  useFocusEffect(
-    useCallback(() => {
-      getNotifications()
-    }, [])
-  )
 
   return (
     <LoadingInterceptor loading={queryLoading}>
@@ -57,9 +51,7 @@ export const Notifications = () => {
                 {item.content}
               </Text>
               <Flex direction="row" align="center" justify="space-between">
-                <Text>
-                  {dayjs(item.createdAt).format('DD[ de ]MMM[ às ]hh:mm')}
-                </Text>
+                <Text>{dayjs(item.createdAt).format('lll')}</Text>
                 <NotificationAction notification={item} />
               </Flex>
             </Column>

@@ -1,8 +1,12 @@
 import { handleSocketIOError } from '../helpers/errors.js'
 import { log } from '../helpers/logger.js'
-import { unlinkUserFromGroup } from '../services/groupsService.js'
+import {
+  createGroupService,
+  unlinkUserFromGroup,
+} from '../services/groupsService.js'
 import {
   acceptGroupInviteNotificationById,
+  createInviteNotifications,
   rejectGroupInviteNotificationById,
 } from '../services/notificationsService.js'
 
@@ -11,7 +15,7 @@ const onRemoveGroupMember = async ({ groupId, userId }, cb) => {
     await unlinkUserFromGroup(userId, groupId)
     cb({
       success: true,
-      message: 'Usuário removido do grupo com sucesso.',
+      message: 'Operação realizada com sucesso.',
     })
   } catch (error) {
     cb(handleSocketIOError(error, 'Usuário ou grupo não encontrado.'))
@@ -46,8 +50,67 @@ const onAcceptGroupInvite = async ({ groupId, notificationId, userId }, cb) => {
   }
 }
 
+const onAddMembersToGroup = async (
+  socket,
+  {
+    group: { id: groupId, name: groupName },
+    membersToInviteIds,
+    user: { id: userId, username },
+  },
+  cb
+) => {
+  try {
+    await createInviteNotifications(
+      membersToInviteIds.map((m) => ({
+        receiverId: m,
+        senderId: userId,
+        groupId: groupId,
+        content: `${username} te convidou para fazer parte do grupo '${groupName}'`,
+      }))
+    )
+    socket.broadcast.emit('notification-received', {
+      usersIds: membersToInviteIds,
+    })
+    log.info(
+      `User ${userId} invited users ${membersToInviteIds} for group ${groupId}`
+    )
+    cb({
+      success: true,
+      message: 'Convites enviados com sucesso.',
+    })
+  } catch (error) {
+    cb(handleSocketIOError(error))
+  }
+}
+
+const onCreateGroup = async (
+  socket,
+  { groupName, membersToInviteIds, user },
+  cb
+) => {
+  try {
+    const group = await createGroupService(groupName, user, membersToInviteIds)
+    socket.broadcast.emit('notification-received', {
+      usersIds: membersToInviteIds,
+    })
+    log.info(
+      `User ${user.id} created group ${groupName} with id ${group.id} and invited users ${membersToInviteIds}`
+    )
+    cb({
+      success: true,
+      message: 'Grupo criado e convites enviados com sucesso.',
+    })
+  } catch (error) {
+    cb(handleSocketIOError(error))
+  }
+}
+
 export const groupManagementEventListeners = (socket) => {
   socket.on('remove-group-member', onRemoveGroupMember)
   socket.on('accept-group-invite', onAcceptGroupInvite)
   socket.on('reject-group-invite', onRejectGroupInvite)
+  socket.on('add-members-to-group', (args, cb) =>
+    onAddMembersToGroup(socket, args, cb)
+  )
+  socket.on('create-group', (args, cb) => onCreateGroup(socket, args, cb))
 }

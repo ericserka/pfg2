@@ -14,7 +14,11 @@ export const useWebSocket = () => useContext(WebSocketContext)
 export const WebSocketProvider = ({ children }) => {
   useEffect(() => {
     socket.on('connect', () => {
-      log.info('Socket connected')
+      log.info(`Socket ${socket.id} connected`)
+    })
+
+    socket.on('disconnecting', () => {
+      log.info(`Socket ${socket.id} is disconnecting...`)
     })
 
     socket.on('disconnect', () => {
@@ -59,8 +63,24 @@ export const WebSocketProvider = ({ children }) => {
     socket.emit('reject-group-invite', { notificationId }, cb)
   }
 
-  const emitEventAcceptGroupInvite = (notificationId, groupId, userId, cb) => {
-    socket.emit('accept-group-invite', { notificationId, groupId, userId }, cb)
+  const emitEventAcceptGroupInvite = (payload, cb) => {
+    socket.emit('accept-group-invite', payload, cb)
+  }
+
+  const emitEventAddMembersToGroup = (payload, cb) => {
+    socket.emit('add-members-to-group', payload, cb)
+  }
+
+  const emitEventCreateGroup = (payload, cb) => {
+    socket.emit('create-group', payload, cb)
+  }
+
+  const listenToNotificationReceived = (cb) => {
+    socket.on('notification-received', cb)
+  }
+
+  const emitEventAskHelp = (payload, cb) => {
+    socket.emit('ask-help', payload, cb)
   }
 
   return (
@@ -77,6 +97,10 @@ export const WebSocketProvider = ({ children }) => {
           emitEventRemoveGroupMember,
           emitEventAcceptGroupInvite,
           emitEventRejectGroupInvite,
+          emitEventAddMembersToGroup,
+          emitEventCreateGroup,
+          listenToNotificationReceived,
+          emitEventAskHelp,
         },
       }}
     >

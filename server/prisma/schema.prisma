@@ -107,8 +107,6 @@ model Notification {
   type       NotificationType
   status     NotificationStatus?
   seen       Boolean             @default(false)
-  latitude   Float?
-  longitude  Float?
   createdAt  DateTime            @default(now())
   updatedAt  DateTime            @updatedAt
   sender     User?               @relation("sender", fields: [senderId], references: [id])

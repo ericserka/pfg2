@@ -4,9 +4,8 @@
     "slug": "mobile",
     "version": "1.0.0",
     "extra": {
-      "apiUrl": "https://ca0e-179-48-44-247.sa.ngrok.io",
-      "jwtKey": "@pfg2:unb:jwt",
-      "lastGroupIdKey": "@pfg2:unb:last_group_id"
+      "apiUrl": "https://9f7e-179-48-44-247.sa.ngrok.io",
+      "jwtKey": "@pfg2:unb:jwt"
     },
     "orientation": "portrait",
     "icon": "./assets/icon.png",

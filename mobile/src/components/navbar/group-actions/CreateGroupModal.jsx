@@ -1,8 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Modal } from 'native-base'
+import { Button, Modal, useToast } from 'native-base'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
+import { handleSocketResponse } from '../../../helpers/feedback/handleSocketResponse'
+import { useUserAuth } from '../../../store/auth/provider'
 import { useUserGroup } from '../../../store/groups/provider'
+import { useWebSocket } from '../../../store/websocket/provider'
 import { ControlledTextInput } from '../../inputs/ControlledTextInput'
 
 export const CreateGroupModal = ({ modalVisible, setModalVisible }) => {
@@ -24,15 +27,28 @@ export const CreateGroupModal = ({ modalVisible, setModalVisible }) => {
   const {
     actions: { createGroup },
   } = useUserGroup()
+  const {
+    actions: { emitEventCreateGroup },
+  } = useWebSocket()
+  const {
+    state: { session },
+  } = useUserAuth()
 
   const onClose = () => {
     setModalVisible(false)
     reset()
   }
 
+  const toast = useToast()
+
   const onSubmit = async () => {
-    const name = getValues('name')
-    await createGroup(name, [])
+    const groupName = getValues('name')
+    emitEventCreateGroup(
+      { groupName, membersToInviteIds: [2], user: { ...session } },
+      (response) => {
+        handleSocketResponse(response, toast)
+      }
+    )
     onClose()
   }
 

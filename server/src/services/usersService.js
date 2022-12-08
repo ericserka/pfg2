@@ -31,9 +31,9 @@ export const setGroupAsDefault = async (userId, groupId, tx) =>
     data: { defaultGroupId: groupId },
   })
 
-export const countUsersGroupsAmount = async (userId, tx) =>
+export const countUsersGroupsAmount = async (userId) =>
   (
-    await (tx ?? prisma).user.findUniqueOrThrow({
+    await prisma.user.findUniqueOrThrow({
       where: { id: userId },
       include: {
         _count: {
@@ -44,7 +44,7 @@ export const countUsersGroupsAmount = async (userId, tx) =>
   )._count.groups
 
 export const ifNoGroupsSetNewAsDefault = async (userId, groupId, tx) => {
-  if (!(await countUsersGroupsAmount(userId, tx))) {
+  if (!(await countUsersGroupsAmount(userId))) {
     await setGroupAsDefault(userId, groupId, tx)
   }
 }

@@ -1,15 +1,15 @@
-import { createContext, useContext, useReducer } from 'react'
+import { createContext, useContext, useEffect, useReducer } from 'react'
 import { showAlertError } from '../../helpers/actions/showAlertError'
 import { toggleMutationLoading } from '../../helpers/actions/toggleMutationLoading'
 import { toggleQueryLoading } from '../../helpers/actions/toggleQueryLoading'
-import { log } from '../../helpers/logger'
+import { countKeyValueFromArrOfObjs } from '../../helpers/snippets'
 import { api } from '../../services/api/axios'
 import { notificationsReducer } from './reducer'
 
 const notificationsInitialState = {
   mutationLoading: false,
   queryLoading: false,
-  notifications: undefined,
+  notifications: [],
   non_read_notifications_amount: null,
 }
 
@@ -25,17 +25,17 @@ export const NotificationsProvider = ({ children }) => {
     notificationsInitialState
   )
 
-  const getNonReadNotificationsAmount = async () => {
-    try {
-      console.log('pegando qtd de notificacoes nao lidas...')
-      dispatch({
-        type: 'SET_NON_READ_NOTIFICATIONS_AMOUNT',
-        payload: 34,
-      })
-    } catch (err) {
-      showAlertError(err)
-    }
-  }
+  useEffect(() => {
+    getNotifications()
+  }, [])
+
+  useEffect(() => {
+    dispatch({
+      type: 'SET_NON_READ_NOTIFICATIONS_AMOUNT',
+      payload:
+        countKeyValueFromArrOfObjs(state.notifications, 'seen')?.false ?? null,
+    })
+  }, [state.notifications])
 
   const getNotifications = async () => {
     toggleQueryLoading(dispatch)
@@ -53,7 +53,6 @@ export const NotificationsProvider = ({ children }) => {
   }
 
   const updateNotification = (notification) => {
-    log.debug('updateNotification', notification)
     dispatch({
       type: 'UPDATE_NOTIFICATION',
       payload: notification,
@@ -63,7 +62,10 @@ export const NotificationsProvider = ({ children }) => {
   const markUnreadNotificationsAsRead = async () => {
     toggleMutationLoading(dispatch)
     try {
-      console.log('marcando notificacoes nao lidas como lidas...')
+      await api.patch('/notifications/unread-to-read', {
+        notificationsIds: state.notifications.map((n) => n.id),
+      })
+      getNotifications()
     } catch (err) {
       showAlertError(err)
     } finally {
@@ -79,7 +81,6 @@ export const NotificationsProvider = ({ children }) => {
           updateNotification,
           getNotifications,
           markUnreadNotificationsAsRead,
-          getNonReadNotificationsAmount,
         },
       }}
     >

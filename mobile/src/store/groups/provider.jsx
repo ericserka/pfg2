@@ -2,10 +2,6 @@ import { createContext, useContext, useEffect, useReducer } from 'react'
 import { showAlertError } from '../../helpers/actions/showAlertError'
 import { toggleQueryLoading } from '../../helpers/actions/toggleQueryLoading'
 import { api } from '../../services/api/axios'
-import {
-  fetchLastGroupIdLocal,
-  storeLastGroupSelectedLocal,
-} from '../../services/local-storage'
 import { useUserAuth } from '../auth/provider'
 import { useWebSocket } from '../websocket/provider'
 import { userGroupsReducer } from './reducer'
@@ -36,17 +32,13 @@ export const UserGroupProvider = ({ children }) => {
   useEffect(() => {
     getGroups()
     getUserGroupsAmount()
-
-    return () => {
-      storeLastGroupSelectedLocal(state.current?.id)
-    }
   }, [])
 
   const getGroups = async () => {
     toggleQueryLoading(dispatch)
     try {
       const { data } = await api.get('/groups/me')
-      const lastGroupSelectedId = await fetchLastGroupIdLocal()
+      const lastGroupSelectedId = session?.defaultGroupId
 
       const groupsWithoutCurrentUser = data.map((group) => ({
         ...group,

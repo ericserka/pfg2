@@ -19,7 +19,7 @@ import {
   LATITUDE_DELTA,
   LONGITUDE_DELTA,
 } from '../constants'
-import dayjs from '../helpers/dayjs'
+import { dayjs } from '../helpers/dayjs'
 import { log } from '../helpers/logger'
 import { useUserAuth } from '../store/auth/provider'
 import { useUserGroup } from '../store/groups/provider'
@@ -132,7 +132,7 @@ export const Map = () => {
         <Marker
           key={`marker_${u.position.lat}_${u.position.lng}`}
           identifier={`${u.id}`}
-          title={u.name}
+          title={u.username}
           description={`${dayjs(
             u?.lastKnownLocationUpdatedAt ?? undefined
           ).format('lll')}`}

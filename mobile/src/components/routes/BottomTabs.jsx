@@ -1,16 +1,17 @@
 import { FontAwesome5 } from '@expo/vector-icons'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import { Notifications } from '../../screens/Notifications'
-import { Emergency } from '../../screens/Emergency'
-import { LoadingInterceptor } from '../loading/LoadingInterceptor'
-import { Left } from '../navbar/Left'
-import { Right } from '../navbar/Right'
-import { GroupSelector } from '../navbar/group-actions/GroupSelector'
-import { HomeStack } from './HomeStack'
 import { useEffect } from 'react'
-import { useNotifications } from '../../store/notifications/provider'
+import { Emergency } from '../../screens/Emergency'
+import { Notifications } from '../../screens/Notifications'
 import { useUserAuth } from '../../store/auth/provider'
 import { useUserGroup } from '../../store/groups/provider'
+import { useNotifications } from '../../store/notifications/provider'
+import { useWebSocket } from '../../store/websocket/provider'
+import { LoadingInterceptor } from '../loading/LoadingInterceptor'
+import { GroupSelector } from '../navbar/group-actions/GroupSelector'
+import { Left } from '../navbar/Left'
+import { Right } from '../navbar/Right'
+import { HomeStack } from './HomeStack'
 
 const Tab = createBottomTabNavigator()
 
@@ -30,11 +31,21 @@ const LoadedProviders = ({ children }) => {
 export const BottomTabs = () => {
   const {
     state: { non_read_notifications_amount },
-    actions: { getNonReadNotificationsAmount },
+    actions: { getNotifications },
   } = useNotifications()
+  const {
+    actions: { listenToNotificationReceived },
+  } = useWebSocket()
+  const {
+    state: { session },
+  } = useUserAuth()
 
   useEffect(() => {
-    getNonReadNotificationsAmount()
+    listenToNotificationReceived(({ usersIds }) => {
+      if (usersIds.includes(session.id)) {
+        getNotifications()
+      }
+    })
   }, [])
 
   return (

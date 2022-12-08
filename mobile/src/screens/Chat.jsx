@@ -14,7 +14,7 @@ import {
 import { useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { COLOR_PRIMARY_600 } from '../constants'
-import dayjs from '../helpers/dayjs'
+import { dayjs } from '../helpers/dayjs'
 import { log } from '../helpers/logger'
 import { useUserAuth } from '../store/auth/provider'
 import { useUserGroup } from '../store/groups/provider'

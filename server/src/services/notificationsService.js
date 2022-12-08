@@ -24,18 +24,14 @@ export const getNotificationsByReceiverId = async (userId) =>
     orderBy: { createdAt: 'desc' },
   })
 
-export const updateUnreadNotificationsToRead = async (userId) =>
+export const updateUnreadNotificationsToRead = async (
+  userId,
+  notificationsIds
+) =>
   await prisma.notification.updateMany({
-    where: { seen: false, receiverId: userId },
+    where: { seen: false, receiverId: userId, id: { in: notificationsIds } },
     data: { seen: true },
   })
-
-export const countNonReadNotificationsByReceiverId = async (userId) => {
-  const count = await prisma.notification.count({
-    where: { receiverId: userId, seen: false },
-  })
-  return count === 0 ? { count: null } : { count }
-}
 
 export const rejectGroupInviteNotificationById = async (id) =>
   await prisma.notification.update({
