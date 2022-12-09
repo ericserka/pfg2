@@ -12,6 +12,12 @@ import { GroupSelector } from '../navbar/group-actions/GroupSelector'
 import { Left } from '../navbar/Left'
 import { Right } from '../navbar/Right'
 import { HomeStack } from './HomeStack'
+import {
+  addNotificationResponseReceivedListener,
+  removeNotificationSubscription,
+  setNotificationHandler,
+} from 'expo-notifications'
+import { usePushNotifications } from '../../hooks/usePushNotifications'
 
 const Tab = createBottomTabNavigator()
 
@@ -39,6 +45,8 @@ export const BottomTabs = () => {
   const {
     state: { session },
   } = useUserAuth()
+  const { registerForPushNotificationsAsync, handlePushNotificationsResponse } =
+    usePushNotifications()
 
   useEffect(() => {
     listenToNotificationReceived(({ usersIds }) => {
@@ -46,6 +54,25 @@ export const BottomTabs = () => {
         getNotifications()
       }
     })
+  }, [])
+
+  useEffect(() => {
+    registerForPushNotificationsAsync()
+    setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+      }),
+    })
+    const responseListener = addNotificationResponseReceivedListener(
+      handlePushNotificationsResponse
+    )
+    return () => {
+      if (responseListener) {
+        removeNotificationSubscription(responseListener)
+      }
+    }
   }, [])
 
   return (

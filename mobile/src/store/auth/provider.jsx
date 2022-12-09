@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useReducer } from 'react'
+import { Alert } from 'react-native'
 import { showAlertError } from '../../helpers/actions/showAlertError'
 import { toggleMutationLoading } from '../../helpers/actions/toggleMutationLoading'
 import { toggleQueryLoading } from '../../helpers/actions/toggleQueryLoading'
@@ -86,10 +87,40 @@ export const UserAuthProvider = ({ children }) => {
   }
 
   const logout = async () => {
-    removeJwtLocal()
+    Alert.alert(
+      'Ten certeza?',
+      'Deslogar impossibilitará você de receber notificações dos seus entes queridos.',
+      [
+        {
+          text: 'Continuar',
+          onPress: async () => {
+            try {
+              toggleQueryLoading(dispatch)
+              if (state?.session?.pushToken) {
+                await api.patch('/users/push-token', {
+                  pushToken: null,
+                })
+              }
+              removeJwtLocal()
+              dispatch({
+                type: 'LOGOUT',
+              })
+            } catch (err) {
+              showAlertError(err)
+            } finally {
+              toggleQueryLoading(dispatch)
+            }
+          },
+        },
+        { text: 'Cancelar', style: 'cancel' },
+      ]
+    )
+  }
 
+  const updateSession = (session) => {
     dispatch({
-      type: 'LOGOUT',
+      type: 'UPDATE_SESSION',
+      payload: session,
     })
   }
 
@@ -101,6 +132,7 @@ export const UserAuthProvider = ({ children }) => {
           signin,
           signup,
           logout,
+          updateSession,
         },
       }}
     >

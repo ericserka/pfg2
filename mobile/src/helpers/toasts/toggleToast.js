@@ -1,4 +1,4 @@
-import { Box, Text, Row } from 'native-base'
+import { Box, Row, Text } from 'native-base'
 import { AlertIcon } from '../../components/alert/AlertIcon'
 
 export const toggleToast = (toast, message, type) => {

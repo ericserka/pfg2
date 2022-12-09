@@ -31,10 +31,10 @@ export const setGroupAsDefault = async (userId, groupId, tx) =>
     data: { defaultGroupId: groupId },
   })
 
-export const countUsersGroupsAmount = async (userId) =>
+export const countUsersGroupsAmount = async (id) =>
   (
     await prisma.user.findUniqueOrThrow({
-      where: { id: userId },
+      where: { id },
       include: {
         _count: {
           select: { groups: true },
@@ -49,12 +49,21 @@ export const ifNoGroupsSetNewAsDefault = async (userId, groupId, tx) => {
   }
 }
 
-export const updateLastLocation = async (userId, location) =>
+export const updateLastLocation = async (id, location) =>
   await prisma.user.update({
-    where: { id: userId },
+    where: { id },
     data: {
       lastKnownLatitude: location.latitude,
       lastKnownLongitude: location.longitude,
       lastKnownLocationUpdatedAt: dayjs().toDate(),
     },
   })
+
+export const updatePushToken = async (id, pushToken) =>
+  await prisma.user.update({ where: { id }, data: { pushToken } })
+
+export const updatePushNotificationAllowed = async (
+  id,
+  pushNotificationAllowed
+) =>
+  await prisma.user.update({ where: { id }, data: { pushNotificationAllowed } })

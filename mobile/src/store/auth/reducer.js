@@ -23,6 +23,11 @@ export const userAuthReducer = (state, action) => {
         ...state,
         mutationLoading: !state.mutationLoading,
       }
+    case 'UPDATE_SESSION':
+      return {
+        ...state,
+        session: { ...state.session, ...action.payload },
+      }
     default:
       return state
   }

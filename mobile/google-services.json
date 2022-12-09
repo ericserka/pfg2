@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "95350943926",
+    "project_id": "pfg2-3d811",
+    "storage_bucket": "pfg2-3d811.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:95350943926:android:6d26e7b1d455a6ecc47617",
+        "android_client_info": {
+          "package_name": "com.ericserka.pfg2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "95350943926-hterqvm8quhq086i29bern9s4reoehpm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpQnGsdw6HFPOid0EzTWpHBN0oZbn_em4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "95350943926-hterqvm8quhq086i29bern9s4reoehpm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

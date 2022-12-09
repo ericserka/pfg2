@@ -5,6 +5,8 @@ import {
   findUserById,
   removeUserPassword,
   updateLastLocation,
+  updatePushNotificationAllowed,
+  updatePushToken,
 } from '../services/usersService.js'
 
 export const getCurrentUser = async (req, res, next) => {
@@ -34,5 +36,30 @@ export const saveLastLocation = async (req, res, next) => {
     return res.status(StatusCodes.OK).json({ ok: true })
   } catch (error) {
     return next(handleHttpError(error, 'Usuário não encontrado.'))
+  }
+}
+
+export const alterPushToken = async (req, res, next) => {
+  try {
+    return res
+      .status(StatusCodes.OK)
+      .json(await updatePushToken(req.user.id, req.body.pushToken))
+  } catch (error) {
+    return next(handleHttpError(error))
+  }
+}
+
+export const alterPushNotificationsAllowance = async (req, res, next) => {
+  try {
+    return res
+      .status(StatusCodes.OK)
+      .json(
+        await updatePushNotificationAllowed(
+          req.user.id,
+          req.body.pushNotificationAllowed
+        )
+      )
+  } catch (error) {
+    return next(handleHttpError(error))
   }
 }

@@ -4,11 +4,15 @@
     "slug": "mobile",
     "version": "1.0.0",
     "extra": {
-      "apiUrl": "https://9f7e-179-48-44-247.sa.ngrok.io",
-      "jwtKey": "@pfg2:unb:jwt"
+      "apiUrl": "https://8b9d-179-48-44-247.sa.ngrok.io",
+      "jwtKey": "@pfg2:unb:jwt",
+      "eas": {
+        "projectId": "866235db-85ee-4f19-80c3-9d42e02b9aa4"
+      }
     },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "scheme": "com.ericserka.pfg2",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -29,6 +33,8 @@
       }
     },
     "android": {
+      "package": "com.ericserka.pfg2",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"

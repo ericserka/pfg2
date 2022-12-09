@@ -75,6 +75,8 @@ model User {
   lastKnownLocationUpdatedAt DateTime?
   defaultGroup               Group?            @relation("defaultGroup", fields: [defaultGroupId], references: [id])
   defaultGroupId             Int?
+  pushToken                  String?
+  pushNotificationAllowed    Boolean           @default(false)
 }
 
 model Group {

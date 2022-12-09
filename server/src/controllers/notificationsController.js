@@ -1,5 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
 import { handleHttpError } from '../helpers/errors.js'
+import { sendPushNotificationsService } from '../services/expoService.js'
 import {
   getNotificationsByReceiverId,
   updateUnreadNotificationsToRead,
@@ -23,6 +24,24 @@ export const markUnreadNotificationsAsRead = async (req, res, next) => {
         await updateUnreadNotificationsToRead(
           req.user.id,
           req.body.notificationsIds
+        )
+      )
+  } catch (error) {
+    return next(handleHttpError(error))
+  }
+}
+
+// endpoint de teste; idealmente outros endpoints usarão o sendPushNotificationsService
+export const sendPushNotifications = async (req, res, next) => {
+  try {
+    return res
+      .status(StatusCodes.OK)
+      .json(
+        await sendPushNotificationsService(
+          ['ExponentPushToken[sPijl9CTTPT3jhQ5UGQajK]'],
+          'hey',
+          'it works',
+          { screenName: 'Chat' }
         )
       )
   } catch (error) {
