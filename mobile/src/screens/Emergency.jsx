@@ -56,8 +56,7 @@ export const Emergency = () => {
                 setLoading(true)
                 emitEventAskHelp(
                   {
-                    userId: session.id,
-                    content: `${session.username} solicitou ajuda.`,
+                    user: { id: session.id, username: session.username },
                   },
                   (response) => {
                     setLoading(false)

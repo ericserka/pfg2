@@ -82,7 +82,7 @@ export const sendPushNotifications = async (
       break
 
     case 'MESSAGE':
-      title = 'Nova mensagem'
+      title = 'Novas mensagens'
       content = buildMessageNotificationContent(groupName)
       break
 

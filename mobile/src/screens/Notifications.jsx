@@ -18,7 +18,8 @@ export const Notifications = () => {
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('blur', () => {
-      markUnreadNotificationsAsRead()
+      notifications.filter((n) => !n.seen).length &&
+        markUnreadNotificationsAsRead()
     })
 
     return unsubscribe
