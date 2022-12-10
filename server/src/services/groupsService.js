@@ -1,5 +1,8 @@
 import { prisma } from '../helpers/prisma.js'
-import { createInviteNotifications } from './notificationsService.js'
+import {
+  buildGroupInviteNotificationContent,
+  createInviteNotifications,
+} from './notificationsService.js'
 import { ifNoGroupsSetNewAsDefault } from './usersService.js'
 
 export const findGroupById = async (id) =>
@@ -105,7 +108,7 @@ export const createGroupService = async (
         receiverId: m,
         senderId: owner.id,
         groupId: group.id,
-        content: `${owner.username} te convidou para fazer parte do grupo '${groupName}'`,
+        content: buildGroupInviteNotificationContent(groupName, owner.username),
       })),
       tx
     )

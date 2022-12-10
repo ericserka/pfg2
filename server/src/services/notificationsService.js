@@ -1,4 +1,5 @@
 import { prisma } from '../helpers/prisma.js'
+import { sendPushNotificationsService } from './expoService.js'
 import { linkUserToGroup } from './groupsService.js'
 import { ifNoGroupsSetNewAsDefault } from './usersService.js'
 
@@ -52,3 +53,43 @@ export const acceptGroupInviteNotificationById = async (
     await linkUserToGroup(userId, groupId, tx)
     await ifNoGroupsSetNewAsDefault(userId, groupId, tx)
   })
+
+export const buildGroupInviteNotificationContent = (groupName, username) =>
+  `${username} te convidou para fazer parte do grupo '${groupName}'.`
+
+export const buildHelpNotificationContent = (username) =>
+  `${username} solicitou ajuda.`
+
+export const buildMessageNotificationContent = (groupName) =>
+  `${groupName} tem novas mensagens.`
+
+export const sendPushNotifications = async (
+  type,
+  pushTokens,
+  groupName,
+  username
+) => {
+  let title, content
+  switch (type) {
+    case 'HELP':
+      title = 'Pedido de ajuda'
+      content = buildHelpNotificationContent(username)
+      break
+
+    case 'INVITE':
+      title = 'Convite de grupo'
+      content = buildGroupInviteNotificationContent(groupName, username)
+      break
+
+    case 'MESSAGE':
+      title = 'Nova mensagem'
+      content = buildMessageNotificationContent(groupName)
+      break
+
+    default:
+      break
+  }
+  return await sendPushNotificationsService(pushTokens, title, content, {
+    screenName: 'Notificações',
+  })
+}

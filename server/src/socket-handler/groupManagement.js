@@ -6,9 +6,12 @@ import {
 } from '../services/groupsService.js'
 import {
   acceptGroupInviteNotificationById,
+  buildGroupInviteNotificationContent,
   createInviteNotifications,
   rejectGroupInviteNotificationById,
+  sendPushNotifications,
 } from '../services/notificationsService.js'
+import { getUsersPushTokens } from '../services/usersService.js'
 
 const onRemoveGroupMember = async ({ groupId, userId }, cb) => {
   try {
@@ -65,8 +68,14 @@ const onAddMembersToGroup = async (
         receiverId: m,
         senderId: userId,
         groupId: groupId,
-        content: `${username} te convidou para fazer parte do grupo '${groupName}'`,
+        content: buildGroupInviteNotificationContent(groupName, username),
       }))
+    )
+    await sendPushNotifications(
+      'INVITE',
+      await getUsersPushTokens(membersToInviteIds),
+      groupName,
+      username
     )
     socket.broadcast.emit('notification-received', {
       usersIds: membersToInviteIds,
@@ -90,6 +99,12 @@ const onCreateGroup = async (
 ) => {
   try {
     const group = await createGroupService(groupName, user, membersToInviteIds)
+    await sendPushNotifications(
+      'INVITE',
+      await getUsersPushTokens(membersToInviteIds),
+      groupName,
+      user.username
+    )
     socket.broadcast.emit('notification-received', {
       usersIds: membersToInviteIds,
     })

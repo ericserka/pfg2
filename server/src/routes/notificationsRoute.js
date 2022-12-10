@@ -2,7 +2,6 @@ import { Router } from 'express'
 import {
   getUserNotifications,
   markUnreadNotificationsAsRead,
-  sendPushNotifications,
 } from '../controllers/notificationsController.js'
 
 export const useNotificationRouter = (app) => {
@@ -10,7 +9,6 @@ export const useNotificationRouter = (app) => {
 
   notificationsRouter.get('/', getUserNotifications)
   notificationsRouter.patch('/unread-to-read', markUnreadNotificationsAsRead)
-  notificationsRouter.post('/push', sendPushNotifications)
 
   app.use('/notifications', notificationsRouter)
 }

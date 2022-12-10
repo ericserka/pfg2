@@ -1,10 +1,14 @@
 import { handleSocketIOError } from '../helpers/errors.js'
 import { log } from '../helpers/logger.js'
 import { removeDuplicateArrayObjectsById } from '../helpers/snippets.js'
-import { createHelpNotifications } from '../services/notificationsService.js'
+import {
+  buildHelpNotificationContent,
+  createHelpNotifications,
+  sendPushNotifications,
+} from '../services/notificationsService.js'
 import { findUserByIdWithGroups } from '../services/usersService.js'
 
-const onAskHelp = async (socket, { userId, content }, cb) => {
+const onAskHelp = async (socket, { user: { id: userId, username } }, cb) => {
   try {
     const sender = await findUserByIdWithGroups(userId)
     const receivers = removeDuplicateArrayObjectsById(
@@ -14,8 +18,16 @@ const onAskHelp = async (socket, { userId, content }, cb) => {
       receivers.map((r) => ({
         receiverId: r.id,
         senderId: sender.id,
-        content: content,
+        content: buildHelpNotificationContent(username),
       }))
+    )
+    await sendPushNotifications(
+      'HELP',
+      receivers
+        .filter((r) => r.pushNotificationAllowed)
+        .map((r) => r.pushToken),
+      undefined,
+      username
     )
     socket.broadcast.emit('notification-received', {
       usersIds: receivers.map((r) => r.id),

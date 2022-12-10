@@ -67,3 +67,14 @@ export const updatePushNotificationAllowed = async (
   pushNotificationAllowed
 ) =>
   await prisma.user.update({ where: { id }, data: { pushNotificationAllowed } })
+
+export const getUsersPushTokens = async (usersIds) =>
+  (
+    await prisma.user.findMany({
+      select: { pushToken: true },
+      where: {
+        id: { in: usersIds },
+        pushNotificationAllowed: true,
+      },
+    })
+  ).map((u) => u.pushToken)
