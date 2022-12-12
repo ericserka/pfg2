@@ -11,6 +11,7 @@ export const userAuthReducer = (state, action) => {
       }
     case 'LOGOUT':
       return {
+        ...state,
         session: undefined,
       }
     case 'QUERY_LOADING':

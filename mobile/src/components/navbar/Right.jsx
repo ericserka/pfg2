@@ -1,21 +1,19 @@
-import { FontAwesome5 } from '@expo/vector-icons'
+import { FontAwesome } from '@expo/vector-icons'
+import { useNavigation } from '@react-navigation/native'
 import { Flex, IconButton } from 'native-base'
-import { COLOR_ERROR_600 } from '../../constants'
-import { useUserAuth } from '../../store/auth/provider'
+import { COLOR_PRIMARY_600 } from '../../constants'
 
 export const Right = (props) => {
-  const {
-    actions: { logout },
-  } = useUserAuth()
+  const { navigate } = useNavigation()
 
   return (
     <Flex mr="3" align="center" justify="center" direction="column" {...props}>
       <IconButton
         icon={
-          <FontAwesome5 name="sign-out-alt" size={25} color={COLOR_ERROR_600} />
+          <FontAwesome name="comment-o" size={25} color={COLOR_PRIMARY_600} />
         }
         rounded="full"
-        onPress={logout}
+        onPress={() => navigate('Chat')}
       />
     </Flex>
   )

@@ -1,4 +1,4 @@
-import { FontAwesome5 } from '@expo/vector-icons'
+import { FontAwesome } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import {
   Accuracy,
@@ -37,6 +37,8 @@ export const Map = () => {
     longitudeDelta: LONGITUDE_DELTA,
     updatedAt: null,
   })
+  // group ou riskAreas
+  const [mode, setMode] = useState('group')
 
   const {
     actions: { getUserPosition },
@@ -191,25 +193,27 @@ export const Map = () => {
         bottom="3"
         rounded="full"
         icon={
-          <FontAwesome5 name="crosshairs" size={30} color={COLOR_PRIMARY_600} />
+          <FontAwesome name="crosshairs" size={30} color={COLOR_PRIMARY_600} />
         }
       />
-      {!!current && (
-        <IconButton
-          onPress={() => navigate('Chat')}
-          position="absolute"
-          right="3"
-          top="24"
-          rounded="full"
-          icon={
-            <FontAwesome5
-              name="comment-dots"
-              size={25}
-              color={COLOR_PRIMARY_600}
-            />
-          }
-        />
-      )}
+      <IconButton
+        onPress={() =>
+          setMode((prevMode) =>
+            prevMode === 'riskAreas' ? 'group' : 'riskAreas'
+          )
+        }
+        position="absolute"
+        right="3"
+        top="24"
+        rounded="full"
+        icon={
+          <FontAwesome
+            name={mode === 'riskAreas' ? 'wrench' : 'group'}
+            size={25}
+            color={COLOR_PRIMARY_600}
+          />
+        }
+      />
     </LoadingInterceptor>
   )
 }

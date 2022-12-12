@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useReducer } from 'react'
 import { showAlertError } from '../../helpers/actions/showAlertError'
+import { toggleMutationLoading } from '../../helpers/actions/toggleMutationLoading'
 import { toggleQueryLoading } from '../../helpers/actions/toggleQueryLoading'
 import { api } from '../../services/api/axios'
 import { useUserAuth } from '../auth/provider'
@@ -8,8 +9,9 @@ import { userGroupsReducer } from './reducer'
 
 const userGroupInitialState = {
   groups: undefined,
+  groupsThatOwn: undefined,
+  groupsThatLocationIsShared: undefined,
   current: undefined,
-  userGroupsAmount: 0,
   queryLoading: false,
   mutationLoading: false,
 }
@@ -31,23 +33,28 @@ export const UserGroupProvider = ({ children }) => {
 
   useEffect(() => {
     getGroups()
-    getUserGroupsAmount()
   }, [])
 
   const getGroups = async () => {
     toggleQueryLoading(dispatch)
     try {
-      const { data } = await api.get('/groups/me')
+      const {
+        data: { groups, groupsThatOwn, groupsThatLocationIsShared },
+      } = await api.get('/groups/me')
       const lastGroupSelectedId = session?.defaultGroupId
 
-      const groupsWithoutCurrentUser = data.map((group) => ({
+      const groupsWithoutCurrentUser = groups.map((group) => ({
         ...group,
         members: group.members.filter((m) => m.id !== session.id),
       }))
 
       dispatch({
         type: 'GET_GROUPS',
-        payload: groupsWithoutCurrentUser,
+        payload: {
+          groups: groupsWithoutCurrentUser,
+          groupsThatOwn,
+          groupsThatLocationIsShared,
+        },
       })
 
       if (groupsWithoutCurrentUser.length) {
@@ -101,15 +108,28 @@ export const UserGroupProvider = ({ children }) => {
     })
   }
 
-  const getUserGroupsAmount = async () => {
+  const alterGroupLocationSharing = async (groupId, connect) => {
     try {
-      const { data } = await api.get(`/users/groups-amount`)
-      dispatch({
-        type: 'SET_USER_GROUPS_AMOUNT',
-        payload: data.count,
+      toggleMutationLoading(dispatch)
+      await api.patch('/groups/alter-group-location-sharing', {
+        groupId,
+        connect,
       })
     } catch (err) {
       showAlertError(err)
+    } finally {
+      toggleMutationLoading(dispatch)
+    }
+  }
+
+  const shareLocationWithAllGroups = async (groupId, connect) => {
+    try {
+      toggleMutationLoading(dispatch)
+      await api.patch('/groups/share-location-with-all')
+    } catch (err) {
+      showAlertError(err)
+    } finally {
+      toggleMutationLoading(dispatch)
     }
   }
 
@@ -123,6 +143,8 @@ export const UserGroupProvider = ({ children }) => {
           createGroup,
           receiveChatMessage,
           receiveLocationUpdate,
+          alterGroupLocationSharing,
+          shareLocationWithAllGroups,
         },
       }}
     >

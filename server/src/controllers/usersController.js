@@ -1,12 +1,13 @@
 import { StatusCodes } from 'http-status-codes'
 import { handleHttpError } from '../helpers/errors.js'
+import { hashPassword } from '../services/authService.js'
 import {
-  countUsersGroupsAmount,
   findUserById,
   removeUserPassword,
   updateLastLocation,
   updatePushNotificationAllowed,
   updatePushToken,
+  updateUserService,
 } from '../services/usersService.js'
 
 export const getCurrentUser = async (req, res, next) => {
@@ -14,16 +15,6 @@ export const getCurrentUser = async (req, res, next) => {
     return res
       .status(StatusCodes.OK)
       .json(removeUserPassword(await findUserById(req.user.id)))
-  } catch (error) {
-    return next(handleHttpError(error, 'Usuário não encontrado.'))
-  }
-}
-
-export const getUserGroupsAmount = async (req, res, next) => {
-  try {
-    return res
-      .status(StatusCodes.OK)
-      .json({ count: await countUsersGroupsAmount(req.user.id) })
   } catch (error) {
     return next(handleHttpError(error, 'Usuário não encontrado.'))
   }
@@ -61,5 +52,39 @@ export const alterPushNotificationsAllowance = async (req, res, next) => {
       )
   } catch (error) {
     return next(handleHttpError(error))
+  }
+}
+
+export const updateUser = async (req, res, next) => {
+  try {
+    return res
+      .status(StatusCodes.OK)
+      .json(await updateUserService(req.user.id, req.body))
+  } catch (error) {
+    return next(
+      handleHttpError(
+        error,
+        'Usuário com nome de usuário, e-mail ou celular já cadastrado.'
+      )
+    )
+  }
+}
+
+export const updateUserPassword = async (req, res, next) => {
+  try {
+    return res
+      .status(StatusCodes.OK)
+      .json(
+        await updateUserService(req.user.id, {
+          password: await hashPassword(req.body.password),
+        })
+      )
+  } catch (error) {
+    return next(
+      handleHttpError(
+        error,
+        'Usuário com nome de usuário, e-mail ou celular já cadastrado.'
+      )
+    )
   }
 }

@@ -78,3 +78,6 @@ export const getUsersPushTokens = async (usersIds) =>
       },
     })
   ).map((u) => u.pushToken)
+
+export const updateUserService = async (id, data) =>
+  await prisma.user.update({ where: { id }, data })

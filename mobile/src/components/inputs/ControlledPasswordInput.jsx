@@ -1,6 +1,6 @@
 import { ControlledTextInput } from './ControlledTextInput'
 import { Center, IconButton } from 'native-base'
-import { FontAwesome5 } from '@expo/vector-icons'
+import { FontAwesome } from '@expo/vector-icons'
 import { forwardRef, useState } from 'react'
 
 export const ControlledPasswordInput = forwardRef(
@@ -18,9 +18,7 @@ export const ControlledPasswordInput = forwardRef(
             <IconButton
               rounded="full"
               onPress={() => setShow((prevShow) => !prevShow)}
-              icon={
-                <FontAwesome5 size={20} name={show ? 'eye-slash' : 'eye'} />
-              }
+              icon={<FontAwesome size={20} name={show ? 'eye-slash' : 'eye'} />}
             />
           </Center>
         }

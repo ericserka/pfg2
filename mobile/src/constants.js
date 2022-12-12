@@ -13,3 +13,4 @@ export const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO
 export const COLOR_PRIMARY_600 = '#0891B2'
 export const COLOR_SUCCESS_600 = '#16A34A'
 export const COLOR_ERROR_600 = '#DC2626'
+export const COLOR_GRAY_200 = '#E4E4E7'

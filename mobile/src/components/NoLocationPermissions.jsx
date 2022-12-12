@@ -1,4 +1,4 @@
-import { FontAwesome5 } from '@expo/vector-icons'
+import { FontAwesome } from '@expo/vector-icons'
 import { Center, Column, Row, Text } from 'native-base'
 import { Linking } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -17,7 +17,7 @@ export const NoLocationPermissions = () => (
           <Text fontSize="md">Vá em configurações e</Text>
           <Column space={2}>
             <Row space={3}>
-              <FontAwesome5
+              <FontAwesome
                 name="location-arrow"
                 size={20}
                 color={COLOR_PRIMARY_600}
@@ -25,7 +25,7 @@ export const NoLocationPermissions = () => (
               <Text>Selecione localização</Text>
             </Row>
             <Row space={3}>
-              <FontAwesome5 name="check" size={16} color={COLOR_SUCCESS_600} />
+              <FontAwesome name="check" size={16} color={COLOR_SUCCESS_600} />
               <Text>
                 Permitir <Text bold>Sempre</Text>
               </Text>

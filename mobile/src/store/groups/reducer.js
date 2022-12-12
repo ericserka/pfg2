@@ -7,7 +7,9 @@ export const userGroupsReducer = (state, action) => {
     case 'GET_GROUPS':
       return {
         ...state,
-        groups: action.payload,
+        groups: action.payload.groups,
+        groupsThatOwn: action.payload.groupsThatOwn,
+        groupsThatLocationIsShared: action.payload.groupsThatLocationIsShared,
       }
     case 'UPDATE_CURRENT_GROUP':
       return {
@@ -41,11 +43,6 @@ export const userGroupsReducer = (state, action) => {
               : m
           ),
         },
-      }
-    case 'SET_USER_GROUPS_AMOUNT':
-      return {
-        ...state,
-        userGroupsAmount: action.payload,
       }
     case 'QUERY_LOADING':
       return {

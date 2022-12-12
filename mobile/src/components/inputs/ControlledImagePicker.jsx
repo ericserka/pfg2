@@ -7,7 +7,7 @@ import {
   Row,
   WarningOutlineIcon,
 } from 'native-base'
-import { FontAwesome5 } from '@expo/vector-icons'
+import { FontAwesome } from '@expo/vector-icons'
 
 export const ControlledImagePicker = ({
   name,
@@ -27,7 +27,9 @@ export const ControlledImagePicker = ({
       base64: true,
     })
     if (!result.canceled) {
-      setValue(name, `data:image/jpeg;base64,${result.assets[0].base64}`)
+      setValue(name, `data:image/jpeg;base64,${result.assets[0].base64}`, {
+        shouldDirty: true,
+      })
     }
     trigger(name)
   }
@@ -42,7 +44,7 @@ export const ControlledImagePicker = ({
           borderWidth="2"
           borderColor="green.800"
         >
-          <FontAwesome5 size={40} name="image" />
+          <FontAwesome size={40} name="image" />
           <Text fontSize="xs">Aperte aqui</Text>
         </Avatar>
       </Pressable>

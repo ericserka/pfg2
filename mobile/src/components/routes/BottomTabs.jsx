@@ -1,6 +1,12 @@
-import { FontAwesome5 } from '@expo/vector-icons'
+import { FontAwesome } from '@expo/vector-icons'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import {
+  addNotificationResponseReceivedListener,
+  removeNotificationSubscription,
+  setNotificationHandler,
+} from 'expo-notifications'
 import { useEffect } from 'react'
+import { usePushNotifications } from '../../hooks/usePushNotifications'
 import { Emergency } from '../../screens/Emergency'
 import { Notifications } from '../../screens/Notifications'
 import { useUserAuth } from '../../store/auth/provider'
@@ -12,12 +18,6 @@ import { GroupSelector } from '../navbar/group-actions/GroupSelector'
 import { Left } from '../navbar/Left'
 import { Right } from '../navbar/Right'
 import { HomeStack } from './HomeStack'
-import {
-  addNotificationResponseReceivedListener,
-  removeNotificationSubscription,
-  setNotificationHandler,
-} from 'expo-notifications'
-import { usePushNotifications } from '../../hooks/usePushNotifications'
 
 const Tab = createBottomTabNavigator()
 
@@ -89,7 +89,7 @@ export const BottomTabs = () => {
           options={{
             headerTransparent: true,
             headerTitle: (props) => <GroupSelector {...props} />,
-            tabBarIcon: (props) => <FontAwesome5 name="map" {...props} />,
+            tabBarIcon: (props) => <FontAwesome name="map-o" {...props} />,
           }}
           component={HomeStack}
         />
@@ -97,7 +97,7 @@ export const BottomTabs = () => {
           name="Emergência"
           options={{
             tabBarIcon: (props) => (
-              <FontAwesome5 name="exclamation-circle" {...props} />
+              <FontAwesome name="exclamation-circle" {...props} />
             ),
           }}
           component={Emergency}
@@ -105,7 +105,7 @@ export const BottomTabs = () => {
         <Tab.Screen
           name="Notificações"
           options={{
-            tabBarIcon: (props) => <FontAwesome5 name="bell" {...props} />,
+            tabBarIcon: (props) => <FontAwesome name="bell-o" {...props} />,
             tabBarBadge: non_read_notifications_amount,
           }}
           component={Notifications}

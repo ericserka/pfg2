@@ -1,10 +1,11 @@
 import { Router } from 'express'
 import {
-  getCurrentUser,
-  getUserGroupsAmount,
-  saveLastLocation,
-  alterPushToken,
   alterPushNotificationsAllowance,
+  alterPushToken,
+  getCurrentUser,
+  saveLastLocation,
+  updateUser,
+  updateUserPassword,
 } from '../controllers/usersController.js'
 
 export const useUserRouter = (app) => {
@@ -12,12 +13,13 @@ export const useUserRouter = (app) => {
 
   usersRouter.get('/me', getCurrentUser)
   usersRouter.post('/last-loc', saveLastLocation)
-  usersRouter.get('/groups-amount', getUserGroupsAmount)
   usersRouter.patch('/push-token', alterPushToken)
   usersRouter.patch(
     '/push-notifications-allowance',
     alterPushNotificationsAllowance
   )
+  usersRouter.patch('/', updateUser)
+  usersRouter.patch('/password', updateUserPassword)
 
   app.use('/users', usersRouter)
 }

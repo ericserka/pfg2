@@ -11,3 +11,15 @@ export const countKeyValueFromArrOfObjs = (arrOfObjs, key) =>
     result[obj[key]] = (result[obj[key]] || 0) + 1
     return result
   }, {})
+
+export const updateAllValuesFromObj = (obj, value) =>
+  Object.keys(obj).reduce((acc, key) => {
+    acc[key] = value
+    return acc
+  }, {})
+
+export const maskPhoneNumber = (phoneNumber) =>
+  `+${phoneNumber.substring(0, 2)} (${phoneNumber.substring(
+    2,
+    4
+  )}) ${phoneNumber.substring(4, 9)}-${phoneNumber.substring(9, 13)}`

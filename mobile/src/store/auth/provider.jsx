@@ -88,7 +88,7 @@ export const UserAuthProvider = ({ children }) => {
 
   const logout = async () => {
     Alert.alert(
-      'Ten certeza?',
+      'Tem certeza?',
       'Deslogar impossibilitará você de receber notificações dos seus entes queridos.',
       [
         {

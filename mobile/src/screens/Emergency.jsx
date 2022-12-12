@@ -24,7 +24,7 @@ export const Emergency = () => {
     actions: { emitEventAskHelp },
   } = useWebSocket()
   const {
-    state: { userGroupsAmount },
+    state: { groups },
   } = useUserGroup()
   const {
     state: { session },
@@ -35,7 +35,7 @@ export const Emergency = () => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Center>
-        {userGroupsAmount === 0 ? (
+        {groups.length === 0 ? (
           <View mt="75%">
             <MessageBox
               type="info"

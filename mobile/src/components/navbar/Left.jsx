@@ -1,42 +1,17 @@
-import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker'
-import { Avatar, Flex, Pressable } from 'native-base'
-import { useUserAuth } from '../../store/auth/provider'
+import { FontAwesome } from '@expo/vector-icons'
+import { useNavigation } from '@react-navigation/native'
+import { Flex, IconButton } from 'native-base'
+import { COLOR_PRIMARY_600 } from '../../constants'
 
 export const Left = (props) => {
-  const {
-    state: { session },
-  } = useUserAuth()
-
-  const pickImage = async () => {
-    const pickedImage = await launchImageLibraryAsync({
-      mediaTypes: MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-      allowsMultipleSelection: false,
-      base64: true,
-    })
-
-    if (!pickedImage || pickedImage.cancelled) return
-
-    console.log(`data:image/jpeg;base64,${pickedImage.base64.substring(0, 10)}`)
-  }
-
+  const { navigate } = useNavigation()
   return (
     <Flex ml="3" align="center" justify="center" direction="column" {...props}>
-      <Pressable onPress={pickImage}>
-        <Avatar
-          w="10"
-          h="10"
-          source={{
-            uri: session.profilePic,
-          }}
-          borderColor={'black'}
-          borderWidth={1}
-        >
-          <Avatar.Badge bg="green.600" />
-        </Avatar>
-      </Pressable>
+      <IconButton
+        onPress={() => navigate('Configurações')}
+        rounded="full"
+        icon={<FontAwesome name="gear" size={25} color={COLOR_PRIMARY_600} />}
+      />
     </Flex>
   )
 }

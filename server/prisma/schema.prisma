@@ -77,19 +77,21 @@ model User {
   defaultGroupId             Int?
   pushToken                  String?
   pushNotificationAllowed    Boolean           @default(false)
+  groupsThatLocationIsShared Group[]           @relation("groupLocationShared")
 }
 
 model Group {
-  id                 Int            @id @default(autoincrement())
-  name               String
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
-  members            User[]         @relation("groupMembers")
-  messages           Message[]
-  notifications      Notification[]
-  usersThatIsDefault User[]         @relation("defaultGroup")
-  owner              User           @relation("owner", fields: [ownerId], references: [id])
-  ownerId            Int
+  id                        Int            @id @default(autoincrement())
+  name                      String
+  createdAt                 DateTime       @default(now())
+  updatedAt                 DateTime       @updatedAt
+  members                   User[]         @relation("groupMembers")
+  messages                  Message[]
+  notifications             Notification[]
+  usersThatIsDefault        User[]         @relation("defaultGroup")
+  owner                     User           @relation("owner", fields: [ownerId], references: [id])
+  ownerId                   Int
+  usersThatLocationIsShared User[]         @relation("groupLocationShared")
 }
 
 model Message {

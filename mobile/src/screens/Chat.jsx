@@ -1,4 +1,4 @@
-import { FontAwesome5 } from '@expo/vector-icons'
+import { FontAwesome } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import {
   Center,
@@ -98,7 +98,7 @@ export const Chat = () => {
             onPress={() => goBack()}
             rounded="full"
             icon={
-              <FontAwesome5
+              <FontAwesome
                 name="arrow-left"
                 size={25}
                 color={COLOR_PRIMARY_600}
@@ -111,7 +111,7 @@ export const Chat = () => {
             }}
             rounded="full"
             icon={
-              <FontAwesome5 name="info" size={25} color={COLOR_PRIMARY_600} />
+              <FontAwesome name="info" size={25} color={COLOR_PRIMARY_600} />
             }
           />
         </Flex>
@@ -179,8 +179,8 @@ export const Chat = () => {
               <IconButton
                 rounded="full"
                 icon={
-                  <FontAwesome5
-                    name="file-image"
+                  <FontAwesome
+                    name="file-image-o"
                     size={20}
                     color={COLOR_PRIMARY_600}
                   />
@@ -192,8 +192,8 @@ export const Chat = () => {
                 onPress={handleSend}
                 rounded="full"
                 icon={
-                  <FontAwesome5
-                    name="reply"
+                  <FontAwesome
+                    name="long-arrow-right"
                     size={20}
                     color={COLOR_PRIMARY_600}
                   />

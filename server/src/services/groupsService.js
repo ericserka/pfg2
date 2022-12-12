@@ -32,6 +32,16 @@ export function findGroupsByUserId(userId) {
   })
 }
 
+export const findGroupsThatLocationIsSharedByUserId = async (userId) =>
+  await prisma.group.findMany({
+    where: { usersThatLocationIsShared: { some: { id: userId } } },
+  })
+
+export const findGroupsThatUserIdOwn = async (userId) =>
+  await prisma.group.findMany({
+    where: { ownerId: userId },
+  })
+
 export async function FindOrCreateGroup(group, userId) {
   const id = !group.id ? (await prisma.group.count()) + 1 : group.id
   return prisma.group.upsert({
@@ -69,6 +79,11 @@ export const linkUserToGroup = async (userId, groupId, tx) =>
           id: userId,
         },
       },
+      usersThatLocationIsShared: {
+        connect: {
+          id: userId,
+        },
+      },
     },
   })
 
@@ -79,6 +94,11 @@ export const unlinkUserFromGroup = async (userId, groupId) =>
     },
     data: {
       members: {
+        disconnect: {
+          id: userId,
+        },
+      },
+      usersThatLocationIsShared: {
         disconnect: {
           id: userId,
         },
@@ -101,6 +121,9 @@ export const createGroupService = async (
         members: {
           connect: { id: owner.id },
         },
+        usersThatLocationIsShared: {
+          connect: { id: owner.id },
+        },
       },
     })
     await createInviteNotifications(
@@ -114,4 +137,48 @@ export const createGroupService = async (
     )
     await ifNoGroupsSetNewAsDefault(owner.id, group.id, tx)
     return group
+  })
+
+export const disconnectUserFromLocationSharing = async (userId, groupId) =>
+  await prisma.group.update({
+    where: {
+      id: groupId,
+    },
+    data: {
+      usersThatLocationIsShared: {
+        disconnect: {
+          id: userId,
+        },
+      },
+    },
+  })
+
+export const connectUserFromLocationSharing = async (userId, groupId) =>
+  await prisma.group.update({
+    where: {
+      id: groupId,
+    },
+    data: {
+      usersThatLocationIsShared: {
+        connect: {
+          id: userId,
+        },
+      },
+    },
+  })
+
+export const shareLocationWithAllService = async (userId) =>
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      groupsThatLocationIsShared: {
+        connect: (
+          await findGroupsByUserId(userId)
+        ).map((g) => ({
+          id: g.id,
+        })),
+      },
+    },
   })
