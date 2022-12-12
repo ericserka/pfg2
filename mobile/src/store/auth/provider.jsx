@@ -124,6 +124,15 @@ export const UserAuthProvider = ({ children }) => {
     })
   }
 
+  const saveRandomUserPassword = async (data, onSuccess) => {
+    try {
+      await api.patch('/auth/random-password', data)
+      onSuccess()
+    } catch (err) {
+      showAlertError(err)
+    }
+  }
+
   return (
     <UserAuthContext.Provider
       value={{
@@ -133,6 +142,7 @@ export const UserAuthProvider = ({ children }) => {
           signup,
           logout,
           updateSession,
+          saveRandomUserPassword,
         },
       }}
     >

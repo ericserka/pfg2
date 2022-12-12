@@ -4,6 +4,7 @@ import {
   generateAuthToken,
   hashPassword,
   verifyCredentials,
+  saveRandomPasswordService,
 } from '../services/authService.js'
 import {
   createUser,
@@ -41,6 +42,19 @@ export const register = async (req, res, next) => {
         error,
         'Usuário com nome de usuário, e-mail ou celular já cadastrado.'
       )
+    )
+  }
+}
+
+export const saveRandomPassword = async (req, res, next) => {
+  const { email, password } = req.body
+  try {
+    return res
+      .status(StatusCodes.OK)
+      .json(await saveRandomPasswordService(email, password))
+  } catch (error) {
+    return next(
+      handleHttpError(error, `Usuário de e-mail ${email} não encontrado.`)
     )
   }
 }

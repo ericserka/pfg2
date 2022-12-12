@@ -3,11 +3,13 @@ import { useNavigation } from '@react-navigation/native'
 import { Center, Row, Image, Link, Stack, Text } from 'native-base'
 import { useRef } from 'react'
 import { useForm } from 'react-hook-form'
+import { Alert } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import * as z from 'zod'
 import { CustomButton } from '../../components/buttons/CustomButton'
 import { ControlledPasswordInput } from '../../components/inputs/ControlledPasswordInput'
 import { ControlledTextInput } from '../../components/inputs/ControlledTextInput'
+import { generateRandomPassword } from '../../helpers/snippets'
 import { useUserAuth } from '../../store/auth/provider'
 
 export const SignIn = () => {
@@ -17,7 +19,8 @@ export const SignIn = () => {
     control,
     handleSubmit,
     trigger,
-    formState: { isDirty, isValid },
+    formState: { isDirty, isValid, errors },
+    getValues,
   } = useForm({
     resolver: zodResolver(
       z.object({
@@ -30,7 +33,7 @@ export const SignIn = () => {
   const pwdRef = useRef()
 
   const {
-    actions: { signin },
+    actions: { signin, saveRandomUserPassword },
     state: { mutationLoading },
   } = useUserAuth()
 
@@ -74,6 +77,38 @@ export const SignIn = () => {
             title="Entrar"
             onPress={handleSubmit(onSubmit)}
           />
+          <Center>
+            <Row space="1">
+              <Text>Esqueceu sua senha?</Text>
+              <Link
+                _text={{
+                  color: 'primary.600',
+                }}
+                onPress={async () => {
+                  const email = getValues('email')
+                  if (!errors?.email && email) {
+                    const password = generateRandomPassword()
+                    await saveRandomUserPassword(
+                      {
+                        password,
+                        email,
+                      },
+                      () => {
+                        Alert.alert(
+                          'Nova senha',
+                          `Sua nova senha é: ${password}. Memorize-a para realizar o login. Você poderá alterá-la em seu perfil posteriormente.`
+                        )
+                      }
+                    )
+                  } else {
+                    Alert.alert('Erro', 'Preencha o e-mail corretamente.')
+                  }
+                }}
+              >
+                Clique aqui
+              </Link>
+            </Row>
+          </Center>
           <Center>
             <Row space="1">
               <Text>Não possui uma conta?</Text>

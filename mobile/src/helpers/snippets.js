@@ -23,3 +23,5 @@ export const maskPhoneNumber = (phoneNumber) =>
     2,
     4
   )}) ${phoneNumber.substring(4, 9)}-${phoneNumber.substring(9, 13)}`
+
+export const generateRandomPassword = () => Math.random().toString(36).slice(-8)
