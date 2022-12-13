@@ -1,10 +1,12 @@
 import { FontAwesome } from '@expo/vector-icons'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { useNavigation } from '@react-navigation/native'
 import {
   addNotificationResponseReceivedListener,
   removeNotificationSubscription,
   setNotificationHandler,
 } from 'expo-notifications'
+import { Text } from 'native-base'
 import { useEffect } from 'react'
 import { usePushNotifications } from '../../hooks/usePushNotifications'
 import { Emergency } from '../../screens/Emergency'
@@ -48,6 +50,8 @@ export const BottomTabs = () => {
   const { registerForPushNotificationsAsync, handlePushNotificationsResponse } =
     usePushNotifications()
 
+  const { getCurrentRoute } = useNavigation()
+
   useEffect(() => {
     listenToNotificationReceived(({ usersIds }) => {
       if (usersIds.includes(session.id)) {
@@ -82,13 +86,21 @@ export const BottomTabs = () => {
           headerLeft: (props) => <Left {...props} />,
           headerRight: (props) => <Right {...props} />,
           headerShadowVisible: true,
+          headerTitleAlign: 'center',
         }}
       >
         <Tab.Screen
           name="Home"
           options={{
             headerTransparent: true,
-            headerTitle: (props) => <GroupSelector {...props} />,
+            headerTitle: (props) =>
+              getCurrentRoute()?.name !== 'Configurações' ? (
+                <GroupSelector {...props} />
+              ) : (
+                <Text fontSize="xl" bold>
+                  {getCurrentRoute()?.name}
+                </Text>
+              ),
             tabBarIcon: (props) => <FontAwesome name="map-o" {...props} />,
           }}
           component={HomeStack}
