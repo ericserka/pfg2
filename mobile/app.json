@@ -4,7 +4,7 @@
     "slug": "mobile",
     "version": "1.0.0",
     "extra": {
-      "apiUrl": "https://66b2-179-48-44-246.sa.ngrok.io",
+      "apiUrl": "https://3e16-179-48-44-246.sa.ngrok.io",
       "jwtKey": "@pfg2:unb:jwt",
       "eas": {
         "projectId": "866235db-85ee-4f19-80c3-9d42e02b9aa4"
