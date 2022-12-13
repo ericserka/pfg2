@@ -94,7 +94,7 @@ export const BottomTabs = () => {
           options={{
             headerTransparent: true,
             headerTitle: (props) =>
-              getCurrentRoute()?.name !== 'Configurações' ? (
+              ['Mapa', 'Chat'].includes(getCurrentRoute()?.name) ? (
                 <GroupSelector {...props} />
               ) : (
                 <Text fontSize="xl" bold>
