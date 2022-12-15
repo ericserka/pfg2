@@ -105,7 +105,7 @@ export const SignIn = () => {
                   }
                 }}
               >
-                Clique aqui
+                Aperte aqui
               </Link>
             </Row>
           </Center>
