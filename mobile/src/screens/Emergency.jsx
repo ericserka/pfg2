@@ -10,27 +10,20 @@ import {
   View,
   WarningIcon,
 } from 'native-base'
-import { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { MessageBox } from '../components/MessageBox'
-import { handleSocketResponse } from '../helpers/feedback/handleSocketResponse'
-import { useUserAuth } from '../store/auth/provider'
 import { useUserGroup } from '../store/groups/provider'
-import { useWebSocket } from '../store/websocket/provider'
+import { useNotifications } from '../store/notifications/provider'
 
 export const Emergency = () => {
   const toast = useToast()
   const {
-    actions: { emitEventAskHelp },
-  } = useWebSocket()
-  const {
     state: { groups },
   } = useUserGroup()
   const {
-    state: { session },
-  } = useUserAuth()
-
-  const [loading, setLoading] = useState(false)
+    state: { mutationLoading },
+    actions: { askHelp },
+  } = useNotifications()
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -52,19 +45,8 @@ export const Emergency = () => {
               mt="2"
             />
             <Pressable
-              onPress={() => {
-                setLoading(true)
-                emitEventAskHelp(
-                  {
-                    user: { id: session.id, username: session.username },
-                  },
-                  (response) => {
-                    setLoading(false)
-                    handleSocketResponse(response, toast)
-                  }
-                )
-              }}
-              isDisabled={loading}
+              onPress={() => askHelp(toast)}
+              isDisabled={mutationLoading}
             >
               <Box
                 borderRadius="full"
@@ -74,7 +56,7 @@ export const Emergency = () => {
                 height={80}
                 bg="red.50"
               >
-                {loading ? (
+                {mutationLoading ? (
                   <Spinner color="red.600" size={96} mt={24} />
                 ) : (
                   <Flex align="center" justify="center" direction="column">

@@ -5,6 +5,9 @@ import { toggleQueryLoading } from '../../helpers/actions/toggleQueryLoading'
 import { countKeyValueFromArrOfObjs } from '../../helpers/snippets'
 import { api } from '../../services/api/axios'
 import { notificationsReducer } from './reducer'
+import { handleSocketResponse } from '../../helpers/feedback/handleSocketResponse'
+import { useUserAuth } from '../auth/provider'
+import { useWebSocket } from '../websocket/provider'
 
 const notificationsInitialState = {
   mutationLoading: false,
@@ -24,6 +27,16 @@ export const NotificationsProvider = ({ children }) => {
     notificationsReducer,
     notificationsInitialState
   )
+  const {
+    state: { session },
+  } = useUserAuth()
+  const {
+    actions: {
+      emitEventAcceptGroupInvite,
+      emitEventRejectGroupInvite,
+      emitEventAskHelp,
+    },
+  } = useWebSocket()
 
   useEffect(() => {
     getNotifications()
@@ -73,6 +86,54 @@ export const NotificationsProvider = ({ children }) => {
     }
   }
 
+  const acceptGroupInvite = (notificationId, groupId, toast) => {
+    toggleMutationLoading(dispatch)
+    emitEventAcceptGroupInvite(
+      {
+        notificationId: notificationId,
+        groupId: groupId,
+        userId: session.id,
+      },
+      (response) => {
+        toggleMutationLoading(dispatch)
+        handleSocketResponse(response, toast, () => {
+          updateNotification({
+            id: notificationId,
+            seen: true,
+            status: 'ACCEPTED',
+          })
+        })
+      }
+    )
+  }
+
+  const rejectGroupInvite = (notificationId, toast) => {
+    toggleMutationLoading(dispatch)
+    emitEventRejectGroupInvite(notificationId, (response) => {
+      toggleMutationLoading(dispatch)
+      handleSocketResponse(response, toast, () => {
+        updateNotification({
+          id: notificationId,
+          seen: true,
+          status: 'REJECTED',
+        })
+      })
+    })
+  }
+
+  const askHelp = (toast) => {
+    toggleMutationLoading(dispatch)
+    emitEventAskHelp(
+      {
+        user: { id: session.id, username: session.username },
+      },
+      (response) => {
+        toggleMutationLoading(dispatch)
+        handleSocketResponse(response, toast)
+      }
+    )
+  }
+
   return (
     <NotificationsContext.Provider
       value={{
@@ -81,6 +142,9 @@ export const NotificationsProvider = ({ children }) => {
           updateNotification,
           getNotifications,
           markUnreadNotificationsAsRead,
+          acceptGroupInvite,
+          rejectGroupInvite,
+          askHelp,
         },
       }}
     >

@@ -1,24 +1,14 @@
 import { FontAwesome } from '@expo/vector-icons'
 import { IconButton, Row, Spinner, Text, useToast } from 'native-base'
-import { useState } from 'react'
 import { COLOR_ERROR_600, COLOR_SUCCESS_600 } from '../../../constants'
-import { handleSocketResponse } from '../../../helpers/feedback/handleSocketResponse'
-import { useUserAuth } from '../../../store/auth/provider'
 import { useNotifications } from '../../../store/notifications/provider'
-import { useWebSocket } from '../../../store/websocket/provider'
 
 export const InviteAction = ({ notification }) => {
   const {
-    actions: { updateNotification },
+    state: { mutationLoading },
+    actions: { acceptGroupInvite, rejectGroupInvite },
   } = useNotifications()
-  const {
-    actions: { emitEventRejectGroupInvite, emitEventAcceptGroupInvite },
-  } = useWebSocket()
-  const {
-    state: { session },
-  } = useUserAuth()
   const toast = useToast()
-  const [mutationLoading, setMutationLoading] = useState(false)
 
   const RowChildren = () => {
     switch (notification.status) {
@@ -30,26 +20,13 @@ export const InviteAction = ({ notification }) => {
             ) : (
               <>
                 <IconButton
-                  onPress={() => {
-                    setMutationLoading(true)
-                    emitEventAcceptGroupInvite(
-                      {
-                        notificationId: notification.id,
-                        groupId: notification.groupId,
-                        userId: session.id,
-                      },
-                      (response) => {
-                        setMutationLoading(false)
-                        handleSocketResponse(response, toast, () => {
-                          updateNotification({
-                            id: notification.id,
-                            seen: true,
-                            status: 'ACCEPTED',
-                          })
-                        })
-                      }
+                  onPress={() =>
+                    acceptGroupInvite(
+                      notification.id,
+                      notification.groupId,
+                      toast
                     )
-                  }}
+                  }
                   icon={
                     <FontAwesome
                       name="check"
@@ -60,19 +37,7 @@ export const InviteAction = ({ notification }) => {
                   isDisabled={mutationLoading}
                 />
                 <IconButton
-                  onPress={() => {
-                    setMutationLoading(true)
-                    emitEventRejectGroupInvite(notification.id, (response) => {
-                      setMutationLoading(false)
-                      handleSocketResponse(response, toast, () => {
-                        updateNotification({
-                          id: notification.id,
-                          seen: true,
-                          status: 'REJECTED',
-                        })
-                      })
-                    })
-                  }}
+                  onPress={() => rejectGroupInvite(notification.id, toast)}
                   icon={
                     <FontAwesome
                       name="remove"
