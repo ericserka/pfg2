@@ -42,11 +42,14 @@ export const BottomTabs = () => {
     actions: { getNotifications },
   } = useNotifications()
   const {
-    actions: { listenToNotificationReceived },
+    actions: { listenToNotificationReceived, listenToMessageAdded },
   } = useWebSocket()
   const {
     state: { session },
   } = useUserAuth()
+  const {
+    actions: { receiveChatMessage },
+  } = useUserGroup()
   const { registerForPushNotificationsAsync, handlePushNotificationsResponse } =
     usePushNotifications()
 
@@ -55,8 +58,16 @@ export const BottomTabs = () => {
   useEffect(() => {
     listenToNotificationReceived(({ usersIds }) => {
       if (usersIds.includes(session.id)) {
+        log.info(`[${session.username}] received a notification`)
         getNotifications()
       }
+    })
+  }, [])
+
+  useEffect(() => {
+    listenToMessageAdded((message) => {
+      log.info(`[${session.username}] received message event`, message)
+      receiveChatMessage(message)
     })
   }, [])
 

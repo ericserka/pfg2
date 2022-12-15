@@ -33,17 +33,10 @@ export const Chat = () => {
     state: { session },
   } = useUserAuth()
   const {
-    actions: { emitEventSendMessage, listenToMessageAdded },
+    actions: { emitEventSendMessage },
   } = useWebSocket()
 
   const canSendMessage = current?.members?.length
-
-  useEffect(() => {
-    listenToMessageAdded((message) => {
-      log.info(`[${session.username}] received message event`, message)
-      receiveChatMessage(message)
-    })
-  }, [])
 
   useEffect(() => {
     if (!current.messages?.length) return
