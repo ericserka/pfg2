@@ -1,24 +1,9 @@
-import {
-  Button,
-  Center,
-  CheckIcon,
-  FlatList,
-  Flex,
-  FormControl,
-  HStack,
-  IconButton,
-  Input,
-  KeyboardAvoidingView,
-  Modal,
-  Select,
-  Text,
-  TextArea,
-  VStack,
-} from 'native-base'
-import { useEffect, useRef, useState } from 'react'
-import { CreateGroupModal } from './CreateGroupModal'
-import { useUserGroup } from '../../../store/groups/provider'
+import { useNavigation } from '@react-navigation/native'
+import { Center, CheckIcon, FormControl, Select } from 'native-base'
+import { useState } from 'react'
 import { COLOR_PRIMARY_600 } from '../../../constants'
+import { useUserGroup } from '../../../store/groups/provider'
+import { CreateGroupModal } from './CreateGroupModal'
 
 export const GroupSelector = (props) => {
   const [modalVisible, setModalVisible] = useState(false)
@@ -26,6 +11,7 @@ export const GroupSelector = (props) => {
     state: { current, groups },
     actions: { changeSelectedGroup },
   } = useUserGroup()
+  const { navigate } = useNavigation()
 
   return (
     <Center {...props} rounded="full" bg="white">
@@ -33,10 +19,7 @@ export const GroupSelector = (props) => {
         <Select
           rounded="full"
           onValueChange={(value) => {
-            if (value === -1) {
-              return setModalVisible(true)
-            }
-            changeSelectedGroup(value)
+            value === -1 ? navigate('Criar Grupo') : changeSelectedGroup(value)
           }}
           selectedValue={current?.id ?? 0}
           _selectedItem={

@@ -66,6 +66,17 @@ export const UsersProvider = ({ children }) => {
     }
   }
 
+  const findUserByUsername = async (username) => {
+    try {
+      toggleMutationLoading(dispatch)
+      return (await api.get(`/users/username/${username}`)).data
+    } catch (err) {
+      showAlertError(err)
+    } finally {
+      toggleMutationLoading(dispatch)
+    }
+  }
+
   return (
     <UsersContext.Provider
       value={{
@@ -75,6 +86,7 @@ export const UsersProvider = ({ children }) => {
           alterPushNotificationsAllowance,
           updateUser,
           updateUserPassword,
+          findUserByUsername,
         },
       }}
     >

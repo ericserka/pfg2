@@ -3,6 +3,7 @@ import { handleHttpError } from '../helpers/errors.js'
 import { hashPassword } from '../services/authService.js'
 import {
   findUserById,
+  findUserByUsername,
   removeUserPassword,
   updateLastLocation,
   updatePushNotificationAllowed,
@@ -72,19 +73,22 @@ export const updateUser = async (req, res, next) => {
 
 export const updateUserPassword = async (req, res, next) => {
   try {
+    return res.status(StatusCodes.OK).json(
+      await updateUserService(req.user.id, {
+        password: await hashPassword(req.body.password),
+      })
+    )
+  } catch (error) {
+    return next(handleHttpError(error))
+  }
+}
+
+export const getUserByUsername = async (req, res, next) => {
+  try {
     return res
       .status(StatusCodes.OK)
-      .json(
-        await updateUserService(req.user.id, {
-          password: await hashPassword(req.body.password),
-        })
-      )
+      .json(await findUserByUsername(req.params.username))
   } catch (error) {
-    return next(
-      handleHttpError(
-        error,
-        'Usuário com nome de usuário, e-mail ou celular já cadastrado.'
-      )
-    )
+    return next(handleHttpError(error, 'Usuário não encontrado'))
   }
 }

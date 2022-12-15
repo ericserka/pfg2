@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useReducer } from 'react'
 import { showAlertError } from '../../helpers/actions/showAlertError'
 import { toggleMutationLoading } from '../../helpers/actions/toggleMutationLoading'
 import { toggleQueryLoading } from '../../helpers/actions/toggleQueryLoading'
+import { handleSocketResponse } from '../../helpers/feedback/handleSocketResponse'
 import { api } from '../../services/api/axios'
 import { useUserAuth } from '../auth/provider'
 import { useWebSocket } from '../websocket/provider'
@@ -28,7 +29,12 @@ export const UserGroupProvider = ({ children }) => {
     state: { session },
   } = useUserAuth()
   const {
-    actions: { emitEventJoinGroup, emitEventLeaveGroup },
+    actions: {
+      emitEventJoinGroup,
+      emitEventLeaveGroup,
+      emitEventCreateGroup,
+      emitEventAddMembersToGroup,
+    },
   } = useWebSocket()
 
   useEffect(() => {
@@ -81,17 +87,32 @@ export const UserGroupProvider = ({ children }) => {
     emitEventJoinGroup(session.id, id)
   }
 
-  const createGroup = async (name, members) => {
-    const { data } = await api.post('/groups', {
-      name,
-      membersToInviteIds: members,
-    })
-    const groups = [...state.groups, data]
-    dispatch({
-      type: 'GET_GROUPS',
-      payload: groups,
-    })
-    changeSelectedGroup(data.id, groups)
+  const createGroup = (payload, toast, actions) => {
+    toggleMutationLoading(dispatch)
+    emitEventCreateGroup(
+      {
+        ...payload,
+        user: { ...session },
+      },
+      (response) => {
+        toggleMutationLoading(dispatch)
+        handleSocketResponse(response, toast, actions)
+      }
+    )
+  }
+
+  const addMembersToGroup = (payload, toast, actions) => {
+    toggleMutationLoading(dispatch)
+    emitEventAddMembersToGroup(
+      {
+        ...payload,
+        user: { ...session },
+      },
+      (response) => {
+        toggleMutationLoading(dispatch)
+        handleSocketResponse(response, toast, actions)
+      }
+    )
   }
 
   const receiveChatMessage = (message) => {
@@ -145,6 +166,7 @@ export const UserGroupProvider = ({ children }) => {
           receiveLocationUpdate,
           alterGroupLocationSharing,
           shareLocationWithAllGroups,
+          addMembersToGroup,
         },
       }}
     >

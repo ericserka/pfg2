@@ -15,6 +15,9 @@ export const findUserById = async (id) =>
     },
   })
 
+export const findUserByUsername = async (username) =>
+  await prisma.user.findUniqueOrThrow({ where: { username } })
+
 export const createUser = async (data) => await prisma.user.create({ data })
 
 export const removeUserPassword = (user) => ({ ...user, password: undefined })

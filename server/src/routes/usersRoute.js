@@ -6,6 +6,7 @@ import {
   saveLastLocation,
   updateUser,
   updateUserPassword,
+  getUserByUsername,
 } from '../controllers/usersController.js'
 
 export const useUserRouter = (app) => {
@@ -20,6 +21,7 @@ export const useUserRouter = (app) => {
   )
   usersRouter.patch('/', updateUser)
   usersRouter.patch('/password', updateUserPassword)
+  usersRouter.get('/username/:username', getUserByUsername)
 
   app.use('/users', usersRouter)
 }
