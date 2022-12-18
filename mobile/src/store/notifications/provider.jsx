@@ -117,8 +117,8 @@ export const NotificationsProvider = ({ children }) => {
     toggleMutationLoading(dispatch)
     emitEventAcceptGroupInvite(
       {
-        notificationId: notificationId,
-        groupId: groupId,
+        notificationId,
+        groupId,
         userId: session.id,
       },
       (response) => {
@@ -126,7 +126,7 @@ export const NotificationsProvider = ({ children }) => {
         handleSocketResponse(response, toast, () => {
           updateNotifications([
             {
-              id: notificationId,
+              ...state.notifications.find((n) => n.id === notificationId),
               seen: true,
               status: 'ACCEPTED',
             },
@@ -144,7 +144,7 @@ export const NotificationsProvider = ({ children }) => {
       handleSocketResponse(response, toast, () => {
         updateNotifications([
           {
-            id: notificationId,
+            ...state.notifications.find((n) => n.id === notificationId),
             seen: true,
             status: 'REJECTED',
           },
