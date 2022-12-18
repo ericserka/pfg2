@@ -40,13 +40,15 @@ const onRejectGroupInvite = async ({ notificationId }, cb) => {
 
 const onAcceptGroupInvite = async ({ groupId, notificationId, userId }, cb) => {
   try {
-    await acceptGroupInviteNotificationById(notificationId, groupId, userId)
+    const [groupWithMembersAndMessages, group] =
+      await acceptGroupInviteNotificationById(notificationId, groupId, userId)
     log.info(
       `User ${userId} accepted group invite ${notificationId} for group ${groupId}`
     )
     cb({
       success: true,
       message: 'Convite aceito com sucesso.',
+      data: { group, groupWithMembersAndMessages },
     })
   } catch (error) {
     cb(handleSocketIOError(error, 'Grupo ou notificação não encontrado.'))
@@ -63,7 +65,7 @@ const onAddMembersToGroup = async (
   cb
 ) => {
   try {
-    await createInviteNotifications(
+    const notifications = await createInviteNotifications(
       membersToInviteIds.map((m) => ({
         receiverId: m,
         senderId: userId,
@@ -78,7 +80,10 @@ const onAddMembersToGroup = async (
       username
     )
     socket.broadcast.emit('notification-received', {
-      usersIds: membersToInviteIds,
+      notifications: notifications.map((n) => ({
+        ...n,
+        sender: { username },
+      })),
     })
     log.info(
       `User ${userId} invited users ${membersToInviteIds} for group ${groupId}`
@@ -98,7 +103,8 @@ const onCreateGroup = async (
   cb
 ) => {
   try {
-    const group = await createGroupService(groupName, user, membersToInviteIds)
+    const [groupWithMembersAndMessages, group, notifications] =
+      await createGroupService(groupName, user, membersToInviteIds)
     await sendPushNotifications(
       'INVITE',
       await getUsersPushTokens(membersToInviteIds),
@@ -106,7 +112,10 @@ const onCreateGroup = async (
       user.username
     )
     socket.broadcast.emit('notification-received', {
-      usersIds: membersToInviteIds,
+      notifications: notifications.map((n) => ({
+        ...n,
+        sender: { username: user.username },
+      })),
     })
     log.info(
       `User ${user.id} created group ${groupName} with id ${group.id} and invited users ${membersToInviteIds}`
@@ -114,6 +123,7 @@ const onCreateGroup = async (
     cb({
       success: true,
       message: 'Grupo criado e convites enviados com sucesso.',
+      data: { group, groupWithMembersAndMessages },
     })
   } catch (error) {
     cb(handleSocketIOError(error))

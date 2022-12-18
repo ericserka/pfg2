@@ -12,8 +12,23 @@ export const findGroupById = async (id) =>
     },
   })
 
-export function findGroupsByUserId(userId) {
-  return prisma.group.findMany({
+export const findGroupByIdWithMembersAndMessages = async (id, tx) =>
+  await (tx ?? prisma).group.findUniqueOrThrow({
+    where: {
+      id,
+    },
+    include: {
+      members: true,
+      messages: {
+        include: {
+          sender: true,
+        },
+      },
+    },
+  })
+
+export const findGroupsByUserId = (userId) =>
+  prisma.group.findMany({
     where: {
       members: {
         some: {
@@ -30,7 +45,6 @@ export function findGroupsByUserId(userId) {
       },
     },
   })
-}
 
 export const findGroupsThatLocationIsSharedByUserId = async (userId) =>
   await prisma.group.findMany({
@@ -126,7 +140,7 @@ export const createGroupService = async (
         },
       },
     })
-    await createInviteNotifications(
+    const notifications = await createInviteNotifications(
       membersToInviteIds.map((m) => ({
         receiverId: m,
         senderId: owner.id,
@@ -136,7 +150,9 @@ export const createGroupService = async (
       tx
     )
     await ifNoGroupsSetNewAsDefault(owner.id, group.id, tx)
-    return group
+    const groupWithMembersAndMessages =
+      await findGroupByIdWithMembersAndMessages(group.id, tx)
+    return [groupWithMembersAndMessages, group, notifications]
   })
 
 export const disconnectUserFromLocationSharing = async (userId, groupId) =>
@@ -182,3 +198,16 @@ export const shareLocationWithAllService = async (userId) =>
       },
     },
   })
+
+export const sanitizeGroupForResponse = (group) => ({
+  ...group,
+  members: group.members.map((member) => ({
+    ...member,
+    position: {
+      lat: member.lastKnownLatitude,
+      lng: member.lastKnownLongitude,
+    },
+    lastKnownLatitude: undefined,
+    lastKnownLongitude: undefined,
+  })),
+})

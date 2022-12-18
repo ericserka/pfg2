@@ -1,34 +1,54 @@
-import { useNavigation } from '@react-navigation/native'
-import { Column, Divider, FlatList, Flex, Text } from 'native-base'
-import { useEffect } from 'react'
+import { useFocusEffect, useNavigation } from '@react-navigation/native'
+import {
+  Center,
+  Column,
+  Divider,
+  FlatList,
+  Flex,
+  Spinner,
+  Text,
+} from 'native-base'
+import { useCallback, useEffect, useRef } from 'react'
 import { RefreshControl } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { LoadingInterceptor } from '../components/loading/LoadingInterceptor'
 import { MessageBox } from '../components/MessageBox'
 import { NotificationAction } from '../components/notifications/NotificationAction'
+import { scrollToTop } from '../helpers/actions/scrollToTop'
 import { dayjs } from '../helpers/dayjs'
 import { useNotifications } from '../store/notifications/provider'
 
 export const Notifications = () => {
   const {
     actions: { getNotifications, markUnreadNotificationsAsRead },
-    state: { notifications, queryLoading },
+    state: { notifications, queryLoading, paginationLoading },
   } = useNotifications()
   const navigation = useNavigation()
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('blur', () => {
-      notifications.filter((n) => !n.seen).length &&
-        markUnreadNotificationsAsRead()
-    })
+  const flatListRef = useRef(null)
 
-    return unsubscribe
-  }, [navigation])
+  useEffect(() => {
+    const unsubscribe = navigation.addListener(
+      'blur',
+      markUnreadNotificationsAsRead
+    )
+
+    return () => {
+      unsubscribe()
+    }
+  }, [navigation, markUnreadNotificationsAsRead])
+
+  useFocusEffect(
+    useCallback(() => {
+      scrollToTop(flatListRef)
+    }, [])
+  )
 
   return (
     <LoadingInterceptor loading={queryLoading}>
       <SafeAreaView style={{ flex: 1 }} edges={['left', 'right']}>
         <FlatList
+          ref={flatListRef}
           my="2"
           data={notifications}
           contentContainerStyle={{ flexGrow: 1 }}
@@ -43,7 +63,7 @@ export const Notifications = () => {
           refreshControl={
             <RefreshControl
               refreshing={queryLoading}
-              onRefresh={getNotifications}
+              onRefresh={() => getNotifications(1)}
             />
           }
           renderItem={({ item }) => (
@@ -57,6 +77,15 @@ export const Notifications = () => {
               </Flex>
             </Column>
           )}
+          onEndReached={() => getNotifications()}
+          onEndReachedThreshold={0.1}
+          ListFooterComponent={() =>
+            paginationLoading ? (
+              <Center>
+                <Spinner />
+              </Center>
+            ) : null
+          }
         />
       </SafeAreaView>
     </LoadingInterceptor>

@@ -92,11 +92,14 @@ export const UserGroupProvider = ({ children }) => {
     emitEventCreateGroup(
       {
         ...payload,
-        user: { ...session },
+        user: { id: session.id, username: session.username },
       },
       (response) => {
         toggleMutationLoading(dispatch)
-        handleSocketResponse(response, toast, actions)
+        handleSocketResponse(response, toast, () => {
+          actions()
+          dispatch({ type: 'CREATE_GROUP', payload: response.data })
+        })
       }
     )
   }
@@ -106,7 +109,7 @@ export const UserGroupProvider = ({ children }) => {
     emitEventAddMembersToGroup(
       {
         ...payload,
-        user: { ...session },
+        user: { id: session.id, username: session.username },
       },
       (response) => {
         toggleMutationLoading(dispatch)
@@ -143,7 +146,7 @@ export const UserGroupProvider = ({ children }) => {
     }
   }
 
-  const shareLocationWithAllGroups = async (groupId, connect) => {
+  const shareLocationWithAllGroups = async () => {
     try {
       toggleMutationLoading(dispatch)
       await api.patch('/groups/share-location-with-all')
@@ -152,6 +155,13 @@ export const UserGroupProvider = ({ children }) => {
     } finally {
       toggleMutationLoading(dispatch)
     }
+  }
+
+  const onGroupInviteAccepted = (payload) => {
+    dispatch({
+      type: 'ON_GROUP_INVITE_ACCEPTED',
+      payload,
+    })
   }
 
   return (
@@ -167,6 +177,7 @@ export const UserGroupProvider = ({ children }) => {
           alterGroupLocationSharing,
           shareLocationWithAllGroups,
           addMembersToGroup,
+          onGroupInviteAccepted,
         },
       }}
     >

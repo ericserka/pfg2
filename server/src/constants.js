@@ -10,3 +10,5 @@ export const PRISMA_QUERY_INTERPRETATION_ERROR = 'P2016'
 export const DEFAULT_ERROR_MESSAGE =
   'Servidor com instabilidade momentânea. Tente novamente mais tarde.'
 export const DEFAULT_ERROR_STATUS_CODE = StatusCodes.INTERNAL_SERVER_ERROR
+export const PORT = Number(process.env.PORT)
+export const PER_PAGE = 15

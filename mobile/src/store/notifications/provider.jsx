@@ -1,19 +1,24 @@
 import { createContext, useContext, useEffect, useReducer } from 'react'
+import { PER_PAGE } from '../../constants'
 import { showAlertError } from '../../helpers/actions/showAlertError'
 import { toggleMutationLoading } from '../../helpers/actions/toggleMutationLoading'
 import { toggleQueryLoading } from '../../helpers/actions/toggleQueryLoading'
-import { countKeyValueFromArrOfObjs } from '../../helpers/snippets'
-import { api } from '../../services/api/axios'
-import { notificationsReducer } from './reducer'
 import { handleSocketResponse } from '../../helpers/feedback/handleSocketResponse'
+import { log } from '../../helpers/logger'
+import { api } from '../../services/api/axios'
 import { useUserAuth } from '../auth/provider'
+import { useUserGroup } from '../groups/provider'
 import { useWebSocket } from '../websocket/provider'
+import { notificationsReducer } from './reducer'
 
 const notificationsInitialState = {
   mutationLoading: false,
   queryLoading: false,
   notifications: [],
   non_read_notifications_amount: null,
+  page: 1,
+  paginationLoading: false,
+  total: 0,
 }
 
 const NotificationsContext = createContext({
@@ -37,52 +42,74 @@ export const NotificationsProvider = ({ children }) => {
       emitEventAskHelp,
     },
   } = useWebSocket()
+  const {
+    actions: { onGroupInviteAccepted },
+  } = useUserGroup()
 
   useEffect(() => {
     getNotifications()
   }, [])
 
-  useEffect(() => {
+  const togglePaginationLoading = () => {
     dispatch({
-      type: 'SET_NON_READ_NOTIFICATIONS_AMOUNT',
-      payload:
-        countKeyValueFromArrOfObjs(state.notifications, 'seen')?.false ?? null,
+      type: 'PAGINATION_LOADING',
     })
-  }, [state.notifications])
+  }
 
-  const getNotifications = async () => {
-    toggleQueryLoading(dispatch)
-    try {
-      const { data } = await api.get(`/notifications`)
-      dispatch({
-        type: 'GET_NOTIFICATIONS',
-        payload: data,
-      })
-    } catch (err) {
-      showAlertError(err)
-    } finally {
-      toggleQueryLoading(dispatch)
+  const getNotifications = async (page = state.page) => {
+    if (Math.ceil(state.total / PER_PAGE) >= page || page === 1) {
+      try {
+        page === 1 ? toggleQueryLoading(dispatch) : togglePaginationLoading()
+        const { data } = await api.get(`/notifications`, {
+          params: { page: page },
+        })
+        dispatch({
+          type: 'APPEND_NOTIFICATIONS',
+          payload: { ...data, nextPage: page + 1 },
+        })
+      } catch (err) {
+        showAlertError(err)
+      } finally {
+        page === 1 ? toggleQueryLoading(dispatch) : togglePaginationLoading()
+      }
+    } else {
+      log.info(`[${session.username}] There is no more notifications to fetch`)
     }
   }
 
-  const updateNotification = (notification) => {
+  const updateNotifications = (notifications) => {
     dispatch({
-      type: 'UPDATE_NOTIFICATION',
-      payload: notification,
+      type: 'UPDATE_NOTIFICATIONS',
+      payload: notifications,
     })
   }
 
   const markUnreadNotificationsAsRead = async () => {
-    toggleMutationLoading(dispatch)
-    try {
-      await api.patch('/notifications/unread-to-read', {
-        notificationsIds: state.notifications.map((n) => n.id),
-      })
-      getNotifications()
-    } catch (err) {
-      showAlertError(err)
-    } finally {
-      toggleMutationLoading(dispatch)
+    const unseenNotifications = state.notifications.filter((n) => !n.seen)
+    log.debug(`[${session.username}] unseen notifications`, unseenNotifications)
+    if (unseenNotifications.length) {
+      try {
+        toggleMutationLoading(dispatch)
+        await api.patch('/notifications/unread-to-read', {
+          notificationsIds: unseenNotifications.map((n) => n.id),
+        })
+        updateNotifications(
+          unseenNotifications.map((n) => ({ ...n, seen: true }))
+        )
+        log.info(
+          `[${
+            session.username
+          }] marked notifications: ${unseenNotifications.map(
+            (n) => n.id
+          )} as read`
+        )
+      } catch (err) {
+        showAlertError(err)
+      } finally {
+        toggleMutationLoading(dispatch)
+      }
+    } else {
+      log.info(`[${session.username}] no unread notifications`)
     }
   }
 
@@ -97,11 +124,14 @@ export const NotificationsProvider = ({ children }) => {
       (response) => {
         toggleMutationLoading(dispatch)
         handleSocketResponse(response, toast, () => {
-          updateNotification({
-            id: notificationId,
-            seen: true,
-            status: 'ACCEPTED',
-          })
+          updateNotifications([
+            {
+              id: notificationId,
+              seen: true,
+              status: 'ACCEPTED',
+            },
+          ])
+          onGroupInviteAccepted(response.data)
         })
       }
     )
@@ -112,11 +142,13 @@ export const NotificationsProvider = ({ children }) => {
     emitEventRejectGroupInvite(notificationId, (response) => {
       toggleMutationLoading(dispatch)
       handleSocketResponse(response, toast, () => {
-        updateNotification({
-          id: notificationId,
-          seen: true,
-          status: 'REJECTED',
-        })
+        updateNotifications([
+          {
+            id: notificationId,
+            seen: true,
+            status: 'REJECTED',
+          },
+        ])
       })
     })
   }
@@ -134,17 +166,21 @@ export const NotificationsProvider = ({ children }) => {
     )
   }
 
+  const onNotificationReceived = (payload) => {
+    dispatch({ type: 'ON_NOTIFICATION_RECEIVED', payload })
+  }
+
   return (
     <NotificationsContext.Provider
       value={{
         state,
         actions: {
-          updateNotification,
           getNotifications,
           markUnreadNotificationsAsRead,
           acceptGroupInvite,
           rejectGroupInvite,
           askHelp,
+          onNotificationReceived,
         },
       }}
     >

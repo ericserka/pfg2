@@ -9,6 +9,7 @@ import {
 } from 'expo-notifications'
 import { Alert, Platform } from 'react-native'
 import { useUserAuth } from '../store/auth/provider'
+import { useNotifications } from '../store/notifications/provider'
 import { useUsers } from '../store/user/provider'
 
 export const usePushNotifications = () => {
@@ -20,6 +21,9 @@ export const usePushNotifications = () => {
     state: { session },
     actions: { updateSession },
   } = useUserAuth()
+  const {
+    actions: { getNotifications },
+  } = useNotifications()
 
   const registerForPushNotificationsAsync = async () => {
     if (isDevice) {
@@ -63,7 +67,8 @@ export const usePushNotifications = () => {
     }
   }
 
-  const handlePushNotificationsResponse = (response) => {
+  const handlePushNotificationsResponse = async (response) => {
+    await getNotifications(1)
     navigate(response.notification.request.content.data?.screenName ?? 'Home')
   }
 

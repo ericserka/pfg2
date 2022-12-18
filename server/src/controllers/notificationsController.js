@@ -1,15 +1,26 @@
 import { StatusCodes } from 'http-status-codes'
 import { handleHttpError } from '../helpers/errors.js'
 import {
+  getNonSeenNotificationsByReceiverId,
   getNotificationsByReceiverId,
+  getTotalNotificationsByReceiverId,
   updateUnreadNotificationsToRead,
 } from '../services/notificationsService.js'
 
 export const getUserNotifications = async (req, res, next) => {
   try {
-    return res
-      .status(StatusCodes.OK)
-      .json(await getNotificationsByReceiverId(req.user.id))
+    const page = Number(req.query.page)
+    return res.status(StatusCodes.OK).json({
+      notifications: await getNotificationsByReceiverId(req.user.id, page),
+      total:
+        page === 1
+          ? await getTotalNotificationsByReceiverId(req.user.id)
+          : undefined,
+      non_read_notifications_amount:
+        page === 1
+          ? await getNonSeenNotificationsByReceiverId(req.user.id)
+          : undefined,
+    })
   } catch (error) {
     return next(handleHttpError(error))
   }

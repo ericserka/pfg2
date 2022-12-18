@@ -17,6 +17,9 @@ export const userGroupsReducer = (state, action) => {
         current: action.payload,
       }
     case 'RECEIVE_CHAT_MESSAGE':
+      const message = action.payload
+      const alreadyIn = state.current.messages.find((m) => m.id === message.id)
+      if (alreadyIn) return state
       return {
         ...state,
         current: {
@@ -53,6 +56,25 @@ export const userGroupsReducer = (state, action) => {
       return {
         ...state,
         mutationLoading: !state.mutationLoading,
+      }
+    case 'CREATE_GROUP':
+      return {
+        ...state,
+        groups: [...state.groups, action.payload.groupWithMembersAndMessages],
+        groupsThatOwn: [...state.groupsThatOwn, action.payload.group],
+        groupsThatLocationIsShared: [
+          ...state.groupsThatLocationIsShared,
+          action.payload.group,
+        ],
+      }
+    case 'ON_GROUP_INVITE_ACCEPTED':
+      return {
+        ...state,
+        groups: [...state.groups, action.payload.groupWithMembersAndMessages],
+        groupsThatLocationIsShared: [
+          ...state.groupsThatLocationIsShared,
+          action.payload.group,
+        ],
       }
     default:
       return state

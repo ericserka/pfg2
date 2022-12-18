@@ -8,6 +8,7 @@ import {
 } from 'expo-notifications'
 import { Text } from 'native-base'
 import { useEffect } from 'react'
+import { log } from '../../helpers/logger'
 import { usePushNotifications } from '../../hooks/usePushNotifications'
 import { Emergency } from '../../screens/Emergency'
 import { Notifications } from '../../screens/Notifications'
@@ -39,10 +40,15 @@ const LoadedProviders = ({ children }) => {
 export const BottomTabs = () => {
   const {
     state: { non_read_notifications_amount },
-    actions: { getNotifications },
+    actions: { onNotificationReceived },
   } = useNotifications()
   const {
-    actions: { listenToNotificationReceived, listenToMessageAdded },
+    actions: {
+      listenToNotificationReceived,
+      unlistenToNotificationReceived,
+      listenToMessageAdded,
+      unlistenToMessageAdded,
+    },
   } = useWebSocket()
   const {
     state: { session },
@@ -56,19 +62,32 @@ export const BottomTabs = () => {
   const { getCurrentRoute } = useNavigation()
 
   useEffect(() => {
-    listenToNotificationReceived(({ usersIds }) => {
-      if (usersIds.includes(session.id)) {
-        log.info(`[${session.username}] received a notification`)
-        getNotifications()
+    listenToNotificationReceived(({ notifications }) => {
+      const notification = notifications.find(
+        (n) => n.receiverId === session.id
+      )
+      if (notification) {
+        log.info(`[${session.username}] received a notification`, notification)
+        onNotificationReceived(notification)
       }
     })
+    return () => {
+      unlistenToNotificationReceived()
+    }
   }, [])
 
   useEffect(() => {
     listenToMessageAdded((message) => {
-      log.info(`[${session.username}] received message event`, message)
+      log.info(`[${session.username}] received message event`, {
+        ...message,
+        sender: message.sender.username,
+      })
       receiveChatMessage(message)
     })
+
+    return () => {
+      unlistenToMessageAdded()
+    }
   }, [])
 
   useEffect(() => {
@@ -105,7 +124,7 @@ export const BottomTabs = () => {
           options={{
             headerTransparent: true,
             headerTitle: (props) =>
-              ['Mapa', 'Chat'].includes(getCurrentRoute()?.name) ? (
+              ['Mapa', 'Chat', 'Home'].includes(getCurrentRoute()?.name) ? (
                 <GroupSelector {...props} />
               ) : (
                 <Text fontSize="xl" bold>
@@ -129,7 +148,7 @@ export const BottomTabs = () => {
           name="Notificações"
           options={{
             tabBarIcon: (props) => <FontAwesome name="bell-o" {...props} />,
-            tabBarBadge: non_read_notifications_amount,
+            tabBarBadge: non_read_notifications_amount || null,
           }}
           component={Notifications}
         />

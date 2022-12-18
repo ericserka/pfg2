@@ -1,5 +1,4 @@
 import { FontAwesome } from '@expo/vector-icons'
-import { useNavigation } from '@react-navigation/native'
 import {
   Accuracy,
   getCurrentPositionAsync,
@@ -28,7 +27,6 @@ import { useWebSocket } from '../store/websocket/provider'
 import { LoadingInterceptor } from './loading/LoadingInterceptor'
 
 export const Map = () => {
-  const { navigate } = useNavigation()
   const mapRef = useRef(null)
   const [location, setLocation] = useState({
     latitude: 0,
@@ -44,7 +42,11 @@ export const Map = () => {
     actions: { getUserPosition },
   } = useUserLocation()
   const {
-    actions: { emitEventLocationChanged, listenToLocationChanged },
+    actions: {
+      emitEventLocationChanged,
+      listenToLocationChanged,
+      unlistenToLocationChanged,
+    },
   } = useWebSocket()
   const {
     state: { session },
@@ -111,6 +113,10 @@ export const Map = () => {
       log.info(`[${session.username}] received location update event`, message)
       message.userId !== session.id && receiveLocationUpdate(message)
     })
+
+    return () => {
+      unlistenToLocationChanged()
+    }
   }, [])
 
   const center = async () => {

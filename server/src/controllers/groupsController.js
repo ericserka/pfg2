@@ -6,6 +6,7 @@ import {
   findGroupsByUserId,
   findGroupsThatLocationIsSharedByUserId,
   findGroupsThatUserIdOwn,
+  sanitizeGroupForResponse,
   shareLocationWithAllService,
 } from '../services/groupsService.js'
 
@@ -13,18 +14,7 @@ export const getCurrentUserGroups = async (req, res, next) => {
   try {
     const groups = await findGroupsByUserId(req.user.id)
     return res.status(StatusCodes.OK).json({
-      groups: groups.map((group) => ({
-        ...group,
-        members: group.members.map((member) => ({
-          ...member,
-          position: {
-            lat: member.lastKnownLatitude,
-            lng: member.lastKnownLongitude,
-          },
-          lastKnownLatitude: undefined,
-          lastKnownLongitude: undefined,
-        })),
-      })),
+      groups: groups.map(sanitizeGroupForResponse),
       groupsThatOwn: await findGroupsThatUserIdOwn(req.user.id),
       groupsThatLocationIsShared: await findGroupsThatLocationIsSharedByUserId(
         req.user.id

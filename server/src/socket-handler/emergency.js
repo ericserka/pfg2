@@ -14,7 +14,7 @@ const onAskHelp = async (socket, { user: { id: userId, username } }, cb) => {
     const receivers = removeDuplicateArrayObjectsById(
       sender.groups.map((g) => g.members).flat()
     ).filter((user) => user.id !== sender.id)
-    await createHelpNotifications(
+    const notifications = await createHelpNotifications(
       receivers.map((r) => ({
         receiverId: r.id,
         senderId: sender.id,
@@ -30,7 +30,7 @@ const onAskHelp = async (socket, { user: { id: userId, username } }, cb) => {
       username
     )
     socket.broadcast.emit('notification-received', {
-      usersIds: receivers.map((r) => r.id),
+      notifications: notifications.map((n) => ({ ...n, sender: { username } })),
     })
     log.info(`User ${userId} asked for help`)
     cb({

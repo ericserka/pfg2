@@ -1,7 +1,7 @@
 import { getLastKnownPositionAsync } from 'expo-location'
-import { createContext, useContext, useReducer, useEffect } from 'react'
-import { userLocationReducer } from './reducer'
+import { createContext, useContext, useEffect, useReducer } from 'react'
 import { api } from '../../services/api/axios'
+import { userLocationReducer } from './reducer'
 
 const locationObjectToLiteral = (loc) => ({
   latitude: loc.coords.latitude,

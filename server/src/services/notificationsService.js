@@ -1,28 +1,43 @@
+import { PER_PAGE } from '../constants.js'
 import { prisma } from '../helpers/prisma.js'
 import { sendPushNotificationsService } from './expoService.js'
-import { linkUserToGroup } from './groupsService.js'
+import {
+  findGroupById,
+  findGroupByIdWithMembersAndMessages,
+  linkUserToGroup,
+} from './groupsService.js'
 import { ifNoGroupsSetNewAsDefault } from './usersService.js'
 
 export const createHelpNotifications = async (data) =>
-  await prisma.notification.createMany({
-    data: data.map((d) => ({ ...d, type: 'HELP' })),
-  })
+  await prisma.$transaction(
+    data.map((d) =>
+      prisma.notification.create({ data: { ...d, type: 'HELP' } })
+    )
+  )
 
-export const createInviteNotifications = async (data, tx) =>
-  await (tx ?? prisma).notification.createMany({
-    data: data.map((d) => ({ ...d, type: 'INVITE', status: 'PENDING' })),
-  })
+export const createInviteNotifications = async (data, tx) => {
+  const dataToInsert = data.map((d) =>
+    (tx ?? prisma).notification.create({
+      data: { ...d, type: 'INVITE', status: 'PENDING' },
+    })
+  )
+  return tx
+    ? await Promise.all(dataToInsert)
+    : await prisma.$transaction(dataToInsert)
+}
 
 export const createMessageNotifications = async (data) =>
   await prisma.notification.createMany({
     data: data.map((d) => ({ ...d, type: 'MESSAGE' })),
   })
 
-export const getNotificationsByReceiverId = async (userId) =>
+export const getNotificationsByReceiverId = async (userId, page) =>
   await prisma.notification.findMany({
     where: { receiverId: userId },
-    include: { sender: true, receiver: true, group: true },
+    include: { sender: { select: { username: true } } },
     orderBy: { createdAt: 'desc' },
+    skip: (page - 1) * PER_PAGE,
+    take: PER_PAGE,
   })
 
 export const updateUnreadNotificationsToRead = async (
@@ -52,6 +67,10 @@ export const acceptGroupInviteNotificationById = async (
     })
     await linkUserToGroup(userId, groupId, tx)
     await ifNoGroupsSetNewAsDefault(userId, groupId, tx)
+    return await Promise.all([
+      findGroupByIdWithMembersAndMessages(groupId),
+      findGroupById(groupId),
+    ])
   })
 
 export const buildGroupInviteNotificationContent = (groupName, username) =>
@@ -93,3 +112,9 @@ export const sendPushNotifications = async (
     screenName: 'Notificações',
   })
 }
+
+export const getTotalNotificationsByReceiverId = async (receiverId) =>
+  await prisma.notification.count({ where: { receiverId } })
+
+export const getNonSeenNotificationsByReceiverId = async (receiverId) =>
+  await prisma.notification.count({ where: { receiverId, seen: false } })
