@@ -1,19 +1,21 @@
 import { FontAwesome } from '@expo/vector-icons'
-import { useNavigation } from '@react-navigation/native'
+import { useFocusEffect, useNavigation } from '@react-navigation/native'
+import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker'
 import {
   Center,
   FlatList,
   Flex,
-  HStack,
   IconButton,
   KeyboardAvoidingView,
   Text,
   TextArea,
   VStack,
 } from 'native-base'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import ImageModal from 'react-native-image-modal'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { COLOR_PRIMARY_600 } from '../constants'
+import { scrollToBottom } from '../helpers/actions/scrollToBottom'
 import { dayjs } from '../helpers/dayjs'
 import { log } from '../helpers/logger'
 import { useUserAuth } from '../store/auth/provider'
@@ -38,36 +40,57 @@ export const Chat = () => {
 
   const canSendMessage = current?.members?.length
 
+  useFocusEffect(
+    useCallback(() => {
+      if (!current.messages?.length) return
+      scrollToBottom(messageListRef)
+    }, [])
+  )
+
   useEffect(() => {
-    if (!current.messages?.length) return
+    const last = current?.messages?.slice(-1)?.[0]
+    if (last?.senderId === session.id) {
+      scrollToBottom(messageListRef, 0)
+    }
+  }, [current?.messages])
 
-    scrollToBottom()
-  }, [])
-
-  const scrollToBottom = () => {
-    setTimeout(() => {
-      messageListRef?.current.scrollToEnd({ animated: true })
-    }, 500)
-  }
-
-  const handleSend = () => {
-    const sanitezedText = text.trim()
-    if (!sanitezedText) return
-
+  const handleEmitMessage = (content) => {
     const message = {
-      content: sanitezedText,
+      content,
       userId: session.id,
       groupId: current.id,
     }
 
     emitEventSendMessage(message, (_, returned) => {
-      log.info(`[${session.username}] sent message event`, returned)
+      log.info(`[${session.username}] sent message event`, {
+        ...returned,
+        sender: session.username,
+      })
       receiveChatMessage(returned)
     })
+  }
+
+  const handleSendTextMessage = () => {
+    const sanitezedText = text.trim()
+    if (!sanitezedText) return
+
+    handleEmitMessage(sanitezedText)
 
     setText('')
+  }
 
-    scrollToBottom()
+  const handleSendImageMessage = async () => {
+    const result = await launchImageLibraryAsync({
+      mediaTypes: MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+      base64: true,
+    })
+
+    if (!result.canceled) {
+      handleEmitMessage(`data:image/jpeg;base64,${result.assets[0].base64}`)
+    }
   }
 
   return (
@@ -81,7 +104,7 @@ export const Chat = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <Flex
-          px="2"
+          px="3"
           mt="12"
           direction="row"
           justify="space-between"
@@ -129,29 +152,54 @@ export const Chat = () => {
               p="3"
               space="1"
               rounded="lg"
-              bg={item.sender.id === session.id ? 'green.400' : 'white'}
+              bg={item.sender.id === session.id ? 'blue.300' : 'white'}
               alignSelf={
                 session.id === item.sender.id ? 'flex-end' : 'flex-start'
               }
             >
-              <Text bold fontSize="lg" underline>
-                {item.sender.name}
+              <Text bold fontSize="md" underline>
+                {item.sender.username}
               </Text>
-              <HStack space="3">
-                <Text textAlign="justify" maxW="2xs">
-                  {item.content}
-                </Text>
+              <Flex direction="row" justify="space-between" align="center">
+                {item.content.startsWith('data:image/jpeg;base64,') ? (
+                  <ImageModal
+                    resizeMode="contain"
+                    style={{
+                      width: 250,
+                      height: 250,
+                      borderRadius: 5,
+                    }}
+                    source={{
+                      uri: item.content,
+                    }}
+                    alt={`imagem enviada por ${item.sender.username}`}
+                  />
+                ) : (
+                  <Text textAlign="justify" maxW="2xs" fontSize="sm">
+                    {item.content}
+                  </Text>
+                )}
                 <Text
                   mt="2"
-                  alignSelf="flex-end"
+                  ml="2"
                   fontSize={10}
                   color="gray.500"
+                  alignSelf="flex-end"
                 >
-                  {dayjs(item.createdAt).format('hh:mm')}
+                  {dayjs(item.createdAt).format('HH:mm')}
                 </Text>
-              </HStack>
+              </Flex>
             </VStack>
           )}
+        />
+        <IconButton
+          position="absolute"
+          bottom="24"
+          right="5"
+          rounded="full"
+          bg={COLOR_PRIMARY_600}
+          icon={<FontAwesome name="arrow-down" size={25} color="white" />}
+          onPress={() => scrollToBottom(messageListRef, 0)}
         />
         <Flex
           direction="row"
@@ -170,7 +218,6 @@ export const Chat = () => {
             placeholder="Mensagem"
             leftElement={
               <IconButton
-                rounded="full"
                 icon={
                   <FontAwesome
                     name="file-image-o"
@@ -178,15 +225,15 @@ export const Chat = () => {
                     color={COLOR_PRIMARY_600}
                   />
                 }
+                onPress={handleSendImageMessage}
               />
             }
             rightElement={
               <IconButton
-                onPress={handleSend}
-                rounded="full"
+                onPress={handleSendTextMessage}
                 icon={
                   <FontAwesome
-                    name="long-arrow-right"
+                    name="paper-plane"
                     size={20}
                     color={COLOR_PRIMARY_600}
                   />
