@@ -1,12 +1,9 @@
 import { useNavigation } from '@react-navigation/native'
 import { Center, CheckIcon, FormControl, Select } from 'native-base'
-import { useState } from 'react'
 import { COLOR_PRIMARY_600 } from '../../../constants'
 import { useUserGroup } from '../../../store/groups/provider'
-import { CreateGroupModal } from './CreateGroupModal'
 
 export const GroupSelector = (props) => {
-  const [modalVisible, setModalVisible] = useState(false)
   const {
     state: { current, groups },
     actions: { changeSelectedGroup },
@@ -52,10 +49,6 @@ export const GroupSelector = (props) => {
             value={-1}
           />
         </Select>
-        <CreateGroupModal
-          modalVisible={modalVisible}
-          setModalVisible={setModalVisible}
-        />
       </FormControl>
     </Center>
   )

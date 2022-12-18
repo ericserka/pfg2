@@ -6,12 +6,6 @@ export const generateGoogleMapsRouteLink = (lat, long) =>
 export const generateWazeRouteLink = (lat, long) =>
   `https://www.waze.com/ul?ll=${lat}%2C${long}&navigate=yes`
 
-export const countKeyValueFromArrOfObjs = (arrOfObjs, key) =>
-  arrOfObjs.reduce((result, obj) => {
-    result[obj[key]] = (result[obj[key]] || 0) + 1
-    return result
-  }, {})
-
 export const updateAllValuesFromObj = (obj, value) =>
   Object.keys(obj).reduce((acc, key) => {
     acc[key] = value
