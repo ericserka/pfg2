@@ -5,16 +5,9 @@ export const webSocketReducer = (state, action) => {
 
   switch (action.type) {
     case 'CONNECT':
-      return {
-        ...state,
-        socket: action.payload,
-        connecting: false,
-      }
+      return action.payload
     case 'DISCONNECT':
-      return {
-        ...state,
-        socket: undefined,
-      }
+      return null
     default:
       return state
   }
