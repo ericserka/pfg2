@@ -45,11 +45,6 @@ const onRemoveGroupMember = async (
         ),
         data: {
           screenName: 'Notificações',
-          notification: {
-            ...notifications.find((n) => n.receiverId === r.id),
-            sender: { username: ownerUsername },
-          },
-          removedFromGroup: groupId,
         },
       }))
     )
@@ -127,10 +122,6 @@ const onAddMembersToGroup = async (
         body: buildGroupInviteNotificationContent(groupName, username),
         data: {
           screenName: 'Notificações',
-          notification: {
-            ...notifications.find((n) => n.receiverId === r.id),
-            sender: { username },
-          },
         },
       }))
     )
@@ -170,10 +161,6 @@ const onCreateGroup = async (
         body: buildGroupInviteNotificationContent(groupName, user.username),
         data: {
           screenName: 'Notificações',
-          notification: {
-            ...notifications.find((n) => n.receiverId === r.id),
-            sender: { username: user.username },
-          },
         },
       }))
     )
@@ -217,11 +204,6 @@ const onDeleteGroup = async (
           body: buildRemovedFromGroupNotificationContent(groupName, username),
           data: {
             screenName: 'Notificações',
-            notification: {
-              ...notifications.find((n) => n.receiverId === r.id),
-              sender: { username },
-            },
-            removedFromGroup: groupId,
           },
         }))
     )

@@ -31,10 +31,6 @@ const onAskHelp = async (socket, { user: { id: userId, username } }, cb) => {
           body: buildHelpNotificationContent(username),
           data: {
             screenName: 'Notificações',
-            notification: {
-              ...notifications.find((n) => n.receiverId === r.id),
-              sender: { username },
-            },
           },
         }))
     )

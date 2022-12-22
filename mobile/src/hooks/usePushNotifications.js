@@ -23,10 +23,10 @@ export const usePushNotifications = () => {
     actions: { updateSession },
   } = useUserAuth()
   const {
-    actions: { onNotificationReceived },
+    actions: { getNotifications },
   } = useNotifications()
   const {
-    actions: { onRemovedFromGroup },
+    actions: { getGroups },
   } = useUserGroup()
 
   const registerForPushNotificationsAsync = async () => {
@@ -75,13 +75,13 @@ export const usePushNotifications = () => {
     notification: {
       request: {
         content: {
-          data: { notification, screenName, removedFromGroup },
+          data: { screenName },
         },
       },
     },
   }) => {
-    onNotificationReceived(notification)
-    removedFromGroup && onRemovedFromGroup({ groupId: removedFromGroup })
+    await getNotifications(1)
+    await getGroups()
     navigate(screenName)
   }
 
