@@ -43,6 +43,7 @@ enum NotificationType {
   INVITE
   HELP
   MESSAGE
+  GROUP_REMOVED
 }
 
 enum NotificationStatus {
@@ -101,7 +102,7 @@ model Message {
   updatedAt DateTime @updatedAt
   sender    User     @relation(fields: [senderId], references: [id])
   senderId  Int
-  group     Group?   @relation(fields: [groupId], references: [id])
+  group     Group?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId   Int?
 }
 

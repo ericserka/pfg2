@@ -16,26 +16,13 @@ import { useUserAuth } from '../../store/auth/provider'
 import { useUserGroup } from '../../store/groups/provider'
 import { useNotifications } from '../../store/notifications/provider'
 import { useWebSocket } from '../../store/websocket/provider'
-import { LoadingInterceptor } from '../loading/LoadingInterceptor'
+import { LoadedProviders } from '../loading/LoadedProviders'
 import { GroupSelector } from '../navbar/group-actions/GroupSelector'
 import { Left } from '../navbar/Left'
 import { Right } from '../navbar/Right'
 import { HomeStack } from './HomeStack'
 
 const Tab = createBottomTabNavigator()
-
-const LoadedProviders = ({ children }) => {
-  const {
-    state: { queryLoading: authLoading },
-  } = useUserAuth()
-  const {
-    state: { queryLoading: groupsLoading },
-  } = useUserGroup()
-
-  const loading = [authLoading, groupsLoading].some((l) => l)
-
-  return <LoadingInterceptor loading={loading}>{children}</LoadingInterceptor>
-}
 
 export const BottomTabs = () => {
   const {
@@ -54,7 +41,7 @@ export const BottomTabs = () => {
     state: { session },
   } = useUserAuth()
   const {
-    actions: { receiveChatMessage },
+    actions: { receiveChatMessage, onRemovedFromGroup },
   } = useUserGroup()
   const { registerForPushNotificationsAsync, handlePushNotificationsResponse } =
     usePushNotifications()
@@ -62,19 +49,25 @@ export const BottomTabs = () => {
   const { getCurrentRoute } = useNavigation()
 
   useEffect(() => {
-    listenToNotificationReceived(({ notifications }) => {
+    listenToNotificationReceived(({ notifications, removedFromGroup }) => {
       const notification = notifications.find(
         (n) => n.receiverId === session.id
       )
       if (notification) {
         log.info(`[${session.username}] received a notification`, notification)
         onNotificationReceived(notification)
+        if (removedFromGroup) {
+          log.info(
+            `[${session.username}] was removed from group of id ${removedFromGroup}`
+          )
+          onRemovedFromGroup({ groupId: removedFromGroup })
+        }
       }
     })
     return () => {
       unlistenToNotificationReceived()
     }
-  }, [])
+  }, [onRemovedFromGroup])
 
   useEffect(() => {
     listenToMessageAdded((message) => {
@@ -120,7 +113,7 @@ export const BottomTabs = () => {
         }}
       >
         <Tab.Screen
-          name="Home"
+          name="Mapa"
           options={{
             headerTransparent: true,
             headerTitle: (props) =>

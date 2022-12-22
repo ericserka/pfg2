@@ -1,6 +1,9 @@
 import { Flex, ScrollView, Switch, Text } from 'native-base'
 import { useState } from 'react'
-import { updateAllValuesFromObj } from '../../helpers/snippets'
+import {
+  countValueInObject,
+  updateAllValuesFromObj,
+} from '../../helpers/snippets'
 import { useUserGroup } from '../../store/groups/provider'
 
 export const LocationSharing = () => {
@@ -28,8 +31,9 @@ export const LocationSharing = () => {
           isChecked={state['all']}
           onToggle={(value) => {
             if (value) {
+              countValueInObject(state, true) < groups.length &&
+                shareLocationWithAllGroups()
               setState((prevState) => updateAllValuesFromObj(prevState, value))
-              shareLocationWithAllGroups()
             } else {
               setState((prevState) => ({ ...prevState, all: value }))
             }

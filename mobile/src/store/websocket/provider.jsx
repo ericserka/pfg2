@@ -84,12 +84,12 @@ export const WebSocketProvider = ({ children }) => {
     socket.emit('join-group', { userId, groupId })
   }
 
-  const emitEventLeaveGroup = (userId, groupId) => {
-    socket.emit('leave-group', { userId, groupId })
+  const emitEventLeaveChat = (userId, groupId) => {
+    socket.emit('leave-chat', { userId, groupId })
   }
 
-  const emitEventRemoveGroupMember = (groupId, userId, cb) => {
-    socket.emit('remove-group-member', { groupId, userId }, cb)
+  const emitEventRemoveGroupMember = (payload, cb) => {
+    socket.emit('remove-group-member', payload, cb)
   }
 
   const emitEventRejectGroupInvite = (notificationId, cb) => {
@@ -120,6 +120,14 @@ export const WebSocketProvider = ({ children }) => {
     socket.emit('ask-help', payload, cb)
   }
 
+  const emitEventDeleteGroup = (payload, cb) => {
+    socket.emit('delete-group', payload, cb)
+  }
+
+  const emitEventLeaveGroup = (payload, cb) => {
+    socket.emit('leave-group', payload, cb)
+  }
+
   return (
     <WebSocketContext.Provider
       value={{
@@ -132,7 +140,7 @@ export const WebSocketProvider = ({ children }) => {
           listenToLocationChanged,
           unlistenToLocationChanged,
           emitEventJoinGroup,
-          emitEventLeaveGroup,
+          emitEventLeaveChat,
           emitEventRemoveGroupMember,
           emitEventAcceptGroupInvite,
           emitEventRejectGroupInvite,
@@ -141,6 +149,8 @@ export const WebSocketProvider = ({ children }) => {
           listenToNotificationReceived,
           unlistenToNotificationReceived,
           emitEventAskHelp,
+          emitEventLeaveGroup,
+          emitEventDeleteGroup,
         },
       }}
     >

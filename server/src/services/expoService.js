@@ -1,24 +1,11 @@
 import { Expo } from 'expo-server-sdk'
 import { log } from '../helpers/logger.js'
 
-export const sendPushNotificationsService = async (
-  pushTokens,
-  title,
-  body,
-  data
-) => {
+export const sendPushNotificationsService = async (messages) => {
   const expo = new Expo()
-  const messages = pushTokens
-    .filter((p) => Expo.isExpoPushToken(p))
-    .map((p) => ({
-      to: p,
-      sound: 'default',
-      title,
-      body,
-      data,
-    }))
+  const validMessages = messages.filter((m) => Expo.isExpoPushToken(m.to))
 
-  const chunks = expo.chunkPushNotifications(messages)
+  const chunks = expo.chunkPushNotifications(validMessages)
   const tickets = chunks.map(
     async (c) => await expo.sendPushNotificationsAsync(c)
   )

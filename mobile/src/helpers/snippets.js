@@ -19,3 +19,16 @@ export const maskPhoneNumber = (phoneNumber) =>
   )}) ${phoneNumber.substring(4, 9)}-${phoneNumber.substring(9, 13)}`
 
 export const generateRandomPassword = () => Math.random().toString(36).slice(-8)
+
+export const countElementInArray = (arr, el) =>
+  arr.reduce((acc, value) => {
+    return value === el ? acc + 1 : acc
+  }, 0)
+
+export const countValueInObject = (obj, value) =>
+  countElementInArray(Object.values(obj), value)
+
+export const isObjectEmpty = (obj) =>
+  obj &&
+  Object.keys(obj).length === 0 &&
+  Object.getPrototypeOf(obj) === Object.prototype

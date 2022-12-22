@@ -76,6 +76,59 @@ export const userGroupsReducer = (state, action) => {
           action.payload.group,
         ],
       }
+    case 'SHARE_LOCATION_WITH_ALL_GROUPS':
+      return {
+        ...state,
+        groupsThatLocationIsShared: state.groups,
+      }
+    case 'DISCONNECT_USER_FROM_LOCATION_SHARING':
+      return {
+        ...state,
+        groupsThatLocationIsShared: state.groupsThatLocationIsShared.filter(
+          (g) => g.id !== action.payload.groupId
+        ),
+      }
+    case 'CONNECT_USER_FROM_LOCATION_SHARING':
+      return {
+        ...state,
+        groupsThatLocationIsShared: [
+          ...state.groupsThatLocationIsShared,
+          state.groups.find((g) => g.id === action.payload.groupId),
+        ],
+      }
+    case 'ON_REMOVE_MEMBER':
+      return {
+        ...state,
+        groups: state.groups.map((g) => {
+          return g.id === action.payload.groupId
+            ? {
+                ...g,
+                members: g.members.filter(
+                  (m) => m.id !== action.payload.userId
+                ),
+              }
+            : g
+        }),
+      }
+    case 'ON_REMOVED_FROM_GROUP':
+      return {
+        ...state,
+        groups: state.groups.filter((g) => g.id !== action.payload.groupId),
+        groupsThatLocationIsShared: state.groupsThatLocationIsShared.filter(
+          (g) => g.id !== action.payload.groupId
+        ),
+      }
+    case 'ON_REMOVE_GROUP':
+      return {
+        ...state,
+        groups: state.groups.filter((g) => g.id !== action.payload.groupId),
+        groupsThatLocationIsShared: state.groupsThatLocationIsShared.filter(
+          (g) => g.id !== action.payload.groupId
+        ),
+        groupsThatOwn: state.groupsThatOwn.filter(
+          (g) => g.id !== action.payload.groupId
+        ),
+      }
     default:
       return state
   }

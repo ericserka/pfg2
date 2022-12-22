@@ -28,12 +28,6 @@ export const findUserByIdWithGroups = async (id) =>
     include: { groups: { include: { members: true } } },
   })
 
-export const setGroupAsDefault = async (userId, groupId, tx) =>
-  await (tx ?? prisma).user.update({
-    where: { id: userId },
-    data: { defaultGroupId: groupId },
-  })
-
 export const countUsersGroupsAmount = async (id) =>
   (
     await prisma.user.findUniqueOrThrow({
@@ -48,7 +42,7 @@ export const countUsersGroupsAmount = async (id) =>
 
 export const ifNoGroupsSetNewAsDefault = async (userId, groupId, tx) => {
   if (!(await countUsersGroupsAmount(userId))) {
-    await setGroupAsDefault(userId, groupId, tx)
+    await updateUserService(userId, { defaultGroupId: groupId }, tx)
   }
 }
 
@@ -71,16 +65,14 @@ export const updatePushNotificationAllowed = async (
 ) =>
   await prisma.user.update({ where: { id }, data: { pushNotificationAllowed } })
 
-export const getUsersPushTokens = async (usersIds) =>
-  (
-    await prisma.user.findMany({
-      select: { pushToken: true },
-      where: {
-        id: { in: usersIds },
-        pushNotificationAllowed: true,
-      },
-    })
-  ).map((u) => u.pushToken)
+export const getUsersForPushNotifications = async (usersIds, tx) =>
+  await (tx ?? prisma).user.findMany({
+    select: { pushToken: true, id: true },
+    where: {
+      id: { in: usersIds },
+      pushNotificationAllowed: true,
+    },
+  })
 
-export const updateUserService = async (id, data) =>
-  await prisma.user.update({ where: { id }, data })
+export const updateUserService = async (id, data, tx) =>
+  await (tx ?? prisma).user.update({ where: { id }, data })

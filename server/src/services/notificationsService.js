@@ -1,6 +1,5 @@
 import { PER_PAGE } from '../constants.js'
 import { prisma } from '../helpers/prisma.js'
-import { sendPushNotificationsService } from './expoService.js'
 import {
   findGroupById,
   findGroupByIdWithMembersAndMessages,
@@ -19,6 +18,17 @@ export const createInviteNotifications = async (data, tx) => {
   const dataToInsert = data.map((d) =>
     (tx ?? prisma).notification.create({
       data: { ...d, type: 'INVITE', status: 'PENDING' },
+    })
+  )
+  return tx
+    ? await Promise.all(dataToInsert)
+    : await prisma.$transaction(dataToInsert)
+}
+
+export const createRemovedFromGroupNotifications = async (data, tx) => {
+  const dataToInsert = data.map((d) =>
+    (tx ?? prisma).notification.create({
+      data: { ...d, type: 'GROUP_REMOVED' },
     })
   )
   return tx
@@ -82,36 +92,8 @@ export const buildHelpNotificationContent = (username) =>
 export const buildMessageNotificationContent = (groupName) =>
   `${groupName} tem novas mensagens.`
 
-export const sendPushNotifications = async (
-  type,
-  pushTokens,
-  groupName,
-  username
-) => {
-  let title, content
-  switch (type) {
-    case 'HELP':
-      title = 'Pedido de ajuda'
-      content = buildHelpNotificationContent(username)
-      break
-
-    case 'INVITE':
-      title = 'Convite de grupo'
-      content = buildGroupInviteNotificationContent(groupName, username)
-      break
-
-    case 'MESSAGE':
-      title = 'Novas mensagens'
-      content = buildMessageNotificationContent(groupName)
-      break
-
-    default:
-      break
-  }
-  return await sendPushNotificationsService(pushTokens, title, content, {
-    screenName: 'Notificações',
-  })
-}
+export const buildRemovedFromGroupNotificationContent = (groupName, username) =>
+  `${username} removeu você do grupo '${groupName}'.`
 
 export const getTotalNotificationsByReceiverId = async (receiverId) =>
   await prisma.notification.count({ where: { receiverId } })

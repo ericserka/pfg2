@@ -9,6 +9,7 @@ import {
 } from 'expo-notifications'
 import { Alert, Platform } from 'react-native'
 import { useUserAuth } from '../store/auth/provider'
+import { useUserGroup } from '../store/groups/provider'
 import { useNotifications } from '../store/notifications/provider'
 import { useUsers } from '../store/user/provider'
 
@@ -22,8 +23,11 @@ export const usePushNotifications = () => {
     actions: { updateSession },
   } = useUserAuth()
   const {
-    actions: { getNotifications },
+    actions: { onNotificationReceived },
   } = useNotifications()
+  const {
+    actions: { onRemovedFromGroup },
+  } = useUserGroup()
 
   const registerForPushNotificationsAsync = async () => {
     if (isDevice) {
@@ -67,9 +71,18 @@ export const usePushNotifications = () => {
     }
   }
 
-  const handlePushNotificationsResponse = async (response) => {
-    await getNotifications(1)
-    navigate(response.notification.request.content.data?.screenName ?? 'Home')
+  const handlePushNotificationsResponse = async ({
+    notification: {
+      request: {
+        content: {
+          data: { notification, screenName, removedFromGroup },
+        },
+      },
+    },
+  }) => {
+    onNotificationReceived(notification)
+    removedFromGroup && onRemovedFromGroup({ groupId: removedFromGroup })
+    navigate(screenName)
   }
 
   return {

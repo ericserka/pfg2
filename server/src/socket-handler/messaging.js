@@ -34,16 +34,8 @@ const onSendMessage = async (socket, args, cb) => {
   if (user && group) {
     const message = await createMessage({
       content: content,
-      sender: {
-        connect: {
-          id: user.id,
-        },
-      },
-      group: {
-        connect: {
-          id: group.id,
-        },
-      },
+      senderId: userId,
+      groupId: groupId,
     })
     log.info(
       `${socket.id}:${user.username} send a message to group: ${groupId}`
@@ -80,7 +72,7 @@ async function onNewGroup(socket, args, cb) {
 export const messagingEventListeners = (socket) => {
   socket.on('join-group', (args, cb) => onJoinChat(socket, args))
 
-  socket.on('leave-group', (args, cb) => onLeaveChat(socket, args))
+  socket.on('leave-chat', (args, cb) => onLeaveChat(socket, args))
 
   socket.on('send-message', (args, cb) => onSendMessage(socket, args, cb))
 

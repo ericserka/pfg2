@@ -24,7 +24,9 @@ import { CustomButton } from './buttons/CustomButton'
 import { ControlledTextInput } from './inputs/ControlledTextInput'
 import { ScreenHeader } from './ScreenHeader'
 
-export const InviteUsersForm = ({ group }) => {
+export const InviteUsersForm = ({ route }) => {
+  const group = route?.params
+
   const {
     state: { mutationLoading },
     actions: { createGroup, addMembersToGroup },

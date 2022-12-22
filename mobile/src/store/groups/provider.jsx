@@ -27,13 +27,17 @@ export const UserGroupProvider = ({ children }) => {
   const [state, dispatch] = useReducer(userGroupsReducer, userGroupInitialState)
   const {
     state: { session },
+    actions: { updateSession },
   } = useUserAuth()
   const {
     actions: {
       emitEventJoinGroup,
-      emitEventLeaveGroup,
+      emitEventLeaveChat,
       emitEventCreateGroup,
       emitEventAddMembersToGroup,
+      emitEventRemoveGroupMember,
+      emitEventDeleteGroup,
+      emitEventLeaveGroup,
     },
   } = useWebSocket()
 
@@ -79,7 +83,7 @@ export const UserGroupProvider = ({ children }) => {
   }
 
   const changeSelectedGroup = (id, groups = undefined) => {
-    if (state.current) emitEventLeaveGroup(session.id, state.current.id)
+    if (state.current) emitEventLeaveChat(session.id, state.current.id)
     dispatch({
       type: 'UPDATE_CURRENT_GROUP',
       payload: (groups ?? state.groups).find((group) => group.id === id),
@@ -98,6 +102,9 @@ export const UserGroupProvider = ({ children }) => {
         toggleMutationLoading(dispatch)
         handleSocketResponse(response, toast, () => {
           actions()
+          if (!state.groups.length) {
+            updateSession({ defaultGroupId: response.data.group.id })
+          }
           dispatch({ type: 'CREATE_GROUP', payload: response.data })
         })
       }
@@ -139,6 +146,12 @@ export const UserGroupProvider = ({ children }) => {
         groupId,
         connect,
       })
+      dispatch({
+        type: connect
+          ? 'CONNECT_USER_FROM_LOCATION_SHARING'
+          : 'DISCONNECT_USER_FROM_LOCATION_SHARING',
+        payload: { groupId },
+      })
     } catch (err) {
       showAlertError(err)
     } finally {
@@ -150,6 +163,7 @@ export const UserGroupProvider = ({ children }) => {
     try {
       toggleMutationLoading(dispatch)
       await api.patch('/groups/share-location-with-all')
+      dispatch({ type: 'SHARE_LOCATION_WITH_ALL_GROUPS' })
     } catch (err) {
       showAlertError(err)
     } finally {
@@ -158,10 +172,65 @@ export const UserGroupProvider = ({ children }) => {
   }
 
   const onGroupInviteAccepted = (payload) => {
+    if (!state.groups.length) {
+      updateSession({ defaultGroupId: payload.group.id })
+    }
     dispatch({
       type: 'ON_GROUP_INVITE_ACCEPTED',
       payload,
     })
+  }
+
+  const removeUserFromGroup = (payload, toast, onSuccess) => {
+    toggleMutationLoading(dispatch)
+    emitEventRemoveGroupMember(
+      { ...payload, owner: { id: session.id, username: session.username } },
+      (response) => {
+        toggleMutationLoading(dispatch)
+        handleSocketResponse(response, toast, () => {
+          dispatch({
+            type: 'ON_REMOVE_MEMBER',
+            payload: { groupId: payload.group.id, userId: payload.userId },
+          })
+          onSuccess()
+        })
+      }
+    )
+  }
+
+  const removeGroup = (payload, toast, onSuccess) => {
+    toggleMutationLoading(dispatch)
+    emitEventDeleteGroup(
+      { ...payload, user: { id: session.id, username: session.username } },
+      (response) => {
+        toggleMutationLoading(dispatch)
+        handleSocketResponse(response, toast, () => {
+          onSuccess()
+          dispatch({
+            type: 'ON_REMOVE_GROUP',
+            payload: { groupId: payload.group.id },
+          })
+        })
+      }
+    )
+  }
+
+  const leaveGroup = (groupId, toast, onSuccess) => {
+    toggleMutationLoading(dispatch)
+    emitEventLeaveGroup({ groupId, userId: session.id }, (response) => {
+      toggleMutationLoading(dispatch)
+      handleSocketResponse(response, toast, () => {
+        onSuccess()
+        dispatch({ type: 'ON_REMOVED_FROM_GROUP', payload: { groupId } })
+      })
+    })
+  }
+
+  const onRemovedFromGroup = (payload) => {
+    const groupId = payload.groupId
+    state.current.id === groupId &&
+      changeSelectedGroup(state.groups.filter((g) => g.id !== groupId)[0].id)
+    dispatch({ type: 'ON_REMOVED_FROM_GROUP', payload })
   }
 
   return (
@@ -178,6 +247,10 @@ export const UserGroupProvider = ({ children }) => {
           shareLocationWithAllGroups,
           addMembersToGroup,
           onGroupInviteAccepted,
+          removeUserFromGroup,
+          removeGroup,
+          leaveGroup,
+          onRemovedFromGroup,
         },
       }}
     >

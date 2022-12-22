@@ -1,10 +1,10 @@
+import { FontAwesome } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { Flex, IconButton } from 'native-base'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { COLOR_PRIMARY_600 } from '../constants'
-import { FontAwesome } from '@expo/vector-icons'
 
-export const ScreenHeader = ({ children }) => {
+export const ScreenHeader = ({ children, right }) => {
   const { goBack } = useNavigation()
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
@@ -26,6 +26,7 @@ export const ScreenHeader = ({ children }) => {
             />
           }
         />
+        {right}
       </Flex>
       {children}
     </SafeAreaView>

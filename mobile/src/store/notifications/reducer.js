@@ -52,6 +52,8 @@ export const notificationsReducer = (state, action) => {
       }
     }
     case 'ON_NOTIFICATION_RECEIVED':
+      if (state.notifications.some((n) => n.id === action.payload.id))
+        return state
       return {
         ...state,
         notifications: [action.payload, ...state.notifications],

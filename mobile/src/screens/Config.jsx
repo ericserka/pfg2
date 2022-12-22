@@ -1,30 +1,20 @@
-import { FontAwesome } from '@expo/vector-icons'
-import { useNavigation } from '@react-navigation/native'
-import {
-  Box,
-  Button,
-  Flex,
-  IconButton,
-  Pressable,
-  StatusBar,
-  Text,
-} from 'native-base'
+import { Box, Button, Pressable, StatusBar, Text } from 'native-base'
 import { useState } from 'react'
 import { Animated, Dimensions } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import { SceneMap, TabView } from 'react-native-tab-view'
 import { ChangePassword } from '../components/config/ChangePassword'
 import { EditData } from '../components/config/EditData'
+import { GroupsList } from '../components/config/GroupsList'
 import { LocationSharing } from '../components/config/LocationSharing'
-import { COLOR_GRAY_200, COLOR_PRIMARY_600 } from '../constants'
+import { ScreenHeader } from '../components/ScreenHeader'
+import { COLOR_GRAY_200 } from '../constants'
 import { useUserAuth } from '../store/auth/provider'
 
-export const Config = () => {
-  const { goBack } = useNavigation()
+export const Config = ({ route }) => {
   const {
     actions: { logout },
   } = useUserAuth()
-  const [index, setIndex] = useState(0)
+  const [index, setIndex] = useState(route?.params?.tabIndex ?? 0)
   const routes = [
     {
       key: 'first',
@@ -38,6 +28,10 @@ export const Config = () => {
       key: 'third',
       title: 'Compartilhamento de localização',
     },
+    {
+      key: 'fourth',
+      title: 'Grupos',
+    },
   ]
   const initialLayout = {
     width: Dimensions.get('window').width,
@@ -46,6 +40,7 @@ export const Config = () => {
     first: EditData,
     second: ChangePassword,
     third: LocationSharing,
+    fourth: GroupsList,
   })
 
   const renderTabBar = ({ navigationState }) => (
@@ -79,31 +74,15 @@ export const Config = () => {
   )
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
-      <Flex
-        px="2"
-        mt="12"
-        direction="row"
-        justify="space-between"
-        align="center"
-      >
-        <IconButton
-          onPress={() => goBack()}
-          rounded="full"
-          icon={
-            <FontAwesome
-              name="arrow-left"
-              size={25}
-              color={COLOR_PRIMARY_600}
-            />
-          }
-        />
+    <ScreenHeader
+      right={
         <Button h="80%" onPress={logout} bg="red.600">
           <Text color="white" bold fontSize="xs">
             Sair
           </Text>
         </Button>
-      </Flex>
+      }
+    >
       <TabView
         navigationState={{
           index,
@@ -118,6 +97,6 @@ export const Config = () => {
           backgroundColor: COLOR_GRAY_200,
         }}
       />
-    </SafeAreaView>
+    </ScreenHeader>
   )
 }

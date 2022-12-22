@@ -1,7 +1,13 @@
-import { Button, Text, Spinner } from 'native-base'
+import { Button, Spinner, Text } from 'native-base'
 
-export const CustomButton = ({ isDisabled, loading, onPress, title }) => (
-  <Button onPress={onPress} isDisabled={isDisabled}>
+export const CustomButton = ({
+  isDisabled,
+  loading,
+  onPress,
+  title,
+  ...rest
+}) => (
+  <Button onPress={onPress} isDisabled={isDisabled} {...rest}>
     {loading ? (
       <Spinner />
     ) : (

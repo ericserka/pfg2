@@ -54,11 +54,13 @@ export const Notifications = () => {
           contentContainerStyle={{ flexGrow: 1 }}
           ItemSeparatorComponent={(props) => <Divider {...props} />}
           ListEmptyComponent={() => (
-            <MessageBox
-              type="info"
-              content="Sem notificações por enquanto."
-              mt="0.5"
-            />
+            <Center mt="4">
+              <MessageBox
+                type="info"
+                content="Sem notificações por enquanto."
+                mt="0.5"
+              />
+            </Center>
           )}
           refreshControl={
             <RefreshControl

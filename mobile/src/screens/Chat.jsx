@@ -2,6 +2,7 @@ import { FontAwesome } from '@expo/vector-icons'
 import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker'
 import {
+  Box,
   Center,
   FlatList,
   Flex,
@@ -14,6 +15,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react'
 import ImageModal from 'react-native-image-modal'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { CenterLoading } from '../components/loading/CenterLoading'
 import { COLOR_PRIMARY_600 } from '../constants'
 import { scrollToBottom } from '../helpers/actions/scrollToBottom'
 import { dayjs } from '../helpers/dayjs'
@@ -93,6 +95,64 @@ export const Chat = () => {
     }
   }
 
+  const renderItem = ({ item, index }) => {
+    const currentMessageDate = dayjs(item.createdAt)
+    const isDifferentDay = !dayjs(currentMessageDate).isSame(
+      dayjs(current.messages?.[index - 1]?.createdAt),
+      'day'
+    )
+    return (
+      <>
+        {(!index || isDifferentDay) && (
+          <Box my="3" p="3" rounded="xl" bg="white" alignSelf="center">
+            {currentMessageDate.format('DD/MM/YYYY')}
+          </Box>
+        )}
+        <VStack
+          my="1"
+          p="3"
+          space="1"
+          rounded="lg"
+          bg={item.sender.id === session.id ? 'blue.300' : 'white'}
+          alignSelf={session.id === item.sender.id ? 'flex-end' : 'flex-start'}
+        >
+          <Text bold fontSize="md" underline>
+            {item.sender.username}
+          </Text>
+          <Flex direction="row" justify="space-between" align="center">
+            {item.content.startsWith('data:image/jpeg;base64,') ? (
+              <ImageModal
+                resizeMode="contain"
+                style={{
+                  width: 250,
+                  height: 250,
+                  borderRadius: 5,
+                }}
+                source={{
+                  uri: item.content,
+                }}
+                alt={`imagem enviada por ${item.sender.username}`}
+              />
+            ) : (
+              <Text textAlign="justify" maxW="2xs" fontSize="sm">
+                {item.content}
+              </Text>
+            )}
+            <Text
+              mt="2"
+              ml="2"
+              fontSize={10}
+              color="gray.500"
+              alignSelf="flex-end"
+            >
+              {currentMessageDate.format('HH:mm')}
+            </Text>
+          </Flex>
+        </VStack>
+      </>
+    )
+  }
+
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
       <KeyboardAvoidingView
@@ -121,21 +181,15 @@ export const Chat = () => {
               />
             }
           />
-          <IconButton
-            onPress={() => {
-              // navigate to details
-            }}
-            rounded="full"
-            icon={
-              <FontAwesome name="info" size={25} color={COLOR_PRIMARY_600} />
-            }
-          />
         </Flex>
         <FlatList
           bg="gray.200"
           ref={messageListRef}
           px="3"
           data={current.messages}
+          onStartReached={() => {}}
+          onStartReachedThreshold={0.1}
+          HeaderLoadingIndicator={() => <CenterLoading />}
           keyExtractor={(item) => item.id}
           ListEmptyComponent={() => (
             <Center px="3" mt="50%">
@@ -146,51 +200,7 @@ export const Chat = () => {
               </Text>
             </Center>
           )}
-          renderItem={({ item }) => (
-            <VStack
-              my="1"
-              p="3"
-              space="1"
-              rounded="lg"
-              bg={item.sender.id === session.id ? 'blue.300' : 'white'}
-              alignSelf={
-                session.id === item.sender.id ? 'flex-end' : 'flex-start'
-              }
-            >
-              <Text bold fontSize="md" underline>
-                {item.sender.username}
-              </Text>
-              <Flex direction="row" justify="space-between" align="center">
-                {item.content.startsWith('data:image/jpeg;base64,') ? (
-                  <ImageModal
-                    resizeMode="contain"
-                    style={{
-                      width: 250,
-                      height: 250,
-                      borderRadius: 5,
-                    }}
-                    source={{
-                      uri: item.content,
-                    }}
-                    alt={`imagem enviada por ${item.sender.username}`}
-                  />
-                ) : (
-                  <Text textAlign="justify" maxW="2xs" fontSize="sm">
-                    {item.content}
-                  </Text>
-                )}
-                <Text
-                  mt="2"
-                  ml="2"
-                  fontSize={10}
-                  color="gray.500"
-                  alignSelf="flex-end"
-                >
-                  {dayjs(item.createdAt).format('HH:mm')}
-                </Text>
-              </Flex>
-            </VStack>
-          )}
+          renderItem={renderItem}
         />
         <IconButton
           position="absolute"
