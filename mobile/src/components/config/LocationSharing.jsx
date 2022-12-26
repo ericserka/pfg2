@@ -47,7 +47,7 @@ export const LocationSharing = () => {
           justify="space-between"
           align="center"
           m="2"
-          key={i}
+          key={g.id}
         >
           <Text fontSize="lg" opacity={state['all'] ? 10 : 100} bold>
             {g.name}

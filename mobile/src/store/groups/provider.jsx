@@ -9,9 +9,9 @@ import { useWebSocket } from '../websocket/provider'
 import { userGroupsReducer } from './reducer'
 
 const userGroupInitialState = {
-  groups: undefined,
-  groupsThatOwn: undefined,
-  groupsThatLocationIsShared: undefined,
+  groups: [],
+  groupsThatOwn: [],
+  groupsThatLocationIsShared: [],
   current: undefined,
   queryLoading: false,
   mutationLoading: false,
@@ -53,10 +53,10 @@ export const UserGroupProvider = ({ children }) => {
       } = await api.get('/groups/me')
       const lastGroupSelectedId = session?.defaultGroupId
 
-      const groupsWithoutCurrentUser = groups.map((group) => ({
+      const groupsWithoutCurrentUser = groups?.map((group) => ({
         ...group,
         members: group.members.filter((m) => m.id !== session.id),
-      }))
+      })) ?? []
 
       dispatch({
         type: 'GET_GROUPS',

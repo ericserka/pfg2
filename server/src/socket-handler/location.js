@@ -14,11 +14,13 @@ const onLocationChange = async (socket, args) => {
     position,
   }
 
-  log.info(
-    `${socket.id}:${user.username} sent location to ${groups.length} groups`
-  )
+  if (groups.length) {
+    log.info(
+      `${socket.id}:${user.username} sent location to ${groups.length} groups`
+    )
 
-  socket.to(groups.map((g) => g.id)).emit('location-changed', message)
+    socket.to(groups.map((g) => g.id)).emit('location-changed', message)
+  }
 }
 
 export const locationEventListeners = (socket) => {

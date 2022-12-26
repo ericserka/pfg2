@@ -7,10 +7,10 @@ export const LoadedProviders = ({ children }) => {
     state: { queryLoading: authLoading },
   } = useUserAuth()
   const {
-    state: { queryLoading: groupsLoading, current },
+    state: { queryLoading: groupsLoading },
   } = useUserGroup()
 
-  const loading = [authLoading, groupsLoading, !current].some((l) => l)
+  const loading = [authLoading, groupsLoading].some((l) => l)
 
   return <LoadingInterceptor loading={loading}>{children}</LoadingInterceptor>
 }

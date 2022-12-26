@@ -44,7 +44,7 @@ export const Chat = () => {
 
   useFocusEffect(
     useCallback(() => {
-      if (!current.messages?.length) return
+      if (!current?.messages?.length) return
       scrollToBottom(messageListRef)
     }, [])
   )
@@ -60,7 +60,7 @@ export const Chat = () => {
     const message = {
       content,
       userId: session.id,
-      groupId: current.id,
+      groupId: current?.id,
     }
 
     emitEventSendMessage(message, (_, returned) => {
@@ -98,7 +98,7 @@ export const Chat = () => {
   const renderItem = ({ item, index }) => {
     const currentMessageDate = dayjs(item.createdAt)
     const isDifferentDay = !dayjs(currentMessageDate).isSame(
-      dayjs(current.messages?.[index - 1]?.createdAt),
+      dayjs(current?.messages?.[index - 1]?.createdAt),
       'day'
     )
     return (
@@ -186,10 +186,7 @@ export const Chat = () => {
           bg="gray.200"
           ref={messageListRef}
           px="3"
-          data={current.messages}
-          onStartReached={() => {}}
-          onStartReachedThreshold={0.1}
-          HeaderLoadingIndicator={() => <CenterLoading />}
+          data={current?.messages}
           keyExtractor={(item) => item.id}
           ListEmptyComponent={() => (
             <Center px="3" mt="50%">
@@ -202,15 +199,19 @@ export const Chat = () => {
           )}
           renderItem={renderItem}
         />
-        <IconButton
-          position="absolute"
-          bottom="24"
-          right="5"
-          rounded="full"
-          bg={COLOR_PRIMARY_600}
-          icon={<FontAwesome name="arrow-down" size={25} color="white" />}
-          onPress={() => scrollToBottom(messageListRef, 0)}
-        />
+        {
+          current?.messages && (
+            <IconButton
+              position="absolute"
+              bottom="24"
+              right="5"
+              rounded="full"
+              bg={COLOR_PRIMARY_600}
+              icon={<FontAwesome name="arrow-down" size={25} color="white" />}
+              onPress={() => scrollToBottom(messageListRef, 0)}
+            />
+          )
+        }
         <Flex
           direction="row"
           justify="space-evenly"
