@@ -8,6 +8,7 @@ import { log } from '../../helpers/logger'
 import { api } from '../../services/api/axios'
 import { useUserAuth } from '../auth/provider'
 import { useUserGroup } from '../groups/provider'
+import { useUserLocation } from '../location/provider'
 import { useWebSocket } from '../websocket/provider'
 import { notificationsReducer } from './reducer'
 
@@ -45,6 +46,9 @@ export const NotificationsProvider = ({ children }) => {
   const {
     actions: { onGroupInviteAccepted },
   } = useUserGroup()
+  const {
+    actions: { getCurrentPosition, updateEmergencyMarkers },
+  } = useUserLocation()
 
   useEffect(() => {
     getNotifications()
@@ -153,21 +157,27 @@ export const NotificationsProvider = ({ children }) => {
     })
   }
 
-  const askHelp = (toast) => {
+  const askHelp = async (toast) => {
     toggleMutationLoading(dispatch)
     emitEventAskHelp(
       {
         user: { id: session.id, username: session.username },
+        position: await getCurrentPosition()
       },
       (response) => {
         toggleMutationLoading(dispatch)
-        handleSocketResponse(response, toast)
+        handleSocketResponse(response, toast, () => {
+          updateEmergencyMarkers(response.emergencyLocation)
+        })
       }
     )
   }
 
-  const onNotificationReceived = (payload) => {
-    dispatch({ type: 'ON_NOTIFICATION_RECEIVED', payload })
+  const onNotificationReceived = ({ notification, emergencyLocation }) => {
+    if (notification.type === 'HELP') {
+      updateEmergencyMarkers(emergencyLocation)
+    }
+    dispatch({ type: 'ON_NOTIFICATION_RECEIVED', payload: notification })
   }
 
   return (

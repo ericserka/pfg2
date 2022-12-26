@@ -4,7 +4,7 @@ export function createMessage(message) {
   return prisma.message.create({
     data: message,
     include: {
-      sender: true,
+      sender: {select:{id: true, username:true, createdAt:true}},
     },
   })
 }

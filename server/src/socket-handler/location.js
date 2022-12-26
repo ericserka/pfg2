@@ -1,12 +1,12 @@
 import { dayjs } from '../helpers/dayjs.js'
 import { log } from '../helpers/logger.js'
-import { findGroupsByUserId } from '../services/groupsService.js'
+import { findGroupsThatLocationIsSharedByUserId } from '../services/groupsService.js'
 import { findUserById } from '../services/usersService.js'
 
-const onLocationChange = async (socket, args) => {
+const onLocationChange = async (socket, io, args) => {
   const { position, userId } = args
   const user = await findUserById(userId)
-  const groups = await findGroupsByUserId(userId)
+  const groups = await findGroupsThatLocationIsSharedByUserId(userId)
 
   const message = {
     timestamp: dayjs().format(),
@@ -19,10 +19,10 @@ const onLocationChange = async (socket, args) => {
       `${socket.id}:${user.username} sent location to ${groups.length} groups`
     )
 
-    socket.to(groups.map((g) => g.id)).emit('location-changed', message)
+    io.to(groups.map((g) => g.id)).emit('location-changed', message)
   }
 }
 
-export const locationEventListeners = (socket) => {
-  socket.on('send-location', (args) => onLocationChange(socket, args))
+export const locationEventListeners = (socket, io) => {
+  socket.on('send-location', (args) => onLocationChange(socket, io, args))
 }

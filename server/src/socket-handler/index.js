@@ -7,7 +7,7 @@ import { messagingEventListeners } from './messaging.js'
 export const SocketHandler = (socket, io) => {
   coreEventListeners(socket)
   messagingEventListeners(socket)
-  locationEventListeners(socket)
+  locationEventListeners(socket, io)
   groupManagementEventListeners(socket)
   emergencyEventListeners(socket)
 }

@@ -7,12 +7,14 @@ import {
 } from './groupsService.js'
 import { ifNoGroupsSetNewAsDefault } from './usersService.js'
 
-export const createHelpNotifications = async (data) =>
-  await prisma.$transaction(
-    data.map((d) =>
-      prisma.notification.create({ data: { ...d, type: 'HELP' } })
-    )
+export const createHelpNotifications = async (data, tx) => {
+  const dataToInsert = data.map((d) =>
+    prisma.notification.create({ data: { ...d, type: 'HELP' } })
   )
+  return tx
+    ? await Promise.all(dataToInsert)
+    : await prisma.$transaction(dataToInsert)
+}
 
 export const createInviteNotifications = async (data, tx) => {
   const dataToInsert = data.map((d) =>
@@ -82,6 +84,21 @@ export const acceptGroupInviteNotificationById = async (
       findGroupById(groupId),
     ])
   })
+
+export const createEmergencyNotification = async ({ receivers, location }) => 
+  await prisma.$transaction(async (tx) => [
+    await createHelpNotifications(receivers, tx),
+    await saveEmergencyLocation(location, tx),
+  ])
+
+
+export const saveEmergencyLocation = async (location, tx) => 
+  await (tx ?? prisma).emergencyLocations.create({
+    data: { ...location },
+  })
+
+export const getEmergencyNotificationsLocations = async () =>
+  await prisma.emergencyLocations.findMany()
 
 export const buildGroupInviteNotificationContent = (groupName, username) =>
   `${username} te convidou para fazer parte do grupo '${groupName}'.`

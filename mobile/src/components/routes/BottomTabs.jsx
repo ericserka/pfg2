@@ -49,13 +49,13 @@ export const BottomTabs = () => {
   const { getCurrentRoute } = useNavigation()
 
   useEffect(() => {
-    listenToNotificationReceived(({ notifications, removedFromGroup }) => {
+    listenToNotificationReceived(({ notifications, emergencyLocation, removedFromGroup }) => {
       const notification = notifications.find(
         (n) => n.receiverId === session.id
       )
       if (notification) {
         log.info(`[${session.username}] received a notification`, notification)
-        onNotificationReceived(notification)
+        onNotificationReceived({ notification, emergencyLocation })
         if (removedFromGroup) {
           log.info(
             `[${session.username}] was removed from group of id ${removedFromGroup}`
@@ -67,7 +67,7 @@ export const BottomTabs = () => {
     return () => {
       unlistenToNotificationReceived()
     }
-  }, [onRemovedFromGroup])
+  }, [onRemovedFromGroup, onNotificationReceived])
 
   useEffect(() => {
     listenToMessageAdded((message) => {
@@ -81,7 +81,7 @@ export const BottomTabs = () => {
     return () => {
       unlistenToMessageAdded()
     }
-  }, [])
+  }, [receiveChatMessage])
 
   useEffect(() => {
     registerForPushNotificationsAsync()

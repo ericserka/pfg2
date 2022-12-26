@@ -1,5 +1,6 @@
 import { useUserAuth } from '../../store/auth/provider'
 import { useUserGroup } from '../../store/groups/provider'
+import { useWebSocket } from '../../store/websocket/provider'
 import { LoadingInterceptor } from '../loading/LoadingInterceptor'
 
 export const LoadedProviders = ({ children }) => {
@@ -9,8 +10,11 @@ export const LoadedProviders = ({ children }) => {
   const {
     state: { queryLoading: groupsLoading },
   } = useUserGroup()
+  const { socket } = useWebSocket()
 
-  const loading = [authLoading, groupsLoading].some((l) => l)
-
-  return <LoadingInterceptor loading={loading}>{children}</LoadingInterceptor>
+  return (
+    <LoadingInterceptor loading={!socket || authLoading || groupsLoading}>
+        {children}
+    </LoadingInterceptor>
+  )
 }

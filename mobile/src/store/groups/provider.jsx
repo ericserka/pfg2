@@ -53,26 +53,21 @@ export const UserGroupProvider = ({ children }) => {
       } = await api.get('/groups/me')
       const lastGroupSelectedId = session?.defaultGroupId
 
-      const groupsWithoutCurrentUser = groups?.map((group) => ({
-        ...group,
-        members: group.members.filter((m) => m.id !== session.id),
-      })) ?? []
-
       dispatch({
         type: 'GET_GROUPS',
         payload: {
-          groups: groupsWithoutCurrentUser,
+          groups: groups,
           groupsThatOwn,
           groupsThatLocationIsShared,
         },
       })
 
-      if (groupsWithoutCurrentUser.length) {
+      if (groups.length) {
         changeSelectedGroup(
           lastGroupSelectedId
             ? lastGroupSelectedId
-            : groupsWithoutCurrentUser[0].id,
-          groupsWithoutCurrentUser
+            : groups[0].id,
+          groups
         )
       }
     } catch (err) {

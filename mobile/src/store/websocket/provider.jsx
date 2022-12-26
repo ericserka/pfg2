@@ -29,12 +29,12 @@ export const WebSocketProvider = ({ children }) => {
         dispatch({ type: 'CONNECT', payload: newSocket })
       })
 
-      newSocket.on('connect_error', () => {
-        log.error(`Socket failed to connect. Username: ${session.username}`)
+      newSocket.on('connect_error', (err) => {
+        log.error(`Socket failed to connect. Username: ${session.username} Error: ${err}`)
       })
 
-      newSocket.on('disconnect', () => {
-        log.info(`Socket disconnected. Username: ${session.username}`)
+      newSocket.on('disconnect', (reason) => {
+        log.info(`Socket disconnected. Username: ${session.username} Reason: ${reason}`)
       })
     }
   }

@@ -5,6 +5,7 @@ import {
   getNotificationsByReceiverId,
   getTotalNotificationsByReceiverId,
   updateUnreadNotificationsToRead,
+  getEmergencyNotificationsLocations,
 } from '../services/notificationsService.js'
 
 export const getUserNotifications = async (req, res, next) => {
@@ -36,6 +37,16 @@ export const markUnreadNotificationsAsRead = async (req, res, next) => {
           req.body.notificationsIds
         )
       )
+  } catch (error) {
+    return next(handleHttpError(error))
+  }
+}
+
+export const getEmergencyLocations = async (req, res, next) => {
+  try {
+    return res
+      .status(StatusCodes.OK)
+      .json(await getEmergencyNotificationsLocations())
   } catch (error) {
     return next(handleHttpError(error))
   }

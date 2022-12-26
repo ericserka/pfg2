@@ -7,7 +7,9 @@ import {
 import { Center, IconButton, Image, Text } from 'native-base'
 import { useEffect, useRef, useState } from 'react'
 import { Platform } from 'react-native'
-import MapView, {
+import MapView from "react-native-map-clustering"
+import {
+  Circle,
   MAP_TYPES,
   Marker,
   PROVIDER_DEFAULT,
@@ -55,6 +57,9 @@ export const Map = () => {
     state: { current },
     actions: { receiveLocationUpdate },
   } = useUserGroup()
+  const {
+    state: { markers: emergencyMarkers },
+  } = useUserLocation()
 
   const setCurrentLocation = async () => {
     const {
@@ -111,34 +116,26 @@ export const Map = () => {
 
     listenToLocationChanged((message) => {
       log.info(`[${session.username}] received location update event`, message)
-      message.userId !== session.id && receiveLocationUpdate(message)
+      receiveLocationUpdate(message)
     })
 
     return () => {
       unlistenToLocationChanged()
     }
-  }, [])
+  }, [receiveLocationUpdate])
 
   const center = async () => {
     mapRef?.current?.animateToRegion(await getUserPosition(), 1500)
   }
 
-  const markers = [
-    ...(current?.members ?? []),
-    {
-      ...session,
-      position: {
-        lat: location.latitude,
-        lng: location.longitude,
-      },
-      lastKnownLocationUpdatedAt: location.updatedAt,
-    },
-  ].map(
+  const markers = 
+  mode === 'group' ?
+  ((current?.members ?? []).map(
     (u) =>
       u?.position?.lat &&
       u?.position?.lng && (
         <Marker
-          key={`marker_${u.position.lat}_${u.position.lng}`}
+          key={`marker_${u.id}_${u.position.lat}_${u.position.lng}`}
           identifier={`${u.id}`}
           title={u.username}
           description={`${dayjs(
@@ -148,6 +145,8 @@ export const Map = () => {
             latitude: u.position.lat,
             longitude: u.position.lng,
           }}
+          tracksInfoWindowChanges={false}
+          tracksViewChanges={false}
         >
           <Center>
             <Image
@@ -162,8 +161,33 @@ export const Map = () => {
             <Text fontWeight="semibold">{u.username}</Text>
           </Center>
         </Marker>
-      )
+      ))) : (emergencyMarkers.map(
+    (loc) => (
+        <Marker
+          key={`marker_${loc.id}_${loc.latitude}_${loc.longitude}`}
+          identifier={`${loc.id}`}
+          title={"Pedido de Ajuda"}
+          description={`${dayjs(loc?.createdAt).format('lll')}`}
+          coordinate={{
+            latitude: loc.latitude,
+            longitude: loc.longitude,
+          }}
+        />
+      ))
   )
+
+  const shapes = mode === 'group' ? [] : emergencyMarkers.map((loc) => (
+    <Circle
+      key={`circle_${loc.id}_${loc.latitude}_${loc.longitude}`}
+      center={{
+        latitude: loc.latitude,
+        longitude: loc.longitude,
+      }}
+      radius={6}
+      fillColor="rgba(255, 0, 0, 0.2)"
+      strokeColor="rgba(255, 0, 0, 0.5)"
+    />
+  ))
 
   return (
     <LoadingInterceptor loading={!location.latitude || !location.longitude}>
@@ -182,15 +206,19 @@ export const Map = () => {
         showsMyLocationButton={false}
         showsScale={false}
         showsTraffic={false}
-        maxZoomLevel={Platform.OS === 'ios' ? 17 : 20}
+        maxZoomLevel={Platform.OS === 'ios' ? 17.5 : 20}
         showsBuildings={false}
         showsIndoors={false}
         showsIndoorLevelPicker={false}
         showsPointsOfInterest={false}
         zoomControlEnabled={false}
+        clusteringEnabled={mode === 'riskAreas'}
+        clusterColor="#FF1111"
+        preserveClusterPressBehavior={true}
       >
         <UrlTile urlTemplate="https://tile.openstreetmap.org/{z}/{x}/{y}.png" />
         {markers}
+        {shapes}
       </MapView>
       <IconButton
         onPress={center}

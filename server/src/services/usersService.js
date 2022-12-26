@@ -25,7 +25,7 @@ export const removeUserPassword = (user) => ({ ...user, password: undefined })
 export const findUserByIdWithGroups = async (id) =>
   await prisma.user.findUniqueOrThrow({
     where: { id },
-    include: { groups: { include: { members: true } } },
+    include: { groups: { include: { members: {select:{id:true, pushNotificationAllowed: true, pushToken:true}} } } },
   })
 
 export const countUsersGroupsAmount = async (id) =>

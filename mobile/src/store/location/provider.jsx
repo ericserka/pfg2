@@ -1,5 +1,7 @@
-import { getLastKnownPositionAsync } from 'expo-location'
+import { getLastKnownPositionAsync, getCurrentPositionAsync, LocationAccuracy } from 'expo-location'
 import { createContext, useContext, useEffect, useReducer } from 'react'
+import { showAlertError } from '../../helpers/actions/showAlertError'
+import { toggleMutationLoading } from '../../helpers/actions/toggleMutationLoading'
 import { api } from '../../services/api/axios'
 import { userLocationReducer } from './reducer'
 
@@ -26,6 +28,8 @@ export const UserLocationProvider = ({ children }) => {
   )
 
   useEffect(() => {
+    getEmergencyMarkers()
+
     return () => {
       sendLastPosition()
     }
@@ -51,11 +55,46 @@ export const UserLocationProvider = ({ children }) => {
     }
   }
 
+  const getCurrentPosition = async () => {
+    const loc = await getCurrentPositionAsync({
+      accuracy: LocationAccuracy.Highest,
+    })
+
+    if (!loc) return null
+
+    return {
+      ...locationObjectToLiteral(loc),
+      latitudeDelta: 0.003,
+      longitudeDelta: 0.002,
+    }
+  }
+
+  const getEmergencyMarkers = async () => {
+    try {
+      toggleMutationLoading(dispatch)
+      const { data } = await api.get('/notifications/emergency-locations')
+      dispatch({ type: 'SET_MARKERS', payload: data })
+    } catch (err) {
+      showAlertError(err)
+    } finally {
+      toggleMutationLoading(dispatch)
+    }
+  }
+
+  const updateEmergencyMarkers = (markers) => {
+    dispatch({ type: 'UPDATE_MARKERS', payload: markers })
+  }
+
   return (
     <UserLocationContext.Provider
       value={{
         state,
-        actions: { getUserPosition },
+        actions: {
+          getUserPosition,
+          getCurrentPosition,
+          getEmergencyMarkers,
+          updateEmergencyMarkers,
+        },
       }}
     >
       {children}
