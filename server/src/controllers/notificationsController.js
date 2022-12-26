@@ -1,11 +1,11 @@
 import { StatusCodes } from 'http-status-codes'
 import { handleHttpError } from '../helpers/errors.js'
 import {
+  getEmergencyNotificationsLocations,
   getNonSeenNotificationsByReceiverId,
   getNotificationsByReceiverId,
   getTotalNotificationsByReceiverId,
   updateUnreadNotificationsToRead,
-  getEmergencyNotificationsLocations,
 } from '../services/notificationsService.js'
 
 export const getUserNotifications = async (req, res, next) => {

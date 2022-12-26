@@ -14,7 +14,7 @@ export const LoadedProviders = ({ children }) => {
 
   return (
     <LoadingInterceptor loading={!socket || authLoading || groupsLoading}>
-        {children}
+      {children}
     </LoadingInterceptor>
   )
 }

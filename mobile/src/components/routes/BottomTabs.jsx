@@ -49,21 +49,26 @@ export const BottomTabs = () => {
   const { getCurrentRoute } = useNavigation()
 
   useEffect(() => {
-    listenToNotificationReceived(({ notifications, emergencyLocation, removedFromGroup }) => {
-      const notification = notifications.find(
-        (n) => n.receiverId === session.id
-      )
-      if (notification) {
-        log.info(`[${session.username}] received a notification`, notification)
-        onNotificationReceived({ notification, emergencyLocation })
-        if (removedFromGroup) {
+    listenToNotificationReceived(
+      ({ notifications, emergencyLocation, removedFromGroup }) => {
+        const notification = notifications.find(
+          (n) => n.receiverId === session.id
+        )
+        if (notification) {
           log.info(
-            `[${session.username}] was removed from group of id ${removedFromGroup}`
+            `[${session.username}] received a notification`,
+            notification
           )
-          onRemovedFromGroup({ groupId: removedFromGroup })
+          onNotificationReceived({ notification, emergencyLocation })
+          if (removedFromGroup) {
+            log.info(
+              `[${session.username}] was removed from group of id ${removedFromGroup}`
+            )
+            onRemovedFromGroup({ groupId: removedFromGroup })
+          }
         }
       }
-    })
+    )
     return () => {
       unlistenToNotificationReceived()
     }

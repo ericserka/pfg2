@@ -3,7 +3,8 @@ import { log } from '../helpers/logger.js'
 import { removeDuplicateArrayObjectsById } from '../helpers/snippets.js'
 import { sendPushNotificationsService } from '../services/expoService.js'
 import {
-  buildHelpNotificationContent, createEmergencyNotification,
+  buildHelpNotificationContent,
+  createEmergencyNotification,
 } from '../services/notificationsService.js'
 import { findUserByIdWithGroups } from '../services/usersService.js'
 
@@ -17,14 +18,15 @@ const onAskHelp = async (
     const receivers = removeDuplicateArrayObjectsById(
       sender.groups.map((g) => g.members).flat()
     ).filter((user) => user.id !== sender.id)
-    const [notifications, emergencyLocation] = await createEmergencyNotification({
-      receivers: receivers.map((r) => ({
-        receiverId: r.id,
-        senderId: sender.id,
-        content: buildHelpNotificationContent(username),
-      })),
-      location: { latitude, longitude },
-    })
+    const [notifications, emergencyLocation] =
+      await createEmergencyNotification({
+        receivers: receivers.map((r) => ({
+          receiverId: r.id,
+          senderId: sender.id,
+          content: buildHelpNotificationContent(username),
+        })),
+        location: { latitude, longitude },
+      })
     await sendPushNotificationsService(
       receivers
         .filter((r) => r.pushNotificationAllowed)
@@ -40,13 +42,13 @@ const onAskHelp = async (
     )
     socket.broadcast.emit('notification-received', {
       notifications: notifications.map((n) => ({ ...n, sender: { username } })),
-      emergencyLocation
+      emergencyLocation,
     })
     log.info(`User ${userId} asked for help`)
     cb({
       success: true,
       message: 'Solicitação de ajuda enviada com sucesso.',
-      emergencyLocation
+      emergencyLocation,
     })
   } catch (error) {
     cb(handleSocketIOError(error))

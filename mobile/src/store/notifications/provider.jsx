@@ -90,7 +90,9 @@ export const NotificationsProvider = ({ children }) => {
 
   const markUnreadNotificationsAsRead = async () => {
     const unseenNotifications = state.notifications.filter((n) => !n.seen)
-    log.debug(`[${session.username}] ${unseenNotifications.length} unseen notifications ${unseenNotifications}`)
+    log.debug(
+      `[${session.username}] ${unseenNotifications.length} unseen notifications ${unseenNotifications}`
+    )
     if (unseenNotifications.length) {
       try {
         toggleMutationLoading(dispatch)
@@ -162,7 +164,7 @@ export const NotificationsProvider = ({ children }) => {
     emitEventAskHelp(
       {
         user: { id: session.id, username: session.username },
-        position: await getCurrentPosition()
+        position: await getCurrentPosition(),
       },
       (response) => {
         toggleMutationLoading(dispatch)

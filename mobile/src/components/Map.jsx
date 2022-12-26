@@ -7,7 +7,7 @@ import {
 import { Center, IconButton, Image, Text } from 'native-base'
 import { useEffect, useRef, useState } from 'react'
 import { Platform } from 'react-native'
-import MapView from "react-native-map-clustering"
+import MapView from 'react-native-map-clustering'
 import {
   Circle,
   MAP_TYPES,
@@ -128,66 +128,69 @@ export const Map = () => {
     mapRef?.current?.animateToRegion(await getUserPosition(), 1500)
   }
 
-  const markers = 
-  mode === 'group' ?
-  ((current?.members ?? []).map(
-    (u) =>
-      u?.position?.lat &&
-      u?.position?.lng && (
-        <Marker
-          key={`marker_${u.id}_${u.position.lat}_${u.position.lng}`}
-          identifier={`${u.id}`}
-          title={u.username}
-          description={`${dayjs(
-            u?.lastKnownLocationUpdatedAt ?? undefined
-          ).format('lll')}`}
-          coordinate={{
-            latitude: u.position.lat,
-            longitude: u.position.lng,
-          }}
-          tracksInfoWindowChanges={false}
-          tracksViewChanges={false}
-        >
-          <Center>
-            <Image
-              source={{
-                uri: u.profilePic,
-              }}
-              w="12"
-              h="12"
-              rounded="full"
-              alt={`icon for user ${u.id}`}
-            />
-            <Text fontWeight="semibold">{u.username}</Text>
-          </Center>
-        </Marker>
-      ))) : (emergencyMarkers.map(
-    (loc) => (
-        <Marker
-          key={`marker_${loc.id}_${loc.latitude}_${loc.longitude}`}
-          identifier={`${loc.id}`}
-          title={"Pedido de Ajuda"}
-          description={`${dayjs(loc?.createdAt).format('lll')}`}
-          coordinate={{
-            latitude: loc.latitude,
-            longitude: loc.longitude,
-          }}
-        />
-      ))
-  )
+  const markers =
+    mode === 'group'
+      ? (current?.members ?? []).map(
+          (u) =>
+            u?.position?.lat &&
+            u?.position?.lng && (
+              <Marker
+                key={`marker_${u.id}_${u.position.lat}_${u.position.lng}`}
+                identifier={`${u.id}`}
+                title={u.username}
+                description={`${dayjs(
+                  u?.lastKnownLocationUpdatedAt ?? undefined
+                ).format('lll')}`}
+                coordinate={{
+                  latitude: u.position.lat,
+                  longitude: u.position.lng,
+                }}
+                tracksInfoWindowChanges={false}
+                tracksViewChanges={false}
+              >
+                <Center>
+                  <Image
+                    source={{
+                      uri: u.profilePic,
+                    }}
+                    w="12"
+                    h="12"
+                    rounded="full"
+                    alt={`icon for user ${u.id}`}
+                  />
+                  <Text fontWeight="semibold">{u.username}</Text>
+                </Center>
+              </Marker>
+            )
+        )
+      : emergencyMarkers.map((loc) => (
+          <Marker
+            key={`marker_${loc.id}_${loc.latitude}_${loc.longitude}`}
+            identifier={`${loc.id}`}
+            title={'Pedido de Ajuda'}
+            description={`${dayjs(loc?.createdAt).format('lll')}`}
+            coordinate={{
+              latitude: loc.latitude,
+              longitude: loc.longitude,
+            }}
+          />
+        ))
 
-  const shapes = mode === 'group' ? [] : emergencyMarkers.map((loc) => (
-    <Circle
-      key={`circle_${loc.id}_${loc.latitude}_${loc.longitude}`}
-      center={{
-        latitude: loc.latitude,
-        longitude: loc.longitude,
-      }}
-      radius={6}
-      fillColor="rgba(255, 0, 0, 0.2)"
-      strokeColor="rgba(255, 0, 0, 0.5)"
-    />
-  ))
+  const shapes =
+    mode === 'group'
+      ? []
+      : emergencyMarkers.map((loc) => (
+          <Circle
+            key={`circle_${loc.id}_${loc.latitude}_${loc.longitude}`}
+            center={{
+              latitude: loc.latitude,
+              longitude: loc.longitude,
+            }}
+            radius={6}
+            fillColor="rgba(255, 0, 0, 0.2)"
+            strokeColor="rgba(255, 0, 0, 0.5)"
+          />
+        ))
 
   return (
     <LoadingInterceptor loading={!location.latitude || !location.longitude}>

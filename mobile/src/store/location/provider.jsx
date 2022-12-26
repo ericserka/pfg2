@@ -1,4 +1,8 @@
-import { getLastKnownPositionAsync, getCurrentPositionAsync, LocationAccuracy } from 'expo-location'
+import {
+  getCurrentPositionAsync,
+  getLastKnownPositionAsync,
+  LocationAccuracy,
+} from 'expo-location'
 import { createContext, useContext, useEffect, useReducer } from 'react'
 import { showAlertError } from '../../helpers/actions/showAlertError'
 import { toggleMutationLoading } from '../../helpers/actions/toggleMutationLoading'

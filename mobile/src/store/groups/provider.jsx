@@ -64,9 +64,7 @@ export const UserGroupProvider = ({ children }) => {
 
       if (groups.length) {
         changeSelectedGroup(
-          lastGroupSelectedId
-            ? lastGroupSelectedId
-            : groups[0].id,
+          lastGroupSelectedId ? lastGroupSelectedId : groups[0].id,
           groups
         )
       }

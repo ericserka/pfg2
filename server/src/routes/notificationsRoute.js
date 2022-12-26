@@ -1,8 +1,8 @@
 import { Router } from 'express'
 import {
+  getEmergencyLocations,
   getUserNotifications,
   markUnreadNotificationsAsRead,
-  getEmergencyLocations,
 } from '../controllers/notificationsController.js'
 
 export const useNotificationRouter = (app) => {

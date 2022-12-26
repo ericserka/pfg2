@@ -85,14 +85,13 @@ export const acceptGroupInviteNotificationById = async (
     ])
   })
 
-export const createEmergencyNotification = async ({ receivers, location }) => 
+export const createEmergencyNotification = async ({ receivers, location }) =>
   await prisma.$transaction(async (tx) => [
     await createHelpNotifications(receivers, tx),
     await saveEmergencyLocation(location, tx),
   ])
 
-
-export const saveEmergencyLocation = async (location, tx) => 
+export const saveEmergencyLocation = async (location, tx) =>
   await (tx ?? prisma).emergencyLocations.create({
     data: { ...location },
   })

@@ -12,9 +12,7 @@
       "instances": 3,
       "exec_mode": "cluster",
       "watch": true,
-      "ignore_watch": [
-        "node_modules"
-      ],
+      "ignore_watch": ["node_modules"],
       "autorestart": true,
       "env": {
         "PORT": 3000
