@@ -48,9 +48,9 @@ const onSendMessage = async (socket, args, cb) => {
 }
 
 export const messagingEventListeners = (socket) => {
-  socket.on('join-group', (args, cb) => onJoinChat(socket, args))
+  socket.on('join-group', (args) => onJoinChat(socket, args))
 
-  socket.on('leave-chat', (args, cb) => onLeaveChat(socket, args))
+  socket.on('leave-chat', (args) => onLeaveChat(socket, args))
 
   socket.on('send-message', (args, cb) => onSendMessage(socket, args, cb))
 }
