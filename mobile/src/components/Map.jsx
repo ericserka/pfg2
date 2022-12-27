@@ -37,7 +37,6 @@ export const Map = () => {
     longitudeDelta: LONGITUDE_DELTA,
     updatedAt: null,
   })
-  // group ou riskAreas
   const [mode, setMode] = useState('group')
 
   const {
@@ -245,7 +244,7 @@ export const Map = () => {
         rounded="full"
         icon={
           <FontAwesome
-            name={mode === 'riskAreas' ? 'wrench' : 'group'}
+            name={mode === 'riskAreas' ? 'group' : 'exclamation-triangle'}
             size={25}
             color={COLOR_PRIMARY_600}
           />
