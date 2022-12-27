@@ -1,5 +1,5 @@
 import { log } from '../helpers/logger.js'
-import { findGroupById, FindOrCreateGroup } from '../services/groupsService.js'
+import { findGroupById } from '../services/groupsService.js'
 import { createMessage } from '../services/messagesService.js'
 import { findUserById } from '../services/usersService.js'
 
@@ -47,34 +47,10 @@ const onSendMessage = async (socket, args, cb) => {
   }
 }
 
-async function onNewGroup(socket, args, cb) {
-  const { userId, name } = args
-  const user = await findUserById(userId)
-
-  if (user) {
-    const group = await FindOrCreateGroup(
-      {
-        name: name,
-        users: {
-          connect: {
-            id: userId,
-          },
-        },
-      },
-      user.id
-    )
-    cb(null, group)
-  } else {
-    cb({ message: 'invalid user' }, null)
-  }
-}
-
 export const messagingEventListeners = (socket) => {
   socket.on('join-group', (args, cb) => onJoinChat(socket, args))
 
   socket.on('leave-chat', (args, cb) => onLeaveChat(socket, args))
 
   socket.on('send-message', (args, cb) => onSendMessage(socket, args, cb))
-
-  socket.on('new-group', (args, cb) => onNewGroup(socket, args, cb))
 }

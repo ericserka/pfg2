@@ -26,7 +26,7 @@ export const findGroupByIdWithMembersAndMessages = async (id, tx) =>
       members: true,
       messages: {
         include: {
-          sender: true,
+          sender: { select: { id: true, username: true, createdAt: true } },
         },
       },
     },
@@ -45,7 +45,7 @@ export const findGroupsByUserId = (userId) =>
       members: true,
       messages: {
         include: {
-          sender: true,
+          sender: { select: { id: true, username: true, createdAt: true } },
         },
       },
     },
@@ -60,32 +60,6 @@ export const findGroupsThatUserIdOwn = async (userId) =>
   await prisma.group.findMany({
     where: { ownerId: userId },
   })
-
-export async function FindOrCreateGroup(group, userId) {
-  const id = !group.id ? (await prisma.group.count()) + 1 : group.id
-  return prisma.group.upsert({
-    create: {
-      ...group,
-      id,
-      inviteCode: generateGroupToken(id),
-    },
-    where: { id },
-    update: {
-      members: {
-        connect: {
-          id: userId,
-        },
-      },
-    },
-    include: {
-      messages: {
-        include: {
-          sender: true,
-        },
-      },
-    },
-  })
-}
 
 export const linkUserToGroup = async (userId, groupId, tx) =>
   await (tx ?? prisma).group.update({
@@ -188,6 +162,18 @@ export const connectUserFromLocationSharing = async (userId, groupId) =>
     },
   })
 
+export const getAllGroupsIdsFromUser = async (userId) =>
+  await prisma.group.findMany({
+    where: {
+      members: {
+        some: {
+          id: userId,
+        },
+      },
+    },
+    select: { id: true },
+  })
+
 export const shareLocationWithAllService = async (userId) =>
   await prisma.user.update({
     where: {
@@ -196,7 +182,7 @@ export const shareLocationWithAllService = async (userId) =>
     data: {
       groupsThatLocationIsShared: {
         connect: (
-          await findGroupsByUserId(userId)
+          await getAllGroupsIdsFromUser(userId)
         ).map((g) => ({
           id: g.id,
         })),
@@ -236,7 +222,11 @@ export const deleteGroup = async (groupId, userId, username) =>
 export const findGroupByIdWithMembers = async (id) =>
   await prisma.group.findUniqueOrThrow({
     where: { id },
-    include: { members: true },
+    include: {
+      members: {
+        select: { id: true, pushNotificationAllowed: true, pushToken: true },
+      },
+    },
   })
 
 export const removeMembemberFromGroup = async (

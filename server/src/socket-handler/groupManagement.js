@@ -5,6 +5,7 @@ import {
   createGroupService,
   deleteGroup,
   removeMembemberFromGroup,
+  sanitizeGroupForResponse,
   unlinkUserFromGroup,
 } from '../services/groupsService.js'
 import {
@@ -87,7 +88,12 @@ const onAcceptGroupInvite = async ({ groupId, notificationId, userId }, cb) => {
     cb({
       success: true,
       message: 'Convite aceito com sucesso.',
-      data: { group, groupWithMembersAndMessages },
+      data: {
+        group,
+        groupWithMembersAndMessages: groupWithMembersAndMessages.map(
+          sanitizeGroupForResponse
+        ),
+      },
     })
   } catch (error) {
     cb(handleSocketIOError(error, 'Grupo ou notificação não encontrado.'))
@@ -176,7 +182,12 @@ const onCreateGroup = async (
     cb({
       success: true,
       message: 'Grupo criado e convites enviados com sucesso.',
-      data: { group, groupWithMembersAndMessages },
+      data: {
+        group,
+        groupWithMembersAndMessages: groupWithMembersAndMessages.map(
+          sanitizeGroupForResponse
+        ),
+      },
     })
   } catch (error) {
     cb(handleSocketIOError(error))

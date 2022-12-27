@@ -51,5 +51,3 @@ export const shareLocationWithAll = async (req, res, next) => {
     return next(handleHttpError(error))
   }
 }
-
-// endpoint pra definir grupo default
