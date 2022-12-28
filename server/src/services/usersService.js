@@ -1,11 +1,12 @@
 import { dayjs } from '../helpers/dayjs.js'
 import { prisma } from '../helpers/prisma.js'
 
-export const findUserByEmailAddress = async (email) =>
+export const findUserByEmailAddress = async (email, selectAll = true) =>
   await prisma.user.findUniqueOrThrow({
     where: {
       email,
     },
+    select: selectAll ? undefined : { id: true },
   })
 
 export const findUserById = async (id) =>
@@ -16,9 +17,13 @@ export const findUserById = async (id) =>
   })
 
 export const findUserByUsername = async (username) =>
-  await prisma.user.findUniqueOrThrow({ where: { username } })
+  await prisma.user.findUniqueOrThrow({
+    where: { username },
+    select: { id: true, username: true },
+  })
 
-export const createUser = async (data) => await prisma.user.create({ data })
+export const createUser = async (data) =>
+  await prisma.user.create({ data, select: { id: true } })
 
 export const removeUserPassword = (user) => ({ ...user, password: undefined })
 
@@ -44,7 +49,7 @@ export const countUsersGroupsAmount = async (id) =>
   (
     await prisma.user.findUniqueOrThrow({
       where: { id },
-      include: {
+      select: {
         _count: {
           select: { groups: true },
         },
@@ -58,25 +63,6 @@ export const ifNoGroupsSetNewAsDefault = async (userId, groupId, tx) => {
   }
 }
 
-export const updateLastLocation = async (id, location) =>
-  await prisma.user.update({
-    where: { id },
-    data: {
-      lastKnownLatitude: location.latitude,
-      lastKnownLongitude: location.longitude,
-      lastKnownLocationUpdatedAt: dayjs().toDate(),
-    },
-  })
-
-export const updatePushToken = async (id, pushToken) =>
-  await prisma.user.update({ where: { id }, data: { pushToken } })
-
-export const updatePushNotificationAllowed = async (
-  id,
-  pushNotificationAllowed
-) =>
-  await prisma.user.update({ where: { id }, data: { pushNotificationAllowed } })
-
 export const getUsersForPushNotifications = async (usersIds, tx) =>
   await (tx ?? prisma).user.findMany({
     select: { pushToken: true, id: true },
@@ -87,4 +73,8 @@ export const getUsersForPushNotifications = async (usersIds, tx) =>
   })
 
 export const updateUserService = async (id, data, tx) =>
-  await (tx ?? prisma).user.update({ where: { id }, data })
+  await (tx ?? prisma).user.update({
+    where: { id },
+    data,
+    select: { id: true },
+  })

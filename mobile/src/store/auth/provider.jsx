@@ -97,7 +97,7 @@ export const UserAuthProvider = ({ children }) => {
             try {
               toggleQueryLoading(dispatch)
               if (state?.session?.pushToken) {
-                await api.patch('/users/push-token', {
+                await api.patch('/users', {
                   pushToken: null,
                 })
               }

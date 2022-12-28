@@ -45,6 +45,16 @@ export const UserGroupProvider = ({ children }) => {
     getGroups()
   }, [])
 
+  // useEffect(() => {
+  //   state.current &&
+  //     console.log(
+  //       state.current.messages.map((m) => ({
+  //         ...m,
+  //         content: m.content.substring(0, 100),
+  //       }))
+  //     )
+  // }, [state.current])
+
   const getGroups = async () => {
     toggleQueryLoading(dispatch)
     try {

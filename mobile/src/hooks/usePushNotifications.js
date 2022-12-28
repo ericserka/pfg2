@@ -16,11 +16,10 @@ import { useUsers } from '../store/user/provider'
 export const usePushNotifications = () => {
   const { navigate } = useNavigation()
   const {
-    actions: { alterPushToken, alterPushNotificationsAllowance },
+    actions: { updateUser },
   } = useUsers()
   const {
     state: { session },
-    actions: { updateSession },
   } = useUserAuth()
   const {
     actions: { getNotifications },
@@ -43,17 +42,15 @@ export const usePushNotifications = () => {
           'Permissão para notificações',
           'Permissão para notificações não concedida. Considere permitir nas configurações do seu dispositivo e reiniciar o app.'
         )
-        await alterPushNotificationsAllowance(false)
+        await updateUser({ pushNotificationAllowed: false })
         return
       }
-      const token = (await getExpoPushTokenAsync()).data
-      if (token !== session.pushToken) {
-        await alterPushToken(token)
-        updateSession({ pushToken: token })
+      const pushToken = (await getExpoPushTokenAsync()).data
+      if (pushToken !== session.pushToken) {
+        await updateUser({ pushToken })
       }
       if (!session.pushNotificationAllowed) {
-        await alterPushNotificationsAllowance(true)
-        updateSession({ pushNotificationAllowed: true })
+        await updateUser({ pushNotificationAllowed: true })
       }
     } else {
       alert(

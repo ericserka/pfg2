@@ -31,11 +31,12 @@ export const login = async (req, res, next) => {
 
 export const register = async (req, res, next) => {
   try {
-    const user = await createUser({
-      ...req.body,
-      password: await hashPassword(req.body.password),
-    })
-    return res.status(StatusCodes.CREATED).json(removeUserPassword(user))
+    return res.status(StatusCodes.CREATED).json(
+      await createUser({
+        ...req.body,
+        password: await hashPassword(req.body.password),
+      })
+    )
   } catch (error) {
     return next(
       handleHttpError(

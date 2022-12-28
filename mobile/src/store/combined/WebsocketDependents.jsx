@@ -10,13 +10,13 @@ export const WebsocketDependents = ({ children }) => {
 
   return (
     <LoadingInterceptor loading={!socket}>
-      <UserLocationProvider>
-        <UserGroupProvider>
-          <NotificationsProvider>
-            <UsersProvider>{children}</UsersProvider>
-          </NotificationsProvider>
-        </UserGroupProvider>
-      </UserLocationProvider>
+      <UsersProvider>
+        <UserLocationProvider>
+          <UserGroupProvider>
+            <NotificationsProvider>{children}</NotificationsProvider>
+          </UserGroupProvider>
+        </UserLocationProvider>
+      </UsersProvider>
     </LoadingInterceptor>
   )
 }

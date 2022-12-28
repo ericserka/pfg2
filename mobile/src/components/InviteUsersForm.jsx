@@ -83,17 +83,17 @@ export const InviteUsersForm = ({ route }) => {
   }
 
   const searchUser = async () => {
-    const sanitezedSearch = searchTerm.trim()
-    if (membersToInvite.some((m) => m.username === sanitezedSearch)) {
+    const sanitizedSearch = searchTerm.trim()
+    if (membersToInvite.some((m) => m.username === sanitizedSearch)) {
       toggleToast(
         toast,
         'Usuário já adicionado na sua lista de convites.',
         'warning'
       )
-    } else if (sanitezedSearch === session.username) {
+    } else if (sanitizedSearch === session.username) {
       toggleToast(toast, 'Não é possível convidar você mesmo.', 'warning')
     } else {
-      const searchedUser = await findUserByUsername(sanitezedSearch)
+      const searchedUser = await findUserByUsername(sanitizedSearch)
       searchedUser &&
         setMembersToInvite((prevState) => [...prevState, searchedUser])
     }

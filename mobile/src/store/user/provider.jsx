@@ -21,32 +21,12 @@ export const UsersProvider = ({ children }) => {
     actions: { updateSession },
   } = useUserAuth()
 
-  const alterPushToken = async (pushToken) => {
-    try {
-      await api.patch('/users/push-token', {
-        pushToken,
-      })
-    } catch (err) {
-      showAlertError(err)
-    }
-  }
-
-  const alterPushNotificationsAllowance = async (pushNotificationAllowed) => {
-    try {
-      await api.patch('/users/push-notifications-allowance', {
-        pushNotificationAllowed,
-      })
-    } catch (err) {
-      showAlertError(err)
-    }
-  }
-
   const updateUser = async (data, onSuccess) => {
     try {
       toggleMutationLoading(dispatch)
       await api.patch('/users', data)
       updateSession(data)
-      onSuccess()
+      onSuccess && onSuccess()
     } catch (err) {
       showAlertError(err)
     } finally {
@@ -82,8 +62,6 @@ export const UsersProvider = ({ children }) => {
       value={{
         state,
         actions: {
-          alterPushToken,
-          alterPushNotificationsAllowance,
           updateUser,
           updateUserPassword,
           findUserByUsername,

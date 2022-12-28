@@ -188,6 +188,7 @@ export const shareLocationWithAllService = async (userId) =>
         })),
       },
     },
+    select: { id: true },
   })
 
 export const sanitizeGroupForResponse = (group) => ({

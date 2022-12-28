@@ -11,6 +11,6 @@ export const verifyCredentials = async (user, password) =>
 export const hashPassword = async (password) => await bcrypt.hash(password, 10)
 
 export const saveRandomPasswordService = async (email, password) => {
-  const user = await findUserByEmailAddress(email)
+  const user = await findUserByEmailAddress(email, false)
   await updateUserService(user.id, { password: await hashPassword(password) })
 }

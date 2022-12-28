@@ -6,7 +6,9 @@ import {
 import { createContext, useContext, useEffect, useReducer } from 'react'
 import { showAlertError } from '../../helpers/actions/showAlertError'
 import { toggleMutationLoading } from '../../helpers/actions/toggleMutationLoading'
+import { dayjs } from '../../helpers/dayjs'
 import { api } from '../../services/api/axios'
+import { useUsers } from '../user/provider'
 import { userLocationReducer } from './reducer'
 
 const locationObjectToLiteral = (loc) => ({
@@ -31,6 +33,10 @@ export const UserLocationProvider = ({ children }) => {
     userLocationInitialState
   )
 
+  const {
+    actions: { updateUser },
+  } = useUsers()
+
   useEffect(() => {
     getEmergencyMarkers()
 
@@ -40,10 +46,11 @@ export const UserLocationProvider = ({ children }) => {
   }, [])
 
   const sendLastPosition = async () => {
-    const position = await getUserPosition()
-    await api.post('/users/last-loc', {
-      latitude: position.latitude,
-      longitude: position.longitude,
+    const { latitude, longitude } = await getUserPosition()
+    await updateUser({
+      lastKnownLatitude: latitude,
+      lastKnownLongitude: longitude,
+      lastKnownLocationUpdatedAt: dayjs().toDate(),
     })
   }
 

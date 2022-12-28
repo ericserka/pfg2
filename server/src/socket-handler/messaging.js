@@ -1,50 +1,25 @@
 import { log } from '../helpers/logger.js'
-import { findGroupById } from '../services/groupsService.js'
 import { createMessage } from '../services/messagesService.js'
-import { findUserById } from '../services/usersService.js'
 
-const onJoinChat = async (socket, args) => {
-  const { userId, groupId } = args
-
-  const [user, group] = await Promise.all([
-    findUserById(userId),
-    findGroupById(groupId),
-  ])
-
-  socket.join(group.id)
-  log.info(`${socket.id}:${user.username} connected to group: ${group.id}`)
+const onJoinChat = async (socket, { userId, groupId }) => {
+  socket.join(groupId)
+  log.info(`${socket.id}: User ${userId} connected to group: ${groupId}`)
 }
 
-const onLeaveChat = async (socket, args) => {
-  const { groupId, userId } = args
+const onLeaveChat = async (socket, { userId, groupId }) => {
   socket.leave(groupId)
-
-  const user = await findUserById(userId)
-  log.info(`${socket.id}:${user.username} left group: ${groupId}`)
+  log.info(`${socket.id}: User ${userId} left group: ${groupId}`)
 }
 
-const onSendMessage = async (socket, args, cb) => {
-  const { groupId, userId, content } = args
-
-  const [user, group] = await Promise.all([
-    findUserById(userId),
-    findGroupById(groupId),
-  ])
-
-  if (user && group) {
-    const message = await createMessage({
-      content: content,
-      senderId: userId,
-      groupId: groupId,
-    })
-    log.info(
-      `${socket.id}:${user.username} send a message to group: ${groupId}`
-    )
-    socket.to(group.id).emit('message-added', message)
-    cb(null, message)
-  } else {
-    cb({ message: 'user or group not found' }, null)
-  }
+const onSendMessage = async (socket, { groupId, userId, content }, cb) => {
+  const message = await createMessage({
+    content,
+    senderId: userId,
+    groupId,
+  })
+  log.info(`${socket.id}: User ${userId} send a message to group: ${groupId}`)
+  socket.to(groupId).emit('message-added', message)
+  cb(null, message)
 }
 
 export const messagingEventListeners = (socket) => {
