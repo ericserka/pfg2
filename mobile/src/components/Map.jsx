@@ -85,12 +85,6 @@ export const Map = () => {
         },
         (location) => {
           const { latitude, longitude } = location.coords
-          setLocation((defaultLocation) => ({
-            ...defaultLocation,
-            latitude,
-            longitude,
-            updatedAt: location.timestamp,
-          }))
           log.info(`[${session.username}] sent location-changed`)
           emitEventLocationChanged({
             userId: session.id,
@@ -129,39 +123,35 @@ export const Map = () => {
 
   const markers =
     mode === 'group'
-      ? (current?.members ?? []).map(
-          (u) =>
-            u?.position?.lat &&
-            u?.position?.lng && (
-              <Marker
-                key={`marker_${u.id}_${u.position.lat}_${u.position.lng}`}
-                identifier={`${u.id}`}
-                title={u.username}
-                description={`${dayjs(
-                  u?.lastKnownLocationUpdatedAt ?? undefined
-                ).format('lll')}`}
-                coordinate={{
-                  latitude: u.position.lat,
-                  longitude: u.position.lng,
+      ? (current?.members ?? []).map((u) => (
+          <Marker
+            key={`marker_${u.id}_${u.position.lat}_${u.position.lng}`}
+            identifier={`${u.id}`}
+            title={u.username}
+            description={`${dayjs(
+              u?.lastKnownLocationUpdatedAt ?? undefined
+            ).format('lll')}`}
+            coordinate={{
+              latitude: u.position.lat,
+              longitude: u.position.lng,
+            }}
+            tracksInfoWindowChanges={false}
+            tracksViewChanges={false}
+          >
+            <Center>
+              <Image
+                source={{
+                  uri: u.profilePic,
                 }}
-                tracksInfoWindowChanges={false}
-                tracksViewChanges={false}
-              >
-                <Center>
-                  <Image
-                    source={{
-                      uri: u.profilePic,
-                    }}
-                    w="12"
-                    h="12"
-                    rounded="full"
-                    alt={`icon for user ${u.id}`}
-                  />
-                  <Text fontWeight="semibold">{u.username}</Text>
-                </Center>
-              </Marker>
-            )
-        )
+                w="12"
+                h="12"
+                rounded="full"
+                alt={`icon for user ${u.id}`}
+              />
+              <Text fontWeight="semibold">{u.username}</Text>
+            </Center>
+          </Marker>
+        ))
       : emergencyMarkers.map((loc) => (
           <Marker
             key={`marker_${loc.id}_${loc.latitude}_${loc.longitude}`}
@@ -192,7 +182,7 @@ export const Map = () => {
         ))
 
   return (
-    <LoadingInterceptor loading={!location.latitude || !location.longitude}>
+    <>
       <MapView
         ref={mapRef}
         initialRegion={location}
@@ -250,6 +240,6 @@ export const Map = () => {
           />
         }
       />
-    </LoadingInterceptor>
+    </>
   )
 }

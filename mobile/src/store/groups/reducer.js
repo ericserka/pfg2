@@ -16,37 +16,42 @@ export const userGroupsReducer = (state, action) => {
         ...state,
         current: action.payload,
       }
-    case 'RECEIVE_CHAT_MESSAGE':
-      const message = action.payload
-      const alreadyIn = state.current.messages.find((m) => m.id === message.id)
-      if (alreadyIn) return state
+    case 'RECEIVE_CHAT_MESSAGE': {
+      const current = {
+        ...state.current,
+        messages: [...state.current.messages, action.payload],
+      }
       return {
         ...state,
-        current: {
-          ...state.current,
-          messages: [...state.current.messages, action.payload],
-        },
+        current,
+        groups: state.groups.map((g) => (g.id === current.id ? current : g)),
       }
-    case 'RECEIVE_LOCATION_UPDATE':
+    }
+    case 'RECEIVE_LOCATION_UPDATE': {
       if (!state.current) return state
+
+      const current = {
+        ...state.current,
+        members: state.current.members.map((m) =>
+          m.id === action.payload.userId
+            ? {
+                ...m,
+                position: {
+                  lat: action.payload.position.latitude,
+                  lng: action.payload.position.longitude,
+                },
+                lastKnownLocationUpdatedAt: action.payload.timestamp,
+              }
+            : m
+        ),
+      }
+
       return {
         ...state,
-        current: {
-          ...state.current,
-          members: state.current.members.map((m) =>
-            m.id === action.payload.userId
-              ? {
-                  ...m,
-                  position: {
-                    lat: action.payload.position.latitude,
-                    lng: action.payload.position.longitude,
-                  },
-                  lastKnownLocationUpdatedAt: action.payload.timestamp,
-                }
-              : m
-          ),
-        },
+        current,
+        groups: state.groups.map((g) => (g.id === current.id ? current : g)),
       }
+    }
     case 'QUERY_LOADING':
       return {
         ...state,
