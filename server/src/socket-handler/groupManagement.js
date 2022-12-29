@@ -12,7 +12,7 @@ import {
   acceptGroupInviteNotificationById,
   buildGroupInviteNotificationContent,
   buildRemovedFromGroupNotificationContent,
-  createInviteNotifications,
+  createNotifications,
   rejectGroupInviteNotificationById,
 } from '../services/notificationsService.js'
 import { getUsersForPushNotifications } from '../services/usersService.js'
@@ -90,8 +90,8 @@ const onAcceptGroupInvite = async ({ groupId, notificationId, userId }, cb) => {
       message: 'Convite aceito com sucesso.',
       data: {
         group,
-        groupWithMembersAndMessages: groupWithMembersAndMessages.map(
-          sanitizeGroupForResponse
+        groupWithMembersAndMessages: sanitizeGroupForResponse(
+          groupWithMembersAndMessages
         ),
       },
     })
@@ -110,13 +110,14 @@ const onAddMembersToGroup = async (
   cb
 ) => {
   try {
-    const notifications = await createInviteNotifications(
+    const notifications = await createNotifications(
       membersToInviteIds.map((m) => ({
         receiverId: m,
         senderId: userId,
         groupId: groupId,
         content: buildGroupInviteNotificationContent(groupName, username),
-      }))
+      })),
+      'INVITE'
     )
     await sendPushNotificationsService(
       (
@@ -184,8 +185,8 @@ const onCreateGroup = async (
       message: 'Grupo criado e convites enviados com sucesso.',
       data: {
         group,
-        groupWithMembersAndMessages: groupWithMembersAndMessages.map(
-          sanitizeGroupForResponse
+        groupWithMembersAndMessages: sanitizeGroupForResponse(
+          groupWithMembersAndMessages
         ),
       },
     })

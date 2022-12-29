@@ -1,5 +1,7 @@
 import { log } from '../helpers/logger.js'
-import { createMessage } from '../services/messagesService.js'
+import { sendPushNotificationsService } from '../services/expoService.js'
+import { onSendMessageService } from '../services/messagesService.js'
+import { buildNewMessageNotificationContent } from '../services/notificationsService.js'
 
 const onJoinChat = async (socket, { userId, groupId }) => {
   socket.join(groupId)
@@ -11,14 +13,41 @@ const onLeaveChat = async (socket, { userId, groupId }) => {
   log.info(`${socket.id}: User ${userId} left group: ${groupId}`)
 }
 
-const onSendMessage = async (socket, { groupId, userId, content }, cb) => {
-  const message = await createMessage({
+const onSendMessage = async (
+  socket,
+  {
+    group: { id: groupId, name: groupName },
+    user: { id: userId, username },
     content,
-    senderId: userId,
+  },
+  cb
+) => {
+  const [message, notifications, receivers] = await onSendMessageService(
     groupId,
+    userId,
+    content
+  )
+  await sendPushNotificationsService(
+    receivers
+      .filter((r) => r.pushNotificationAllowed)
+      .map((r) => ({
+        to: r.pushToken,
+        sound: 'default',
+        title: 'Novas mensagens',
+        body: buildNewMessageNotificationContent(groupName),
+        data: {
+          screenName: 'Notificações',
+        },
+      }))
+  )
+  socket.broadcast.emit('notification-received', {
+    notifications: notifications.map((n) => ({
+      ...n,
+      sender: { username: username },
+    })),
   })
-  log.info(`${socket.id}: User ${userId} send a message to group: ${groupId}`)
   socket.to(groupId).emit('message-added', message)
+  log.info(`${socket.id}: User ${userId} send a message to group: ${groupId}`)
   cb(null, message)
 }
 

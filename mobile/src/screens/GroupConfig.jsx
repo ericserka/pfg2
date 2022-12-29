@@ -165,7 +165,7 @@ export const GroupConfig = ({ route }) => {
       </Flex>
       <FlatList
         my="2"
-        data={group?.members}
+        data={group?.members.filter((m) => m.id !== session.id)}
         contentContainerStyle={{ flexGrow: 1 }}
         ItemSeparatorComponent={(props) => <Divider {...props} />}
         ListEmptyComponent={() => (

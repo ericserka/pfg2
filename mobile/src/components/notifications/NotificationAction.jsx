@@ -1,5 +1,5 @@
-import { InviteAction } from './actions/InviteAction'
 import { HelpAction } from './actions/HelpAction'
+import { InviteAction } from './actions/InviteAction'
 import { MessageAction } from './actions/MessageAction'
 
 export const NotificationAction = ({ notification }) => {
@@ -9,7 +9,7 @@ export const NotificationAction = ({ notification }) => {
     case 'HELP':
       return <HelpAction notification={notification} />
     case 'MESSAGE':
-      return <MessageAction />
+      return <MessageAction groupId={notification.groupId} />
     default:
       return <></>
   }

@@ -7,41 +7,16 @@ import {
 } from './groupsService.js'
 import { ifNoGroupsSetNewAsDefault } from './usersService.js'
 
-export const createHelpNotifications = async (data, tx) => {
-  const dataToInsert = data.map((d) =>
-    prisma.notification.create({ data: { ...d, type: 'HELP' } })
-  )
-  return tx
-    ? await Promise.all(dataToInsert)
-    : await prisma.$transaction(dataToInsert)
-}
-
-export const createInviteNotifications = async (data, tx) => {
+export const createNotifications = async (data, type, tx) => {
   const dataToInsert = data.map((d) =>
     (tx ?? prisma).notification.create({
-      data: { ...d, type: 'INVITE', status: 'PENDING' },
+      data: { ...d, type, status: type === 'INVITE' ? 'PENDING' : null },
     })
   )
   return tx
     ? await Promise.all(dataToInsert)
     : await prisma.$transaction(dataToInsert)
 }
-
-export const createRemovedFromGroupNotifications = async (data, tx) => {
-  const dataToInsert = data.map((d) =>
-    (tx ?? prisma).notification.create({
-      data: { ...d, type: 'GROUP_REMOVED' },
-    })
-  )
-  return tx
-    ? await Promise.all(dataToInsert)
-    : await prisma.$transaction(dataToInsert)
-}
-
-export const createMessageNotifications = async (data) =>
-  await prisma.notification.createMany({
-    data: data.map((d) => ({ ...d, type: 'MESSAGE' })),
-  })
 
 export const getNotificationsByReceiverId = async (userId, page) =>
   await prisma.notification.findMany({
@@ -87,7 +62,7 @@ export const acceptGroupInviteNotificationById = async (
 
 export const createEmergencyNotification = async ({ receivers, location }) =>
   await prisma.$transaction(async (tx) => [
-    await createHelpNotifications(receivers, tx),
+    await createNotifications(receivers, 'HELP', tx),
     await saveEmergencyLocation(location, tx),
   ])
 
@@ -110,6 +85,9 @@ export const buildMessageNotificationContent = (groupName) =>
 
 export const buildRemovedFromGroupNotificationContent = (groupName, username) =>
   `${username} removeu você do grupo '${groupName}'.`
+
+export const buildNewMessageNotificationContent = (groupName) =>
+  `'${groupName}' tem novas mensagens.`
 
 export const getTotalNotificationsByReceiverId = async (receiverId) =>
   await prisma.notification.count({ where: { receiverId } })

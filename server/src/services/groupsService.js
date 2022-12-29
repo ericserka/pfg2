@@ -2,8 +2,7 @@ import { prisma } from '../helpers/prisma.js'
 import {
   buildGroupInviteNotificationContent,
   buildRemovedFromGroupNotificationContent,
-  createInviteNotifications,
-  createRemovedFromGroupNotifications,
+  createNotifications,
 } from './notificationsService.js'
 import {
   getUsersForPushNotifications,
@@ -26,7 +25,7 @@ export const findGroupByIdWithMembersAndMessages = async (id, tx) =>
       members: true,
       messages: {
         include: {
-          sender: { select: { id: true, username: true, createdAt: true } },
+          sender: { select: { id: true, username: true } },
         },
       },
     },
@@ -45,7 +44,7 @@ export const findGroupsByUserId = (userId) =>
       members: true,
       messages: {
         include: {
-          sender: { select: { id: true, username: true, createdAt: true } },
+          sender: { select: { id: true, username: true } },
         },
       },
     },
@@ -119,13 +118,14 @@ export const createGroupService = async (
         },
       },
     })
-    const notifications = await createInviteNotifications(
+    const notifications = await createNotifications(
       membersToInviteIds.map((m) => ({
         receiverId: m,
         senderId: owner.id,
         groupId: group.id,
         content: buildGroupInviteNotificationContent(groupName, owner.username),
       })),
+      'INVITE',
       tx
     )
     await ifNoGroupsSetNewAsDefault(owner.id, group.id, tx)
@@ -209,12 +209,13 @@ export const deleteGroup = async (groupId, userId, username) =>
     const group = await findGroupByIdWithMembers(groupId)
     const receivers = group.members.filter((u) => u.id !== userId)
     await tx.group.delete({ where: { id: groupId } })
-    const notifications = await createRemovedFromGroupNotifications(
+    const notifications = await createNotifications(
       receivers.map((r) => ({
         receiverId: r.id,
         senderId: userId,
         content: buildRemovedFromGroupNotificationContent(group.name, username),
       })),
+      'GROUP_REMOVED',
       tx
     )
     return [receivers, notifications]
@@ -240,7 +241,7 @@ export const removeMembemberFromGroup = async (
   await prisma.$transaction(async (tx) => {
     await unlinkUserFromGroup(userId, groupId, tx)
     const receivers = await getUsersForPushNotifications([userId], tx)
-    const notifications = await createRemovedFromGroupNotifications(
+    const notifications = await createNotifications(
       [
         {
           receiverId: userId,
@@ -251,6 +252,7 @@ export const removeMembemberFromGroup = async (
           ),
         },
       ],
+      'GROUP_REMOVED',
       tx
     )
     return [receivers, notifications]

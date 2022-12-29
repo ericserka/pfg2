@@ -41,7 +41,7 @@ export const Chat = () => {
     actions: { emitEventSendMessage },
   } = useWebSocket()
 
-  const canSendMessage = current?.members?.length
+  const canSendMessage = current?.members?.length > 1
 
   useFocusEffect(
     useCallback(() => {
@@ -80,8 +80,8 @@ export const Chat = () => {
   const handleEmitMessage = (content) => {
     const message = {
       content,
-      userId: session.id,
-      groupId: current?.id,
+      user: { id: session.id, username: session.username },
+      group: { id: current?.id, name: current?.name },
     }
 
     emitEventSendMessage(message, (_, returned) => {
