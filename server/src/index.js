@@ -37,7 +37,7 @@ app.use(errorMiddleware)
 
 const server = http.createServer(app)
 
-const io = new Server(server)
+const io = new Server(server, { maxHttpBufferSize: 5e7 })
 
 io.on('connection', (socket) => SocketHandler(socket, io))
 
