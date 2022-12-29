@@ -7,6 +7,7 @@ import { api } from '../../services/api/axios'
 import { useUserAuth } from '../auth/provider'
 import { useWebSocket } from '../websocket/provider'
 import { userGroupsReducer } from './reducer'
+import { log } from '../../helpers/logger'
 
 const userGroupInitialState = {
   groups: [],
@@ -38,6 +39,10 @@ export const UserGroupProvider = ({ children }) => {
       emitEventRemoveGroupMember,
       emitEventDeleteGroup,
       emitEventLeaveGroup,
+      listenToUserJoinedGroup,
+      unlistenToUserJoinedGroup,
+      listenToUserLeftGroup,
+      unlistenToUserLeftGroup,
     },
   } = useWebSocket()
 
@@ -45,15 +50,34 @@ export const UserGroupProvider = ({ children }) => {
     getGroups()
   }, [])
 
-  // useEffect(() => {
-  //   state.current &&
-  //     console.log(
-  //       state.current.messages.map((m) => ({
-  //         ...m,
-  //         content: m.content.substring(0, 100),
-  //       }))
-  //     )
-  // }, [state.current])
+  useEffect(() => {
+    listenToUserJoinedGroup(({ user, groupId }) => {
+      log.info(`[${session.username}] User ${user.username} joined group ${groupId}`)
+      dispatch({
+        type: 'ON_ADD_MEMBER',
+        payload: {
+          user,
+          groupId,
+        },
+      })
+    })
+
+    listenToUserLeftGroup(({ userId, groupId }) => {
+      log.debug(`[${session.username}] User ${userId} left group ${groupId}`)
+      dispatch({
+        type: 'ON_REMOVE_MEMBER',
+        payload: {
+          userId,
+          groupId,
+        }
+      })
+    })
+
+    return () => {
+      unlistenToUserJoinedGroup()	
+      unlistenToUserLeftGroup()
+    }
+  }, [])
 
   const getGroups = async () => {
     toggleQueryLoading(dispatch)
@@ -230,10 +254,20 @@ export const UserGroupProvider = ({ children }) => {
   }
 
   const onRemovedFromGroup = (payload) => {
-    const groupId = payload.groupId
-    state.current.id === groupId &&
-      changeSelectedGroup(state.groups.filter((g) => g.id !== groupId)[0].id)
+    removeCurrentAndUpdateToFirstGroupIfPossible(payload.groupId)
     dispatch({ type: 'ON_REMOVED_FROM_GROUP', payload })
+  }
+
+  const removeCurrentAndUpdateToFirstGroupIfPossible = (groupId) => {
+    if (state.current?.id === groupId) {
+      const newGroups = state.groups.filter((g) => g.id !== groupId)
+      newGroups.length
+        ? changeSelectedGroup(newGroups[0].id, newGroups)
+        : dispatch({
+            type: 'UPDATE_CURRENT_GROUP',
+            payload: undefined,
+          })
+    }
   }
 
   return (
@@ -254,6 +288,7 @@ export const UserGroupProvider = ({ children }) => {
           removeGroup,
           leaveGroup,
           onRemovedFromGroup,
+          removeCurrentAndUpdateToFirstGroupIfPossible,
         },
       }}
     >

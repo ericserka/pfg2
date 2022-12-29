@@ -7,6 +7,7 @@ import {
 import {
   getUsersForPushNotifications,
   ifNoGroupsSetNewAsDefault,
+  sanitizeUserForResponse,
 } from './usersService.js'
 
 export const findGroupById = async (id) =>
@@ -193,15 +194,7 @@ export const shareLocationWithAllService = async (userId) =>
 
 export const sanitizeGroupForResponse = (group) => ({
   ...group,
-  members: group.members.map((member) => ({
-    ...member,
-    position: {
-      lat: member.lastKnownLatitude,
-      lng: member.lastKnownLongitude,
-    },
-    lastKnownLatitude: undefined,
-    lastKnownLongitude: undefined,
-  })),
+  members: group.members.map(sanitizeUserForResponse),
 })
 
 export const deleteGroup = async (groupId, userId, username) =>

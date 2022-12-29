@@ -132,6 +132,22 @@ export const WebSocketProvider = ({ children }) => {
     socket.emit('leave-group', payload, cb)
   }
 
+  const listenToUserJoinedGroup = (cb) => {
+    socket.on('user-joined-group', cb)
+  }
+
+  const unlistenToUserJoinedGroup = () => {
+    socket.off('user-joined-group')
+  }
+
+  const listenToUserLeftGroup = (cb) => {
+    socket.on('user-left-group', cb)
+  }
+
+  const unlistenToUserLeftGroup = () => {
+    socket.off('user-left-group')
+  }
+
   return (
     <WebSocketContext.Provider
       value={{
@@ -155,6 +171,10 @@ export const WebSocketProvider = ({ children }) => {
           emitEventAskHelp,
           emitEventLeaveGroup,
           emitEventDeleteGroup,
+          listenToUserJoinedGroup,
+          unlistenToUserJoinedGroup,
+          listenToUserLeftGroup,
+          unlistenToUserLeftGroup,
         },
       }}
     >

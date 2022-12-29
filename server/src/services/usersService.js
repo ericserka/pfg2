@@ -1,4 +1,3 @@
-import { dayjs } from '../helpers/dayjs.js'
 import { prisma } from '../helpers/prisma.js'
 
 export const findUserByEmailAddress = async (email, selectAll = true) =>
@@ -77,4 +76,14 @@ export const updateUserService = async (id, data, tx) =>
     where: { id },
     data,
     select: { id: true },
+  })
+
+export const sanitizeUserForResponse = (user) => ({
+    ...user,
+    position: {
+      lat: user.lastKnownLatitude,
+      lng: user.lastKnownLongitude,
+    },
+    lastKnownLatitude: undefined,
+    lastKnownLongitude: undefined,
   })

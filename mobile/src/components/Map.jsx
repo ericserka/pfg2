@@ -85,6 +85,12 @@ export const Map = () => {
         },
         (location) => {
           const { latitude, longitude } = location.coords
+          setLocation((defaultLocation) => ({
+            ...defaultLocation,
+            latitude,
+            longitude,
+            updatedAt: location.timestamp,
+          }))
           log.info(`[${session.username}] sent location-changed`)
           emitEventLocationChanged({
             userId: session.id,
@@ -123,7 +129,16 @@ export const Map = () => {
 
   const markers =
     mode === 'group'
-      ? (current?.members ?? []).map((u) => (
+      ? (current?.members ?? [
+        {
+          ...session,
+          position: {
+            lat: location.latitude,
+            lng: location.longitude,
+          },
+          lastKnownLocationUpdatedAt: location.updatedAt,
+        }
+      ]).map((u) => (
           <Marker
             key={`marker_${u.id}_${u.position.lat}_${u.position.lng}`}
             identifier={`${u.id}`}

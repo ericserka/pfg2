@@ -55,7 +55,7 @@ export const acceptGroupInviteNotificationById = async (
     await linkUserToGroup(userId, groupId, tx)
     await ifNoGroupsSetNewAsDefault(userId, groupId, tx)
     return await Promise.all([
-      findGroupByIdWithMembersAndMessages(groupId),
+      findGroupByIdWithMembersAndMessages(groupId, tx),
       findGroupById(groupId),
     ])
   })

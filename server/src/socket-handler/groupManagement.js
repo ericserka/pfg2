@@ -15,7 +15,7 @@ import {
   createNotifications,
   rejectGroupInviteNotificationById,
 } from '../services/notificationsService.js'
-import { getUsersForPushNotifications } from '../services/usersService.js'
+import { getUsersForPushNotifications, findUserById, sanitizeUserForResponse } from '../services/usersService.js'
 
 const onRemoveGroupMember = async (
   socket,
@@ -60,6 +60,10 @@ const onRemoveGroupMember = async (
       success: true,
       message: 'Membro removido com sucesso.',
     })
+    socket.broadcast.emit('user-left-group', {
+      userId,
+      groupId,
+    })
   } catch (error) {
     cb(handleSocketIOError(error, 'Usuário ou grupo não encontrado.'))
   }
@@ -78,10 +82,12 @@ const onRejectGroupInvite = async ({ notificationId }, cb) => {
   }
 }
 
-const onAcceptGroupInvite = async ({ groupId, notificationId, userId }, cb) => {
+const onAcceptGroupInvite = async (socket, { groupId, notificationId, userId }, cb) => {
   try {
-    const [groupWithMembersAndMessages, group] =
-      await acceptGroupInviteNotificationById(notificationId, groupId, userId)
+    const [[groupWithMembersAndMessages, group], user] = await Promise.all([
+      acceptGroupInviteNotificationById(notificationId, groupId, userId),
+      findUserById(userId)
+    ])
     log.info(
       `User ${userId} accepted group invite ${notificationId} for group ${groupId}`
     )
@@ -94,6 +100,10 @@ const onAcceptGroupInvite = async ({ groupId, notificationId, userId }, cb) => {
           groupWithMembersAndMessages
         ),
       },
+    })
+    socket.broadcast.emit('user-joined-group', {
+      user: sanitizeUserForResponse(user),
+      groupId,
     })
   } catch (error) {
     cb(handleSocketIOError(error, 'Grupo ou notificação não encontrado.'))
@@ -236,10 +246,14 @@ const onDeleteGroup = async (
   }
 }
 
-const onLeaveGroup = async ({ groupId, userId }, cb) => {
+const onLeaveGroup = async (socket, { groupId, userId }, cb) => {
   await unlinkUserFromGroup(userId, groupId)
   try {
     log.info(`User ${userId} left group ${groupId}`)
+    socket.broadcast.emit('user-left-group', {
+      userId,
+      groupId,
+    })
     cb({
       success: true,
       message: 'Saiu do grupo com sucesso.',
@@ -253,12 +267,12 @@ export const groupManagementEventListeners = (socket) => {
   socket.on('remove-group-member', (args, cb) =>
     onRemoveGroupMember(socket, args, cb)
   )
-  socket.on('accept-group-invite', onAcceptGroupInvite)
+  socket.on('accept-group-invite', (args, cb) => onAcceptGroupInvite(socket, args, cb))
   socket.on('reject-group-invite', onRejectGroupInvite)
   socket.on('add-members-to-group', (args, cb) =>
     onAddMembersToGroup(socket, args, cb)
   )
   socket.on('create-group', (args, cb) => onCreateGroup(socket, args, cb))
   socket.on('delete-group', (args, cb) => onDeleteGroup(socket, args, cb))
-  socket.on('leave-group', onLeaveGroup)
+  socket.on('leave-group', (args, cb) => onLeaveGroup(socket, args, cb))
 }

@@ -101,20 +101,37 @@ export const userGroupsReducer = (state, action) => {
           state.groups.find((g) => g.id === action.payload.groupId),
         ],
       }
-    case 'ON_REMOVE_MEMBER':
+    case 'ON_REMOVE_MEMBER': {
+      const group = state.groups.find((group) => group.id === action.payload.groupId)
+      if (!group) return state
+
+      const current = state.current?.id === action.payload.groupId
+        ? {
+          ...state.current,
+          members: state.current.members.filter(
+            (m) => m.id !== action.payload.userId
+          ),
+        }
+        : state.current
       return {
         ...state,
-        groups: state.groups.map((g) => {
-          return g.id === action.payload.groupId
-            ? {
-                ...g,
-                members: g.members.filter(
-                  (m) => m.id !== action.payload.userId
-                ),
-              }
-            : g
-        }),
+        current,
+        groups: state.groups.map((g) => (g.id === current.id ? current : g)),
       }
+    }
+    case 'ON_ADD_MEMBER': {
+      const current = state.current?.id === action.payload.groupId
+        ? {
+          ...state.current,
+          members: [...state.current.members, action.payload.user],
+        }
+        : state.current
+      return {
+        ...state,
+        current,
+        groups: state.groups.map((g) => (g.id === current.id ? current : g)),
+      }
+    }
     case 'ON_REMOVED_FROM_GROUP':
       return {
         ...state,
