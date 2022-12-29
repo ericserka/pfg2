@@ -1,13 +1,13 @@
-import { Box, Button, Pressable, StatusBar, Text } from 'native-base'
+import { Button, StatusBar, Text } from 'native-base'
 import { useState } from 'react'
-import { Animated, Dimensions } from 'react-native'
-import { SceneMap, TabView } from 'react-native-tab-view'
+import { Dimensions } from 'react-native'
+import { SceneMap, TabBar, TabView } from 'react-native-tab-view'
 import { ChangePassword } from '../components/config/ChangePassword'
 import { EditData } from '../components/config/EditData'
 import { GroupsList } from '../components/config/GroupsList'
 import { LocationSharing } from '../components/config/LocationSharing'
 import { ScreenHeader } from '../components/ScreenHeader'
-import { COLOR_GRAY_200 } from '../constants'
+import { COLOR_GRAY_200, COLOR_PRIMARY_600 } from '../constants'
 import { useUserAuth } from '../store/auth/provider'
 
 export const Config = ({ route }) => {
@@ -43,34 +43,20 @@ export const Config = ({ route }) => {
     fourth: GroupsList,
   })
 
-  const renderTabBar = ({ navigationState }) => (
-    <Box flexDirection="row">
-      {navigationState.routes.map((route, i) => (
-        <Box
-          key={i}
-          borderBottomWidth="3"
-          borderColor={index === i ? 'primary.600' : 'coolGray.200'}
-          flex={1}
-          alignItems="center"
-          p="3"
-          cursor="pointer"
-        >
-          <Pressable
-            onPress={() => {
-              setIndex(i)
-            }}
-          >
-            <Animated.Text
-              style={{
-                color: index === i ? '#000' : '#1f2937',
-              }}
-            >
-              {route.title}
-            </Animated.Text>
-          </Pressable>
-        </Box>
-      ))}
-    </Box>
+  const renderTabBar = props => (
+    <TabBar
+      {...props}
+      indicatorStyle={{ backgroundColor: COLOR_PRIMARY_600 }}
+      activeColor={COLOR_PRIMARY_600}
+      inactiveColor="#1f2937"
+      style={{ backgroundColor: 'transparent' }}
+      tabStyle={{ padding: 5 }}
+      labelStyle={{
+        fontSize: 14,
+        textAlign: 'center',
+        textTransform: 'capitalize'
+      }}
+    />
   )
 
   return (

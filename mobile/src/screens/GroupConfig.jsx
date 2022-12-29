@@ -35,6 +35,7 @@ export const GroupConfig = ({ route }) => {
       removeGroup,
       leaveGroup,
       changeSelectedGroup,
+      removeCurrentAndUpdateToFirstGroupIfPossible,
     },
   } = useUserGroup()
   const {
@@ -92,15 +93,13 @@ export const GroupConfig = ({ route }) => {
         { group: { id: group?.id, name: group?.name } },
         toast,
         () => {
-          current.id === groupId &&
-            changeSelectedGroup(groups.filter((g) => g.id !== groupId)[0].id)
+          removeCurrentAndUpdateToFirstGroupIfPossible(groupId)
           navigateToConfig()
         }
       )
     } else if (exitGroup) {
       leaveGroup(groupId, toast, () => {
-        current.id === groupId &&
-          changeSelectedGroup(groups.filter((g) => g.id !== groupId)[0].id)
+        removeCurrentAndUpdateToFirstGroupIfPossible(groupId)
         navigateToConfig()
       })
     } else {
