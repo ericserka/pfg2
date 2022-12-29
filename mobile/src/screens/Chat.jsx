@@ -13,9 +13,9 @@ import {
   VStack,
 } from 'native-base'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Keyboard } from 'react-native'
 import ImageModal from 'react-native-image-modal'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { CenterLoading } from '../components/loading/CenterLoading'
 import { COLOR_PRIMARY_600 } from '../constants'
 import { scrollToBottom } from '../helpers/actions/scrollToBottom'
 import { dayjs } from '../helpers/dayjs'
@@ -28,6 +28,7 @@ export const Chat = () => {
   const { goBack } = useNavigation()
   const messageListRef = useRef(null)
   const [text, setText] = useState('')
+  const [inputPb, setInputPb] = useState(undefined)
 
   const {
     state: { current },
@@ -55,6 +56,26 @@ export const Chat = () => {
       scrollToBottom(messageListRef, 0)
     }
   }, [current?.messages])
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setInputPb('12')
+      }
+    )
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setInputPb(undefined)
+      }
+    )
+
+    return () => {
+      keyboardDidHideListener.remove()
+      keyboardDidShowListener.remove()
+    }
+  }, [])
 
   const handleEmitMessage = (content) => {
     const message = {
@@ -162,6 +183,7 @@ export const Chat = () => {
           lg: 'auto',
         }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        pb={inputPb}
       >
         <Flex
           px="3"
@@ -199,19 +221,17 @@ export const Chat = () => {
           )}
           renderItem={renderItem}
         />
-        {
-          current?.messages && (
-            <IconButton
-              position="absolute"
-              bottom="24"
-              right="5"
-              rounded="full"
-              bg={COLOR_PRIMARY_600}
-              icon={<FontAwesome name="arrow-down" size={25} color="white" />}
-              onPress={() => scrollToBottom(messageListRef, 0)}
-            />
-          )
-        }
+        {current?.messages && (
+          <IconButton
+            position="absolute"
+            bottom="24"
+            right="5"
+            rounded="full"
+            bg={COLOR_PRIMARY_600}
+            icon={<FontAwesome name="arrow-down" size={25} color="white" />}
+            onPress={() => scrollToBottom(messageListRef, 0)}
+          />
+        )}
         <Flex
           direction="row"
           justify="space-evenly"
