@@ -7,5 +7,5 @@ export const StackNavigator = () => {
     state: { session },
   } = useUserAuth()
 
-  return session ? <LoggedTabs /> : <AuthStack />
+  return session?.id ? <LoggedTabs /> : <AuthStack />
 }
