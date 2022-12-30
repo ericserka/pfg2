@@ -91,7 +91,8 @@ export const NotificationsProvider = ({ children }) => {
   const markUnreadNotificationsAsRead = async () => {
     const unseenNotifications = state.notifications.filter((n) => !n.seen)
     log.debug(
-      `[${session.username}] ${unseenNotifications.length} unseen notifications`, unseenNotifications
+      `[${session.username}] ${unseenNotifications.length} unseen notifications`,
+      unseenNotifications
     )
     if (unseenNotifications.length) {
       try {

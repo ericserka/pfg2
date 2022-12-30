@@ -3,11 +3,11 @@ import { showAlertError } from '../../helpers/actions/showAlertError'
 import { toggleMutationLoading } from '../../helpers/actions/toggleMutationLoading'
 import { toggleQueryLoading } from '../../helpers/actions/toggleQueryLoading'
 import { handleSocketResponse } from '../../helpers/feedback/handleSocketResponse'
+import { log } from '../../helpers/logger'
 import { api } from '../../services/api/axios'
 import { useUserAuth } from '../auth/provider'
 import { useWebSocket } from '../websocket/provider'
 import { userGroupsReducer } from './reducer'
-import { log } from '../../helpers/logger'
 
 const userGroupInitialState = {
   groups: [],
@@ -52,7 +52,9 @@ export const UserGroupProvider = ({ children }) => {
 
   useEffect(() => {
     listenToUserJoinedGroup(({ user, groupId }) => {
-      log.info(`[${session.username}] User ${user.username} joined group ${groupId}`)
+      log.info(
+        `[${session.username}] User ${user.username} joined group ${groupId}`
+      )
       dispatch({
         type: 'ON_ADD_MEMBER',
         payload: {
@@ -69,12 +71,12 @@ export const UserGroupProvider = ({ children }) => {
         payload: {
           userId,
           groupId,
-        }
+        },
       })
     })
 
     return () => {
-      unlistenToUserJoinedGroup()	
+      unlistenToUserJoinedGroup()
       unlistenToUserLeftGroup()
     }
   }, [])

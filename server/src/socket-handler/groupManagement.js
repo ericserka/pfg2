@@ -15,7 +15,11 @@ import {
   createNotifications,
   rejectGroupInviteNotificationById,
 } from '../services/notificationsService.js'
-import { getUsersForPushNotifications, findUserById, sanitizeUserForResponse } from '../services/usersService.js'
+import {
+  findUserById,
+  getUsersForPushNotifications,
+  sanitizeUserForResponse,
+} from '../services/usersService.js'
 
 const onRemoveGroupMember = async (
   socket,
@@ -82,11 +86,15 @@ const onRejectGroupInvite = async ({ notificationId }, cb) => {
   }
 }
 
-const onAcceptGroupInvite = async (socket, { groupId, notificationId, userId }, cb) => {
+const onAcceptGroupInvite = async (
+  socket,
+  { groupId, notificationId, userId },
+  cb
+) => {
   try {
     const [[groupWithMembersAndMessages, group], user] = await Promise.all([
       acceptGroupInviteNotificationById(notificationId, groupId, userId),
-      findUserById(userId)
+      findUserById(userId),
     ])
     log.info(
       `User ${userId} accepted group invite ${notificationId} for group ${groupId}`
@@ -267,7 +275,9 @@ export const groupManagementEventListeners = (socket) => {
   socket.on('remove-group-member', (args, cb) =>
     onRemoveGroupMember(socket, args, cb)
   )
-  socket.on('accept-group-invite', (args, cb) => onAcceptGroupInvite(socket, args, cb))
+  socket.on('accept-group-invite', (args, cb) =>
+    onAcceptGroupInvite(socket, args, cb)
+  )
   socket.on('reject-group-invite', onRejectGroupInvite)
   socket.on('add-members-to-group', (args, cb) =>
     onAddMembersToGroup(socket, args, cb)

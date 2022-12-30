@@ -79,11 +79,11 @@ export const updateUserService = async (id, data, tx) =>
   })
 
 export const sanitizeUserForResponse = (user) => ({
-    ...user,
-    position: {
-      lat: user.lastKnownLatitude,
-      lng: user.lastKnownLongitude,
-    },
-    lastKnownLatitude: undefined,
-    lastKnownLongitude: undefined,
-  })
+  ...user,
+  position: {
+    lat: user.lastKnownLatitude,
+    lng: user.lastKnownLongitude,
+  },
+  lastKnownLatitude: undefined,
+  lastKnownLongitude: undefined,
+})

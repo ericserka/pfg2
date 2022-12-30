@@ -43,7 +43,7 @@ export const Config = ({ route }) => {
     fourth: GroupsList,
   })
 
-  const renderTabBar = props => (
+  const renderTabBar = (props) => (
     <TabBar
       {...props}
       indicatorStyle={{ backgroundColor: COLOR_PRIMARY_600 }}
@@ -54,7 +54,7 @@ export const Config = ({ route }) => {
       labelStyle={{
         fontSize: 14,
         textAlign: 'center',
-        textTransform: 'capitalize'
+        textTransform: 'none',
       }}
     />
   )
