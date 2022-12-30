@@ -224,7 +224,6 @@ export const Map = () => {
         clusterColor="#FF1111"
         preserveClusterPressBehavior={true}
       >
-        <UrlTile urlTemplate="https://tile.openstreetmap.org/{z}/{x}/{y}.png" />
         {markers}
         {shapes}
       </MapView>
