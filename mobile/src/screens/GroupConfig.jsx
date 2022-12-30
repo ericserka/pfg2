@@ -143,7 +143,7 @@ export const GroupConfig = ({ route }) => {
       }
     >
       <Flex p="3" direction="row" align="center" justify="space-between">
-        <Heading size="sm">{`Membros do grupo '${group?.name}'`}</Heading>
+        <Heading size="sm">{`Membros '${group?.name}'`}</Heading>
         {userOwnsTheGroup ? (
           <Link
             _text={{

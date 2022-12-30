@@ -26,7 +26,6 @@ import { useUserAuth } from '../store/auth/provider'
 import { useUserGroup } from '../store/groups/provider'
 import { useUserLocation } from '../store/location/provider'
 import { useWebSocket } from '../store/websocket/provider'
-import { LoadingInterceptor } from './loading/LoadingInterceptor'
 
 export const Map = () => {
   const mapRef = useRef(null)
@@ -129,16 +128,18 @@ export const Map = () => {
 
   const markers =
     mode === 'group'
-      ? (current?.members ?? [
-        {
-          ...session,
-          position: {
-            lat: location.latitude,
-            lng: location.longitude,
-          },
-          lastKnownLocationUpdatedAt: location.updatedAt,
-        }
-      ]).map((u) => (
+      ? (
+          current?.members ?? [
+            {
+              ...session,
+              position: {
+                lat: location.latitude,
+                lng: location.longitude,
+              },
+              lastKnownLocationUpdatedAt: location.updatedAt,
+            },
+          ]
+        ).map((u) => (
           <Marker
             key={`marker_${u.id}_${u.position.lat}_${u.position.lng}`}
             identifier={`${u.id}`}
