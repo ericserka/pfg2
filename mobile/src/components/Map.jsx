@@ -53,6 +53,27 @@ export const Map = () => {
     state: { markers: emergencyMarkers },
   } = useUserLocation()
 
+  const membersToRender = current?.members ?? [
+    {
+      ...session,
+      position: {
+        lat: location.latitude,
+        lng: location.longitude,
+      },
+      lastKnownLocationUpdatedAt: location.updatedAt,
+    },
+  ]
+
+  const [trackView, setTrackView] = useState(
+    membersToRender.reduce(
+      (acc, _cur, idx) => ({
+        ...acc,
+        [idx]: true,
+      }),
+      {}
+    )
+  )
+
   const setCurrentLocation = async () => {
     const {
       coords: { latitude, longitude },
@@ -122,46 +143,50 @@ export const Map = () => {
 
   const markers =
     mode === 'group'
-      ? (
-          current?.members ?? [
-            {
-              ...session,
-              position: {
-                lat: location.latitude,
-                lng: location.longitude,
-              },
-              lastKnownLocationUpdatedAt: location.updatedAt,
-            },
-          ]
-        ).map((u) => (
-          <Marker
-            key={`marker_${u.id}_${u.position.lat}_${u.position.lng}`}
-            identifier={`${u.id}`}
-            title={u.username}
-            description={`${dayjs(
-              u?.lastKnownLocationUpdatedAt ?? undefined
-            ).format('lll')}`}
-            coordinate={{
-              latitude: u.position.lat,
-              longitude: u.position.lng,
-            }}
-            tracksInfoWindowChanges={false}
-            tracksViewChanges={false}
-          >
-            <Center>
-              <Image
-                source={{
-                  uri: u.profilePic,
-                }}
-                w="12"
-                h="12"
-                rounded="full"
-                alt={`icon for user ${u.id}`}
-              />
-              <Text fontWeight="semibold">{u.username}</Text>
-            </Center>
-          </Marker>
-        ))
+      ? membersToRender.map((u, i) => {
+          const isTheAuthenticatedUser = u.id === session.id
+          return (
+            <Marker
+              key={`marker_${u.id}_${u.position.lat}_${u.position.lng}`}
+              identifier={`${u.id}`}
+              title={u.username}
+              description={`${dayjs(
+                u?.lastKnownLocationUpdatedAt ?? undefined
+              ).format('lll')}`}
+              coordinate={{
+                latitude: u.position.lat,
+                longitude: u.position.lng,
+              }}
+              tracksInfoWindowChanges={false}
+              tracksViewChanges={trackView[i]}
+            >
+              <Center>
+                <Image
+                  onLoadEnd={() =>
+                    setTrackView((prevState) => ({ ...prevState, [i]: false }))
+                  }
+                  source={{
+                    uri: u.profilePic,
+                  }}
+                  w="12"
+                  h="12"
+                  rounded="full"
+                  borderWidth={isTheAuthenticatedUser ? 3 : undefined}
+                  borderColor={
+                    isTheAuthenticatedUser ? 'primary.600' : undefined
+                  }
+                  alt={`icon for user ${u.id}`}
+                />
+                <Text
+                  color={isTheAuthenticatedUser ? 'primary.600' : undefined}
+                  fontWeight="semibold"
+                >
+                  {`${isTheAuthenticatedUser ? 'Eu' : u.username}`}
+                </Text>
+              </Center>
+            </Marker>
+          )
+        })
       : emergencyMarkers.map((loc) => (
           <Marker
             key={`marker_${loc.id}_${loc.latitude}_${loc.longitude}`}
