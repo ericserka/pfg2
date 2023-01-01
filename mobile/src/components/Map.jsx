@@ -8,13 +8,7 @@ import { Center, IconButton, Image, Text } from 'native-base'
 import { useEffect, useRef, useState } from 'react'
 import { Platform } from 'react-native'
 import MapView from 'react-native-map-clustering'
-import {
-  Circle,
-  MAP_TYPES,
-  Marker,
-  PROVIDER_DEFAULT,
-  UrlTile,
-} from 'react-native-maps'
+import { Circle, MAP_TYPES, Marker, PROVIDER_DEFAULT } from 'react-native-maps'
 import {
   COLOR_PRIMARY_600,
   LATITUDE_DELTA,
