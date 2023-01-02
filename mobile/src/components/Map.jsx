@@ -64,15 +64,19 @@ export const Map = () => {
     },
   ]
 
-  const [trackView, setTrackView] = useState(
-    membersToRender.reduce(
-      (acc, _cur, idx) => ({
-        ...acc,
-        [idx]: true,
-      }),
-      {}
+  const [trackView, setTrackView] = useState({})
+
+  useEffect(() => {
+    setTrackView(
+      membersToRender.reduce(
+        (acc, _cur, idx) => ({
+          ...acc,
+          [idx]: true,
+        }),
+        {}
+      )
     )
-  )
+  }, [membersToRender])
 
   const setCurrentLocation = async () => {
     const {
@@ -145,11 +149,12 @@ export const Map = () => {
     mode === 'group'
       ? membersToRender.map((u, i) => {
           const isTheAuthenticatedUser = u.id === session.id
+          const username = isTheAuthenticatedUser ? 'Eu' : u.username
           return (
             <Marker
               key={`marker_${u.id}_${u.position.lat}_${u.position.lng}`}
               identifier={`${u.id}`}
-              title={u.username}
+              title={username}
               description={`${dayjs(
                 u?.lastKnownLocationUpdatedAt ?? undefined
               ).format('lll')}`}
@@ -181,7 +186,7 @@ export const Map = () => {
                   color={isTheAuthenticatedUser ? 'primary.600' : undefined}
                   fontWeight="semibold"
                 >
-                  {`${isTheAuthenticatedUser ? 'Eu' : u.username}`}
+                  {username}
                 </Text>
               </Center>
             </Marker>
@@ -250,7 +255,7 @@ export const Map = () => {
         onPress={center}
         position="absolute"
         right="3"
-        bottom="3"
+        bottom="12"
         rounded="full"
         icon={
           <FontAwesome name="crosshairs" size={30} color={COLOR_PRIMARY_600} />
