@@ -94,8 +94,11 @@ export const InviteUsersForm = ({ route }) => {
       toggleToast(toast, 'Não é possível convidar você mesmo.', 'warning')
     } else {
       const searchedUser = await findUserByUsername(sanitizedSearch)
-      searchedUser &&
-        setMembersToInvite((prevState) => [...prevState, searchedUser])
+      if (searchedUser) {
+        searchedUser.groups.some((g) => g.id === group.id)
+          ? toggleToast(toast, 'Usuário já é membro do grupo.', 'warning')
+          : setMembersToInvite((prevState) => [...prevState, searchedUser])
+      }
     }
     setSearchTerm('')
   }

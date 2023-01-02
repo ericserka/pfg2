@@ -18,7 +18,7 @@ export const findUserById = async (id) =>
 export const findUserByUsername = async (username) =>
   await prisma.user.findUniqueOrThrow({
     where: { username },
-    select: { id: true, username: true },
+    select: { id: true, username: true, groups: { select: { id: true } } },
   })
 
 export const createUser = async (data) =>
