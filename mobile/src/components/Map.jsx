@@ -53,6 +53,8 @@ export const Map = () => {
     state: { markers: emergencyMarkers },
   } = useUserLocation()
 
+  const [followingUser, setFollowingUser] = useState(session.id)
+
   const membersToRender = current?.members ?? [
     {
       ...session,
@@ -103,12 +105,14 @@ export const Map = () => {
         },
         (location) => {
           const { latitude, longitude } = location.coords
-          setLocation((defaultLocation) => ({
-            ...defaultLocation,
-            latitude,
-            longitude,
-            updatedAt: location.timestamp,
-          }))
+          if (followingUser === session.id) {
+            setLocation((defaultLocation) => ({
+              ...defaultLocation,
+              latitude,
+              longitude,
+              updatedAt: location.timestamp,
+            }))
+          }
           log.info(`[${session.username}] sent location-changed`)
           emitEventLocationChanged({
             userId: session.id,
@@ -134,6 +138,14 @@ export const Map = () => {
     listenToLocationChanged((message) => {
       log.info(`[${session.username}] received location update event`, message)
       receiveLocationUpdate(message)
+      if (followingUser === message.userId) {
+        setLocation((defaultLocation) => ({
+          ...defaultLocation,
+          latitude: message.position.latitude,
+          longitude: message.position.longitude,
+          updatedAt: message.timestamp,
+        }))
+      }
     })
 
     return () => {
@@ -145,14 +157,23 @@ export const Map = () => {
     mapRef?.current?.animateToRegion(await getUserPosition(), 1500)
   }
 
+  const markersRefs = useRef([])
+
   const markers =
     mode === 'group'
       ? membersToRender.map((u, i) => {
           const isTheAuthenticatedUser = u.id === session.id
           const username = isTheAuthenticatedUser ? 'Eu' : u.username
+          const isBeingFollowed = followingUser === u.id && followingUser !== session.id
+
+          if (isBeingFollowed) {
+            markersRefs.current[i]?.showCallout()
+          }
+
           return (
             <Marker
               key={`marker_${u.id}_${u.position.lat}_${u.position.lng}`}
+              ref={el => markersRefs.current[i] = el}
               identifier={`${u.id}`}
               title={username}
               description={`${dayjs(
@@ -164,6 +185,9 @@ export const Map = () => {
               }}
               tracksInfoWindowChanges={false}
               tracksViewChanges={trackView[i]}
+              pointerEvents="auto"
+              onSelect={() => u.id !== session.id && setFollowingUser(u.id)}
+              onDeselect={() => setFollowingUser(session.id)}
             >
               <Center>
                 <Image
@@ -173,12 +197,12 @@ export const Map = () => {
                   source={{
                     uri: u.profilePic,
                   }}
-                  w="12"
-                  h="12"
+                  w={isBeingFollowed ? "16" : "12"}
+                  h={isBeingFollowed ? "16" : "12"}
                   rounded="full"
-                  borderWidth={isTheAuthenticatedUser ? 3 : undefined}
+                  borderWidth={isTheAuthenticatedUser || isBeingFollowed ? 3 : undefined}
                   borderColor={
-                    isTheAuthenticatedUser ? 'primary.600' : undefined
+                    isTheAuthenticatedUser ? 'primary.600' : isBeingFollowed ? 'green.600' : undefined
                   }
                   alt={`icon for user ${u.id}`}
                 />
@@ -221,6 +245,10 @@ export const Map = () => {
           />
         ))
 
+  useEffect(() => {
+    markersRefs.current = markersRefs.current.slice(0, markers.length);
+  }, [markers])
+
   return (
     <>
       <MapView
@@ -238,7 +266,6 @@ export const Map = () => {
         showsMyLocationButton={false}
         showsScale={false}
         showsTraffic={false}
-        maxZoomLevel={Platform.OS === 'ios' ? 17.5 : 20}
         showsBuildings={false}
         showsIndoors={false}
         showsIndoorLevelPicker={false}
