@@ -1,4 +1,5 @@
 import {
+  Accuracy,
   getCurrentPositionAsync,
   getLastKnownPositionAsync,
   LocationAccuracy,
@@ -10,11 +11,6 @@ import { dayjs } from '../../helpers/dayjs'
 import { api } from '../../services/api/axios'
 import { useUsers } from '../user/provider'
 import { userLocationReducer } from './reducer'
-
-const locationObjectToLiteral = (loc) => ({
-  latitude: loc.coords.latitude,
-  longitude: loc.coords.longitude,
-})
 
 const userLocationInitialState = {
   markers: [],
@@ -54,16 +50,26 @@ export const UserLocationProvider = ({ children }) => {
     })
   }
 
+  const calculateRegion = (lat, long, accuracy = Accuracy.BestForNavigation) => {
+    const oneDegreeOfLatitudeInMeters = 111.32 * 1000;
+    const latDelta = accuracy / oneDegreeOfLatitudeInMeters;
+    const longDelta = accuracy / (oneDegreeOfLatitudeInMeters * Math.cos(lat * (Math.PI / 180)));
+  
+    return {
+      latitude: lat,
+      longitude: long,
+      latitudeDelta: latDelta,
+      longitudeDelta: longDelta,
+      accuracy,
+    }
+  }
+
   const getUserPosition = async () => {
     const loc = await getLastKnownPositionAsync()
 
     if (!loc) return null
 
-    return {
-      ...locationObjectToLiteral(loc),
-      latitudeDelta: 0.003,
-      longitudeDelta: 0.002,
-    }
+    return calculateRegion(loc.coords.latitude, loc.coords.longitude)
   }
 
   const getCurrentPosition = async () => {
@@ -73,11 +79,7 @@ export const UserLocationProvider = ({ children }) => {
 
     if (!loc) return null
 
-    return {
-      ...locationObjectToLiteral(loc),
-      latitudeDelta: 0.003,
-      longitudeDelta: 0.002,
-    }
+    return calculateRegion(loc.coords.latitude, loc.coords.longitude)
   }
 
   const getEmergencyMarkers = async () => {
@@ -105,6 +107,7 @@ export const UserLocationProvider = ({ children }) => {
           getCurrentPosition,
           getEmergencyMarkers,
           updateEmergencyMarkers,
+          calculateRegion,
         },
       }}
     >

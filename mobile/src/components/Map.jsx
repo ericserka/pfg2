@@ -6,7 +6,6 @@ import {
 } from 'expo-location'
 import { Center, IconButton, Image, Text } from 'native-base'
 import { useEffect, useRef, useState } from 'react'
-import { Platform } from 'react-native'
 import MapView from 'react-native-map-clustering'
 import { Circle, MAP_TYPES, Marker, PROVIDER_DEFAULT } from 'react-native-maps'
 import {
@@ -28,12 +27,13 @@ export const Map = () => {
     longitude: 0,
     latitudeDelta: LATITUDE_DELTA,
     longitudeDelta: LONGITUDE_DELTA,
+    accuracy: Accuracy.BestForNavigation,
     updatedAt: null,
   })
   const [mode, setMode] = useState('group')
 
   const {
-    actions: { getUserPosition },
+    actions: { getUserPosition, calculateRegion },
   } = useUserLocation()
   const {
     actions: {
@@ -86,11 +86,10 @@ export const Map = () => {
     } = await getCurrentPositionAsync({
       accuracy: Accuracy.BestForNavigation,
     })
-    setLocation((defaultLocation) => ({
-      ...defaultLocation,
-      latitude,
-      longitude,
-    }))
+    setLocation({
+      ...calculateRegion(latitude, longitude),
+      updatedAt: dayjs().toDate(),
+    })
   }
 
   useEffect(() => {
@@ -103,15 +102,12 @@ export const Map = () => {
           timeInterval: 1000,
           distanceInterval: 10,
         },
-        (location) => {
-          const { latitude, longitude } = location.coords
+        ({ coords: { latitude, longitude }, timestamp }) => {
           if (followingUser === session.id) {
-            setLocation((defaultLocation) => ({
-              ...defaultLocation,
-              latitude,
-              longitude,
-              updatedAt: location.timestamp,
-            }))
+            setLocation({
+              ...calculateRegion(latitude, longitude),
+              updatedAt: dayjs(timestamp).toDate()
+            })
           }
           log.info(`[${session.username}] sent location-changed`)
           emitEventLocationChanged({
@@ -138,13 +134,11 @@ export const Map = () => {
     listenToLocationChanged((message) => {
       log.info(`[${session.username}] received location update event`, message)
       receiveLocationUpdate(message)
-      if (followingUser === message.userId) {
-        setLocation((defaultLocation) => ({
-          ...defaultLocation,
-          latitude: message.position.latitude,
-          longitude: message.position.longitude,
-          updatedAt: message.timestamp,
-        }))
+      if (followingUser !== session.id && followingUser === message.userId) {
+        mapRef?.current?.animateToRegion(
+          calculateRegion(message.position.latitude, message.position.longitude),
+          1500
+        )
       }
     })
 
@@ -186,7 +180,15 @@ export const Map = () => {
               tracksInfoWindowChanges={false}
               tracksViewChanges={trackView[i]}
               pointerEvents="auto"
-              onSelect={() => u.id !== session.id && setFollowingUser(u.id)}
+              onSelect={() => {
+                if (u.id !== session.id) {
+                  mapRef?.current?.animateToRegion(
+                    calculateRegion(u.position.lat, u.position.lng),
+                    1500
+                  )
+                  setFollowingUser(u.id)
+                }
+              }}
               onDeselect={() => setFollowingUser(session.id)}
             >
               <Center>
@@ -271,6 +273,8 @@ export const Map = () => {
         showsIndoorLevelPicker={false}
         showsPointsOfInterest={false}
         zoomControlEnabled={false}
+        moveOnMarkerPress={false}
+        toolbarEnabled={false}
         clusteringEnabled={mode === 'riskAreas'}
         clusterColor="#FF1111"
         preserveClusterPressBehavior={true}
