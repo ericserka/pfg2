@@ -106,7 +106,7 @@ export const Map = () => {
           if (followingUser === session.id) {
             setLocation({
               ...calculateRegion(latitude, longitude),
-              updatedAt: dayjs(timestamp).toDate()
+              updatedAt: dayjs(timestamp).toDate(),
             })
           }
           log.info(`[${session.username}] sent location-changed`)
@@ -136,7 +136,10 @@ export const Map = () => {
       receiveLocationUpdate(message)
       if (followingUser !== session.id && followingUser === message.userId) {
         mapRef?.current?.animateToRegion(
-          calculateRegion(message.position.latitude, message.position.longitude),
+          calculateRegion(
+            message.position.latitude,
+            message.position.longitude
+          ),
           1500
         )
       }
@@ -158,7 +161,8 @@ export const Map = () => {
       ? membersToRender.map((u, i) => {
           const isTheAuthenticatedUser = u.id === session.id
           const username = isTheAuthenticatedUser ? 'Eu' : u.username
-          const isBeingFollowed = followingUser === u.id && followingUser !== session.id
+          const isBeingFollowed =
+            followingUser === u.id && followingUser !== session.id
 
           if (isBeingFollowed) {
             markersRefs.current[i]?.showCallout()
@@ -167,7 +171,7 @@ export const Map = () => {
           return (
             <Marker
               key={`marker_${u.id}_${u.position.lat}_${u.position.lng}`}
-              ref={el => markersRefs.current[i] = el}
+              ref={(el) => (markersRefs.current[i] = el)}
               identifier={`${u.id}`}
               title={username}
               description={`${dayjs(
@@ -199,12 +203,18 @@ export const Map = () => {
                   source={{
                     uri: u.profilePic,
                   }}
-                  w={isBeingFollowed ? "16" : "12"}
-                  h={isBeingFollowed ? "16" : "12"}
+                  w={isBeingFollowed ? '16' : '12'}
+                  h={isBeingFollowed ? '16' : '12'}
                   rounded="full"
-                  borderWidth={isTheAuthenticatedUser || isBeingFollowed ? 3 : undefined}
+                  borderWidth={
+                    isTheAuthenticatedUser || isBeingFollowed ? 3 : undefined
+                  }
                   borderColor={
-                    isTheAuthenticatedUser ? 'primary.600' : isBeingFollowed ? 'green.600' : undefined
+                    isTheAuthenticatedUser
+                      ? 'primary.600'
+                      : isBeingFollowed
+                      ? 'green.600'
+                      : undefined
                   }
                   alt={`icon for user ${u.id}`}
                 />
@@ -248,7 +258,7 @@ export const Map = () => {
         ))
 
   useEffect(() => {
-    markersRefs.current = markersRefs.current.slice(0, markers.length);
+    markersRefs.current = markersRefs.current.slice(0, markers.length)
   }, [markers])
 
   return (
