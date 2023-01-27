@@ -133,7 +133,7 @@ export const userGroupsReducer = (state, action) => {
       return {
         ...state,
         current,
-        groups: state.groups.map((g) => (g.id === current.id ? current : g)),
+        groups: state.groups.map((g) => (g.id === current?.id ? current : g)),
       }
     }
     case 'ON_REMOVED_FROM_GROUP':

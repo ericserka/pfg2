@@ -54,17 +54,23 @@ export const Map = () => {
   } = useUserLocation()
 
   const [followingUser, setFollowingUser] = useState(session.id)
+  const [membersToRender, setMembersToRender] = useState([])
+  const [markers, setMarkers] = useState([])
 
-  const membersToRender = current?.members ?? [
-    {
-      ...session,
-      position: {
-        lat: location.latitude,
-        lng: location.longitude,
-      },
-      lastKnownLocationUpdatedAt: location.updatedAt,
-    },
-  ]
+  useEffect(() => {
+    setMembersToRender(
+      current?.members ?? [
+        {
+          ...session,
+          position: {
+            lat: location.latitude,
+            lng: location.longitude,
+          },
+          lastKnownLocationUpdatedAt: location.updatedAt,
+        },
+      ]
+    )
+  }, [current, session, location])
 
   const [trackView, setTrackView] = useState({})
 
@@ -156,90 +162,104 @@ export const Map = () => {
 
   const markersRefs = useRef([])
 
-  const markers =
-    mode === 'group'
-      ? membersToRender.map((u, i) => {
-          const isTheAuthenticatedUser = u.id === session.id
-          const username = isTheAuthenticatedUser ? 'Eu' : u.username
-          const isBeingFollowed =
-            followingUser === u.id && followingUser !== session.id
+  useEffect(() => {
+    setMarkers(
+      mode === 'group'
+        ? membersToRender.map((u, i) => {
+            const isTheAuthenticatedUser = u.id === session.id
+            const username = isTheAuthenticatedUser ? 'Eu' : u.username
+            const isBeingFollowed =
+              followingUser === u.id && followingUser !== session.id
 
-          if (isBeingFollowed) {
-            markersRefs.current[i]?.showCallout()
-          }
+            if (isBeingFollowed) {
+              markersRefs.current[i]?.showCallout()
+            }
 
-          return (
+            return (
+              <Marker
+                key={`marker_${u.id}_${u.position.lat}_${u.position.lng}`}
+                ref={(el) => (markersRefs.current[i] = el)}
+                identifier={`${u.id}`}
+                title={username}
+                description={`${dayjs(
+                  u?.lastKnownLocationUpdatedAt ?? undefined
+                ).format('lll')}`}
+                coordinate={{
+                  latitude: u.position.lat,
+                  longitude: u.position.lng,
+                }}
+                tracksInfoWindowChanges={false}
+                tracksViewChanges={trackView[i]}
+                pointerEvents="auto"
+                onSelect={() => {
+                  if (u.id !== session.id) {
+                    mapRef?.current?.animateToRegion(
+                      calculateRegion(u.position.lat, u.position.lng),
+                      1500
+                    )
+                    setFollowingUser(u.id)
+                  }
+                }}
+                onDeselect={() => setFollowingUser(session.id)}
+              >
+                <Center>
+                  <Image
+                    onLoadEnd={() =>
+                      setTrackView((prevState) => ({
+                        ...prevState,
+                        [i]: false,
+                      }))
+                    }
+                    source={{
+                      uri: u.profilePic,
+                    }}
+                    w={isBeingFollowed ? '16' : '12'}
+                    h={isBeingFollowed ? '16' : '12'}
+                    rounded="full"
+                    borderWidth={
+                      isTheAuthenticatedUser || isBeingFollowed ? 3 : undefined
+                    }
+                    borderColor={
+                      isTheAuthenticatedUser
+                        ? 'primary.600'
+                        : isBeingFollowed
+                        ? 'green.600'
+                        : undefined
+                    }
+                    alt={`icon for user ${u.id}`}
+                  />
+                  <Text
+                    color={isTheAuthenticatedUser ? 'primary.600' : undefined}
+                    fontWeight="semibold"
+                  >
+                    {username}
+                  </Text>
+                </Center>
+              </Marker>
+            )
+          })
+        : emergencyMarkers.map((loc) => (
             <Marker
-              key={`marker_${u.id}_${u.position.lat}_${u.position.lng}`}
-              ref={(el) => (markersRefs.current[i] = el)}
-              identifier={`${u.id}`}
-              title={username}
-              description={`${dayjs(
-                u?.lastKnownLocationUpdatedAt ?? undefined
-              ).format('lll')}`}
+              key={`marker_${loc.id}_${loc.latitude}_${loc.longitude}`}
+              identifier={`${loc.id}`}
+              title={'Pedido de Ajuda'}
+              description={`${dayjs(loc?.createdAt).format('lll')}`}
               coordinate={{
-                latitude: u.position.lat,
-                longitude: u.position.lng,
+                latitude: loc.latitude,
+                longitude: loc.longitude,
               }}
-              tracksInfoWindowChanges={false}
-              tracksViewChanges={trackView[i]}
-              pointerEvents="auto"
-              onSelect={() => {
-                if (u.id !== session.id) {
-                  mapRef?.current?.animateToRegion(
-                    calculateRegion(u.position.lat, u.position.lng),
-                    1500
-                  )
-                  setFollowingUser(u.id)
-                }
-              }}
-              onDeselect={() => setFollowingUser(session.id)}
-            >
-              <Center>
-                <Image
-                  onLoadEnd={() =>
-                    setTrackView((prevState) => ({ ...prevState, [i]: false }))
-                  }
-                  source={{
-                    uri: u.profilePic,
-                  }}
-                  w={isBeingFollowed ? '16' : '12'}
-                  h={isBeingFollowed ? '16' : '12'}
-                  rounded="full"
-                  borderWidth={
-                    isTheAuthenticatedUser || isBeingFollowed ? 3 : undefined
-                  }
-                  borderColor={
-                    isTheAuthenticatedUser
-                      ? 'primary.600'
-                      : isBeingFollowed
-                      ? 'green.600'
-                      : undefined
-                  }
-                  alt={`icon for user ${u.id}`}
-                />
-                <Text
-                  color={isTheAuthenticatedUser ? 'primary.600' : undefined}
-                  fontWeight="semibold"
-                >
-                  {username}
-                </Text>
-              </Center>
-            </Marker>
-          )
-        })
-      : emergencyMarkers.map((loc) => (
-          <Marker
-            key={`marker_${loc.id}_${loc.latitude}_${loc.longitude}`}
-            identifier={`${loc.id}`}
-            title={'Pedido de Ajuda'}
-            description={`${dayjs(loc?.createdAt).format('lll')}`}
-            coordinate={{
-              latitude: loc.latitude,
-              longitude: loc.longitude,
-            }}
-          />
-        ))
+            />
+          ))
+    )
+  }, [
+    mode,
+    membersToRender,
+    session,
+    followingUser,
+    markersRefs,
+    trackView,
+    mapRef,
+  ])
 
   const shapes =
     mode === 'group'

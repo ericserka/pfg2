@@ -133,6 +133,9 @@ export const UserGroupProvider = ({ children }) => {
           actions()
           if (!state.groups.length) {
             updateSession({ defaultGroupId: response.data.group.id })
+            changeSelectedGroup(response.data.group.id, [
+              response.data.groupWithMembersAndMessages,
+            ])
           }
           dispatch({ type: 'CREATE_GROUP', payload: response.data })
         })
@@ -203,6 +206,9 @@ export const UserGroupProvider = ({ children }) => {
   const onGroupInviteAccepted = (payload) => {
     if (!state.groups.length) {
       updateSession({ defaultGroupId: payload.group.id })
+      changeSelectedGroup(payload.group.id, [
+        payload.groupWithMembersAndMessages,
+      ])
     }
     dispatch({
       type: 'ON_GROUP_INVITE_ACCEPTED',
