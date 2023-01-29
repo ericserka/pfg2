@@ -35,10 +35,6 @@ export const UserLocationProvider = ({ children }) => {
 
   useEffect(() => {
     getEmergencyMarkers()
-
-    return () => {
-      sendLastPosition()
-    }
   }, [])
 
   const sendLastPosition = async () => {
@@ -113,6 +109,7 @@ export const UserLocationProvider = ({ children }) => {
           getEmergencyMarkers,
           updateEmergencyMarkers,
           calculateRegion,
+          sendLastPosition,
         },
       }}
     >

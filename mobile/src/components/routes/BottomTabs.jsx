@@ -7,13 +7,15 @@ import {
   setNotificationHandler,
 } from 'expo-notifications'
 import { Text } from 'native-base'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
+import { AppState } from 'react-native'
 import { log } from '../../helpers/logger'
 import { usePushNotifications } from '../../hooks/usePushNotifications'
 import { Emergency } from '../../screens/Emergency'
 import { Notifications } from '../../screens/Notifications'
 import { useUserAuth } from '../../store/auth/provider'
 import { useUserGroup } from '../../store/groups/provider'
+import { useUserLocation } from '../../store/location/provider'
 import { useNotifications } from '../../store/notifications/provider'
 import { useWebSocket } from '../../store/websocket/provider'
 import { LoadedProviders } from '../loading/LoadedProviders'
@@ -45,6 +47,29 @@ export const BottomTabs = () => {
   } = useUserGroup()
   const { registerForPushNotificationsAsync, handlePushNotificationsResponse } =
     usePushNotifications()
+  const {
+    actions: { sendLastPosition },
+  } = useUserLocation()
+
+  const appState = useRef(AppState.currentState)
+  useEffect(() => {
+    const subscription = AppState.addEventListener(
+      'change',
+      async (nextAppState) => {
+        if (
+          appState.current === 'active' &&
+          nextAppState.match(/inactive|background/)
+        ) {
+          await sendLastPosition()
+        }
+        appState.current = nextAppState
+      }
+    )
+
+    return () => {
+      subscription.remove()
+    }
+  }, [])
 
   const { getCurrentRoute } = useNavigation()
 
