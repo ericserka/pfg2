@@ -7,9 +7,9 @@ import {
 import { createContext, useContext, useEffect, useReducer } from 'react'
 import { showAlertError } from '../../helpers/actions/showAlertError'
 import { toggleMutationLoading } from '../../helpers/actions/toggleMutationLoading'
-import { dayjs } from '../../helpers/dayjs'
 import { api } from '../../services/api/axios'
-import { useUsers } from '../user/provider'
+import { useUserAuth } from '../auth/provider'
+import { useWebSocket } from '../websocket/provider'
 import { userLocationReducer } from './reducer'
 
 const userLocationInitialState = {
@@ -30,19 +30,23 @@ export const UserLocationProvider = ({ children }) => {
   )
 
   const {
-    actions: { updateUser },
-  } = useUsers()
+    state: { session },
+  } = useUserAuth()
+
+  const {
+    actions: { emitEventLocationChanged },
+  } = useWebSocket()
 
   useEffect(() => {
     getEmergencyMarkers()
   }, [])
 
   const sendLastPosition = async () => {
-    const { latitude, longitude } = await getUserPosition()
-    await updateUser({
-      lastKnownLatitude: latitude,
-      lastKnownLongitude: longitude,
-      lastKnownLocationUpdatedAt: dayjs().toDate(),
+    const position = await getUserPosition()
+    emitEventLocationChanged({
+      userId: session.id,
+      position,
+      lastKnownPosition: true,
     })
   }
 
