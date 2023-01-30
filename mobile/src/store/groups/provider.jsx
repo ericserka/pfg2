@@ -92,7 +92,7 @@ export const UserGroupProvider = ({ children }) => {
       dispatch({
         type: 'GET_GROUPS',
         payload: {
-          groups: groups,
+          groups,
           groupsThatOwn,
           groupsThatLocationIsShared,
         },
